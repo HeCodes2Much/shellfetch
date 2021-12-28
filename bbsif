@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+
+# Path          - /usr/bin/ecofetch
+# Author        - The-Repo-Club [wayne6324@gmail.com]
+# Github        - https://github.com/The-Repo-Club/ecofetch
+# Start on      - Tue 28 Dec 21:26:12 GMT 2021
+# Modified on   - Tue 28 Dec 21:26:12 GMT 2021
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2021 Wayne Wesley
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+## Script metadata
+SCRIPTNAME=${0##*/}
+DESCRIPTION="Bash Based System Information Fetcher"
+AUTHOR="The-Repo-Club <wayne6324@gmail.com>"
+VERSION="2021.12.01"
+
+readonly SCRIPTNAME DESCRIPTION AUTHOR VERSION
+
+## Set Colors (copied from makepkg)
+b_blk="\e[1;90m"
+b_red="\e[1;91m"
+b_grn="\e[1;92m"
+b_yel="\e[1;93m"
+b_blu="\e[1;94m"
+b_mag="\e[1;95m"
+b_cyn="\e[1;96m"
+b_wht="\e[1;97m"
+blk="\e[1;30m"
+red="\e[1;31m"
+grn="\e[1;32m"
+yel="\e[1;33m"
+blu="\e[1;34m"
+mag="\e[1;35m"
+cyn="\e[1;36m"
+wht="\e[1;37m"
+bld="\e[1;1m"
+res="\e[1;0m"
+
+readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag cyn wht bld res
+
+#=== FUNCTION =================================================================
+#        Name: msg
+# Description: Print message with a green pretag if $quiet is not set.
+# Parameter 1: Message to print.
+#==============================================================================
+
+# copied from makepkg and modified
+msg () {
+
+    local mesg=$1; shift
+    printf "${grn}==>${res}${bld} %s${res}\n" "$mesg" "$@"
+    exit 0
+}
+
+#=== FUNCTION =================================================================
+#        Name: error
+# Description: Print message with a red pretag an ERROR
+# Parameter 1: Message to print
+#==============================================================================
+
+# copied from makepkg
+error() {
+    local mesg=$1; shift
+    printf "${red}==> ERROR:${res} %s${res}\n" "$mesg" "$@" >&2
+
+}
+
+#=== FUNCTION =================================================================
+#        Name: usage
+# Description: Prints the usage
+#==============================================================================
+
+usage() {
+    printf "
+    Run a command using the selected default program
+
+    Usage:
+      %s [options]...
+
+    Options:
+        -h, --help              Print the help message.
+        -v, --version           Print the version infomation.
+    \n" "${0##*/}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: version
+# Description: Prints version information.
+#==============================================================================
+
+version() {
+    printf "
+   ______      ______       _______    _____    _________
+  |_   _ \    |_   _ \     /  ___  |  |_   _|  |_   ___  |
+    | |_) |     | |_) |   |  (__ \_|    | |      | |_  \_|
+    |  __'.     |  __'.    '.___'-.     | |      |  _|
+   _| |__) |   _| |__) |  |'\____) |   _| |_    _| |_
+  |_______/   |_______/   |_______.'  |_____|  |_____|
+
+    %s - v%s
+
+    This program may be freely redistributed
+    under the terms of The MIT License.
+
+    %s
+    \n" "$DESCRIPTION" "$VERSION" "$AUTHOR"
+    exit
+}
+
+#=== FUNCTION =================================================================
+#        Name: main
+# Description: Prints systenm information.
+#==============================================================================
+
+main() {
+    printf "%s\n" "INFOHERE"
+
+}
+
+while true; do
+	case $1 in
+        -h|--help|-\?)
+            usage
+            exit 0 ;;
+		-v|--version)
+            version
+			exit 0 ;;
+		*)
+            main "$@"
+			exit 0 ;;
+	esac
+	shift
+done
+
+# vim: noai:ts=4:sw=4:expandtab
+# shellcheck source=/dev/null
+# shellcheck disable=2009
