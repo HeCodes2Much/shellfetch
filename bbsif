@@ -37,43 +37,142 @@ VERSION="2021.12.01"
 readonly SCRIPTNAME DESCRIPTION AUTHOR VERSION
 
 ## Set Colors (copied from makepkg)
-b_blk="\e[1;90m"
-b_red="\e[1;91m"
-b_grn="\e[1;92m"
-b_yel="\e[1;93m"
-b_blu="\e[1;94m"
-b_mag="\e[1;95m"
-b_cyn="\e[1;96m"
-b_wht="\e[1;97m"
-blk="\e[1;30m"
-red="\e[1;31m"
-grn="\e[1;32m"
-yel="\e[1;33m"
-blu="\e[1;34m"
-mag="\e[1;35m"
-cyn="\e[1;36m"
-wht="\e[1;37m"
+b_blk="\e[0;90m"
+b_red="\e[0;91m"
+b_grn="\e[0;92m"
+b_yel="\e[0;93m"
+b_blu="\e[0;94m"
+b_mag="\e[0;95m"
+b_cyn="\e[0;96m"
+b_wht="\e[0;97m"
+blk="\e[0;30m"
+red="\e[0;31m"
+grn="\e[0;32m"
+yel="\e[0;33m"
+blu="\e[0;34m"
+mag="\e[0;35m"
+cyn="\e[0;36m"
+wht="\e[0;37m"
 bld="\e[1;1m"
-res="\e[1;0m"
+res="\e[0;0m"
 
 readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag cyn wht bld res
 
+#=== DEFAULTS =================================================================
 # Speed up script by not using unicode.
 LC_ALL=C
 LANG=C
 
-# Bfetch default config.
-read -rd '' config <<'EOF'
-# Hide/Show Fully domain name.
-# Default:  'yes'
-# Values:   'yes', 'no'
-title_on="yes"
+# Display Type: ASCII or Text
+display_type="ASCII"
 
-# Hide/Show Separator.
-# Default:  'yes'
-# Values:   'yes', 'no'
-sep_on="yes"
-EOF
+# Plain logo
+display_logo="no"
+
+# Verbose Setting - Set to 1 for verbose output.
+verbosity=
+
+# Static variables
+display_index=0
+
+# User options
+gtk_2line="no"
+#==============================================================================
+
+#=== ARRAY ====================================================================
+#        Name: display
+# Description: Information to display
+#==============================================================================
+display=(
+    'title'
+    'sep'
+    'uptime'
+    'hwinfo'
+    'host'
+    'cpu'
+    'gpu'
+    'mem'
+    'res'
+    'disk'
+    'swinfo'
+    'distro'
+    'init'
+    'kernel'
+    'pkgs'
+    'shell'
+    'de'
+    'wm'
+    'wmTheme'
+    'gtkTheme'
+    'gtkIcons'
+    'gtkFonts'
+    'term'
+    'end'
+    'blank'
+    'blank'
+    'color1'
+    'color2'
+)
+
+#=== ARRAY ====================================================================
+#        Name: wmnames
+# Description: Window Managers We Support
+#==============================================================================
+
+wmnames=(
+    'fluxbox'
+    'openbox'
+    'blackbox'
+    'xfwm4'
+    'metacity'
+    'kwin'
+    'twin'
+    'icewm'
+    'pekwm'
+    'flwm'
+    'flwm_topside'
+    'fvwm'
+    'dwm'
+    'twm'
+    'repowm'
+    'worm'
+    'awesome'
+    'wmaker'
+    'stumpwm'
+    'musca'
+    'xmonad.*'
+    'i3'
+    'ratpoison'
+    'scrotwm'
+    'spectrwm'
+    'wmfs'
+    'wmii'
+    'beryl'
+    'subtle'
+    'e16'
+    'enlightenment'
+    'sawfish'
+    'emerald'
+    'monsterwm'
+    'dminiwm'
+    'compiz'
+    'Finder'
+    'herbstluftwm'
+    'howm'
+    'notion'
+    'bspwm'
+    'cinnamon'
+    '2bwm'
+    'echinus'
+    'swm'
+    'budgie-wm'
+    'dtwm'
+    '9wm'
+    'chromeos-wm'
+    'deepin-wm'
+    'sway'
+    'mwm'
+)
 
 #=== FUNCTION =================================================================
 #        Name: repeat
@@ -81,7 +180,7 @@ EOF
 # Parameter 1: Message to repeat
 #==============================================================================
 repeat(){
-	printf "$1"'%.s' {1..20}
+    printf "$1"'%.s' {1..20}
 }
 
 #=== FUNCTION =================================================================
@@ -94,7 +193,7 @@ repeat(){
 msg () {
 
     local mesg=$1; shift
-    printf "${grn}==>${res}${bld} %b${res}\n" "$mesg" "$@"
+    printf "${grn}${bld}==>${res}${wht} %b${res}\n" "$mesg" "$@"
     exit 0
 }
 
@@ -107,8 +206,22 @@ msg () {
 # copied from makepkg
 error() {
     local mesg=$1; shift
-    printf "${red}==> ERROR:${res} %b${res}\n" "$mesg" "$@" >&2
+    printf "${red}${bld}==> ERROR:${wht} %b${res}\n" "$mesg" "$@" >&2
 
+}
+
+#=== FUNCTION =================================================================
+#        Name: error
+# Description: Print message with a red pretag an ERROR
+# Parameter 1: Message to print
+#==============================================================================
+
+# copied from makepkg
+verbose() {
+    if [[ "$verbosity" -eq "1" ]]; then
+        local mesg=$1; shift
+        printf "${red}${bld}==> VERBOSE:${wht} %b${res}\n" "$mesg" "$@" >&2
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -121,11 +234,11 @@ usage() {
     Run a command using the selected default program
 
     Usage:
-      %b [options]...
+    %b [options]...
 
     Options:
-        -h, --help              Print the help message.
-        -v, --version           Print the version infomation.
+    -h, --help              Print the help message.
+    -v, --version           Print the version infomation.
     \n" "$SCRIPTNAME"
 }
 
@@ -160,23 +273,29 @@ version() {
 
 get_ascii() {
     printf -v ascii_art "%b\n" "\t\t\t\t
-${b_wht}╔══════════════════════╦══════════╗
-${b_wht}║                      ║ ${b_grn} ${b_wht} ${b_mag} ${b_wht} ${b_yel} ${b_wht} ║
-${b_wht}╠══════════════════════╝          ║
-${b_wht}║                                 ║
-${b_wht}║                                 ║
-${b_wht}║           ${b_red}█▀▀▀▀▀▀▀▀█${b_wht}            ║
-${b_wht}║           ${b_red}█        █${b_wht}            ║
-${b_wht}║           ${b_blk}█ ${b_red} █  █ ${b_blk} █${b_wht}            ║
-${b_wht}║           ${b_blk}█        █${b_wht}            ║
-${b_wht}║           ${b_blk}▀█▄▄▄▄▄▄█▀${b_wht}            ║
-${b_wht}║                                 ║
-${b_wht}║                                 ║
-${b_wht}║                                 ║
-${b_wht}║    ${b_red}sudo rm -rf /* _$     ${b_wht}     ║
-${b_wht}║                                 ║
-${b_wht}╚═════════════════════════════════╝
-\t\t\t\t"
+    ${b_wht}╔══════════════════════╦══════════╗${res}
+    ${b_wht}║                      ║ ${b_grn} ${b_wht} ${b_mag} ${b_wht} ${b_yel} ${b_wht} ║${res}
+    ${b_wht}╠══════════════════════╝          ║${res}
+    ${b_wht}║                                 ║${res}
+    ${b_wht}║                                 ║${res}
+    ${b_wht}║           ${b_red}█▀▀▀▀▀▀▀▀█${b_wht}            ║${res}
+    ${b_wht}║           ${b_red}█        █${b_wht}            ║${res}
+    ${b_wht}║           ${b_blk}█ ${b_red} █  █ ${b_blk} █${b_wht}            ║${res}\t
+    ${b_wht}║           ${b_blk}█        █${b_wht}            ║${res}
+    ${b_wht}║           ${b_blk}▀█▄▄▄▄▄▄█▀${b_wht}            ║${res}
+    ${b_wht}║                                 ║${res}
+    ${b_wht}║                                 ║${res}
+    ${b_wht}║                                 ║${res}
+    ${b_wht}║    ${b_red}sudo rm -rf /* _$     ${b_wht}     ║${res}
+    ${b_wht}║                                 ║${res}
+    ${b_wht}╚═════════════════════════════════╝${res}
+    \t\t\t\t
+    \t\t\t\t
+    \t\t\t\t
+    \t\t\t\t
+    \t\t\t\t
+    \t\t\t\t
+    \t\t\t\t"
 }
 
 #=== FUNCTION =================================================================
@@ -196,8 +315,7 @@ get_title() {
         { [ "$hour" -eq 12 ] || [ "$hour" -lt 5 ]; } && good="Good afternoon, "
     fi
 
-    title="${red}${bld}${good}${user}!${res}"
-    printf -v title "%b\n" "$title"
+    printf -v title "%b\n" "${b_red}${bld}${good}${user}!${res}"
 }
 
 #=== FUNCTION =================================================================
@@ -206,8 +324,7 @@ get_title() {
 #==============================================================================
 
 get_sep() {
-    sep="${wht}$(repeat "~")${res}"
-    printf -v sep "%b\n" "$sep"
+    printf -v sep "%b" "${b_wht}$(repeat "~")${res}"
 }
 
 #=== FUNCTION =================================================================
@@ -216,8 +333,522 @@ get_sep() {
 #==============================================================================
 
 get_hwinfo() {
-    hwinfo="${red}╔════════════════ ${grn}Hardware Information ${red}════════════════╗"
-    printf -v hwinfo "%b\n" "$hwinfo"
+    printf -v hwinfo "%b" "${b_red}╔════════════════ ${b_grn}Hardware Information ${b_red}════════════════╗${res}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_distro
+# Description: Prints distro info to main.
+#==============================================================================
+get_distro () {
+    local distro_detect=""
+    if [[ -z "${distro}" ]]; then
+        distro="Unknown"
+        # LSB Release or MCST Version Check
+        if [[ -e "/etc/mcst_version" ]]; then
+            distro="OS Elbrus"
+            distro_release="$(tail -n 1 /etc/mcst_version)"
+            if [[ -n ${distro_release} ]]; then
+                distro_more="$distro_release"
+            fi
+        elif type -p lsb_release >/dev/null 2>&1; then
+            distro_detect="$(lsb_release -si)"
+            distro_release="$(lsb_release -sr)"
+            distro_codename="$(lsb_release -sc)"
+            case "${distro_detect}" in
+                "archlinux"|"Arch Linux"|"arch"|"Arch"|"archarm")
+                    distro="Arch Linux"
+                    distro_release="n/a"
+                    if [ -f /etc/os-release ]; then
+                        os_release="/etc/os-release";
+                    elif [ -f /usr/lib/os-release ]; then
+                        os_release="/usr/lib/os-release";
+                    fi
+                    if [[ -n ${os_release} ]]; then
+                        if grep -q 'antergos' /etc/os-release; then
+                            distro="Antergos"
+                            distro_release="n/a"
+                        fi
+                        if grep -q -i 'logos' /etc/os-release; then
+                            distro="Logos"
+                            distro_release="n/a"
+                        fi
+                        if grep -q -i 'swagarch' /etc/os-release; then
+                            distro="SwagArch"
+                            distro_release="n/a"
+                        fi
+                        if grep -q -i 'obrevenge' /etc/os-release; then
+                            distro="OBRevenge"
+                            distro_release="n/a"
+                        fi
+                        if grep -q -i 'Alter' /etc/os-release; then
+                            distro="Alter Linux"
+                            distro_release="n/a"
+                        fi
+                    fi
+                    ;;
+                "ArcoLinux")
+                    distro="ArcoLinux"
+                    distro_release="n/a"
+                    ;;
+                "artixlinux"|"Artix Linux"|"artix"|"Artix"|"Artix release")
+                    distro="Artix"
+                    ;;
+                "elementary"|"elementary OS")
+                    distro="elementary OS"
+                    ;;
+                "Gentoo")
+                    if [[ "$(lsb_release -sd)" =~ "Funtoo" ]]; then
+                        distro="Funtoo"
+                    else
+                        distro="Gentoo"
+                    fi
+
+                    #detecting release stable/testing/experimental
+                    if [[ -f /etc/portage/make.conf ]]; then
+                        source /etc/portage/make.conf
+                    elif [[ -d /etc/portage/make.conf ]]; then
+                        source /etc/portage/make.conf/*
+                    fi
+
+                    case $ACCEPT_KEYWORDS in
+                        [a-z]*) distro_release=stable       ;;
+                        ~*)     distro_release=testing      ;;
+                        '**')   distro_release=experimental ;; #experimental usually includes git-versions.
+                    esac
+                    ;;
+                "ManjaroLinux")
+                    distro="Manjaro"
+                    ;;
+                "LinuxMint")
+                    distro="Mint"
+                    ;;
+                "openSUSE"|"openSUSE project"|"SUSE LINUX" | "SUSE")
+                    distro="openSUSE"
+                    if [ -f /etc/os-release ]; then
+                        if grep -q -i 'SUSE Linux Enterprise' /etc/os-release ; then
+                            distro="SUSE Linux Enterprise"
+                            distro_codename="n/a"
+                            distro_release=$(awk -F'=' '/^VERSION_ID=/ {print $2}' /etc/os-release | tr -d '"')
+                        fi
+                    fi
+                    if [[ "${distro_codename}" == "Tumbleweed" ]]; then
+                        distro_release="n/a"
+                    fi
+                    ;;
+                *)
+                    if [ "x$(printf "${distro_detect}" | od -t x1 | sed -e 's/^\w*\ *//' | tr '\n' ' ' | grep 'eb b6 89 ec 9d 80 eb b3 84 ')" != "x" ]; then
+                        distro="Red Star OS"
+                        distro_codename="n/a"
+                        distro_release=$(printf "${distro_release}" | grep -o '[0-9.]' | tr -d '\n')
+                    else
+                        distro="${distro_detect}"
+                    fi
+                    ;;
+            esac
+            if [[ -n ${distro_release} && ${distro_release} != "n/a" ]]; then
+                distro_more="$distro_release"
+            fi
+            if [[ -n ${distro_codename} && ${distro_codename} != "n/a" ]]; then
+                distro_more="$distro_more $distro_codename"
+            fi
+        fi
+    fi
+
+    case $distro in
+        arch|arch*linux) distro="Arch Linux" ;;
+        arcolinux|arcolinux*) distro="ArcoLinux" ;;
+        artix|artix*linux) distro="Artix Linux" ;;
+        endeavour*) distro="EndeavourOS" ;;
+        fedora) distro="Fedora" ;;
+        funtoo) distro="Funtoo" ;;
+        gentoo) distro="Gentoo" ;;
+        manjaro) distro="Manjaro" ;;
+        mint|linux*mint) distro="Mint" ;;
+        opensuse) distro="openSUSE" ;;
+        ubuntu) distro="Ubuntu";;
+        void*linux) distro="Void Linux" ;;
+    esac
+    printf -v distro "%b %b" "${b_mag}${bld}OS »" "${res}${b_wht}$distro${res}"
+    verbose "Finding distro...found as '${distro} ${distro_release}'"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_swinfo
+# Description: Prints hwinfo info to main.
+#==============================================================================
+
+get_swinfo() {
+    printf -v swinfo "%b" "${b_red}╠════════════════ ${b_grn}Software Information ${b_red}════════════════╣${res}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_wmtheme
+# Description: Prints wmtheme info to main.
+#==============================================================================
+
+get_wmtheme () {
+	Win_theme="Not Found"
+	case $WM in
+		'2bwm'|'9wm'|'Beryl'|'bspwm'|'dminiwm'|'dwm'|'echinus'|'FVWM'|'howm'|'i3'|'monsterwm'|'Musca'|\
+		'Notion'|'Ratpoison'|'ScrotWM'|'SpectrWM'|'swm'|'subtle'|'WindowMaker'|'WMFS'|'wmii'|'XMonad')
+			Win_theme="Not Applicable"
+		;;
+		'Awesome')
+			if [ -f "/usr/bin/awesome-client" ]; then
+				Win_theme="$(/usr/bin/awesome-client "return require('beautiful').theme_path" | grep -oP '[^/]*(?=/"$)')"
+			fi
+		;;
+		'BlackBox')
+			if [ -f "$HOME/.blackboxrc" ]; then
+				Win_theme="$(awk -F"/" '/styleFile/ {print $NF}' "$HOME/.blackboxrc")"
+			fi
+		;;
+		'BudgieWM')
+			Win_theme="$(gsettings get org.gnome.desktop.wm.preferences theme)"
+			Win_theme="${Win_theme//\'}"
+		;;
+		'Cinnamon'|'Muffin')
+			de_theme="$(gsettings get org.cinnamon.theme name)"
+			de_theme=${de_theme//"'"}
+			win_theme="$(gsettings get org.cinnamon.desktop.wm.preferences theme)"
+			win_theme=${win_theme//"'"}
+			Win_theme="${de_theme} (${win_theme})"
+		;;
+		'Compiz'|'Mutter'*|'GNOME Shell'|'Gala')
+			if type -p gsettings >/dev/null 2>&1; then
+				Win_theme="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null)"
+				if [[ -z "$Win_theme" ]]; then
+					Win_theme="$(gsettings get org.gnome.desktop.wm.preferences theme)"
+				fi
+				Win_theme=${Win_theme//"'"}
+			elif type -p gconftool-2 >/dev/null 2>&1; then
+				Win_theme=$(gconftool-2 -g /apps/metacity/general/theme)
+			fi
+		;;
+		'Deepin WM')
+			if type -p gsettings >/dev/null 2>&1; then
+				Win_theme="$(gsettings get com.deepin.wrap.gnome.desktop.wm.preferences theme)"
+				Win_theme=${Win_theme//"'"}
+			fi
+		;;
+		'FluxBox'|'Fluxbox')
+			if [ -f "$HOME/.fluxbox/init" ]; then
+				Win_theme="$(awk -F"/" '/styleFile/ {print $NF}' "$HOME/.fluxbox/init")"
+			fi
+		;;
+		'KWin'*)
+			if [[ -z $KDE_CONFIG_DIR ]]; then
+				if type -p kde5-config >/dev/null 2>&1; then
+					KDE_CONFIG_DIR=$(kde5-config --localprefix)
+				elif type -p kde4-config >/dev/null 2>&1; then
+					KDE_CONFIG_DIR=$(kde4-config --localprefix)
+				elif type -p kde-config >/dev/null 2>&1; then
+					KDE_CONFIG_DIR=$(kde-config --localprefix)
+				fi
+			fi
+			if [[ -n $KDE_CONFIG_DIR ]]; then
+				Win_theme="Not Applicable"
+				KDE_CONFIG_DIR=${KDE_CONFIG_DIR%/}
+				if [[ -f $KDE_CONFIG_DIR/share/config/kwinrc ]]; then
+					Win_theme="$(awk '/PluginLib=kwin3_/{gsub(/PluginLib=kwin3_/,"",$0); print $0; exit}' "$KDE_CONFIG_DIR/share/config/kwinrc")"
+					if [[ -z "$Win_theme" ]]; then
+						Win_theme="Not Applicable"
+					fi
+				fi
+				if [[ "$Win_theme" == "Not Applicable" ]]; then
+					if [[ -f $KDE_CONFIG_DIR/share/config/kdebugrc ]]; then
+						Win_theme="$(awk '/(decoration)/ {gsub(/\[/,"",$1); print $1; exit}' "$KDE_CONFIG_DIR/share/config/kdebugrc")"
+						if [[ -z "$Win_theme" ]]; then
+							Win_theme="Not Applicable"
+						fi
+					fi
+				fi
+				if [[ "$Win_theme" == "Not Applicable" ]]; then
+					if [[ -f $KDE_CONFIG_DIR/share/config/kdeglobals ]]; then
+						Win_theme="$(awk '/\[General\]/ {flag=1;next} /^$/{flag=0} flag {print}' "$KDE_CONFIG_DIR/share/config/kdeglobals" | grep -oP 'Name=\K.*')"
+						if [[ -z "$Win_theme" ]]; then
+							Win_theme="Not Applicable"
+						fi
+					fi
+				fi
+				if [[ "$Win_theme" != "Not Applicable" ]]; then
+					if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+						if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
+							Win_theme="${Win_theme^}"
+						else
+							Win_theme="$(tr '[:lower:]' '[:upper:]' <<< "${Win_theme:0:1}")${Win_theme:1}"
+						fi
+					else
+						Win_theme="$(tr '[:lower:]' '[:upper:]' <<< "${Win_theme:0:1}")${Win_theme:1}"
+					fi
+				fi
+			fi
+		;;
+		'OpenBox'|'Openbox')
+			if [ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/rc.xml" ]; then
+				Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/rc.xml")";
+			elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml && "${DE}" == "LXDE" ]]; then
+				Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml")";
+			elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxqt-rc.xml && "${DE}" =~ "LXQt" ]]; then
+				Win_theme="$(awk -F'=' '/^theme/ {print $2}' ${HOME}/.config/lxqt/lxqt.conf)"
+			fi
+		;;
+		'Xfwm4')
+			if [ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml" ]; then
+				Win_theme="$(xfconf-query -c xfwm4 -p /general/theme)"
+			fi
+		;;
+	esac
+
+	verbose "Finding window manager theme...found as '$Win_theme'"
+    if [ ! "$Win_theme" == "Not Found" ]; then
+        printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem »" "${res}${b_wht}$Win_theme${res}"
+    fi
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_gtk
+# Description: Prints gtk info to main.
+#==============================================================================
+
+get_gtk () {
+    gtk2Theme="Not Found"
+    gtk3Theme="Not Found"
+    gtkIcons="Not Found"
+    gtkFont="Not Found"
+    case $DE in
+        'KDE'*) # Desktop Environment found as "KDE"
+            if type - p kde4-config >/dev/null 2>&1; then
+                KDE_CONFIG_DIR=$(kde4-config --localprefix)
+                if [[ -d ${KDE_CONFIG_DIR} ]]; then
+                    if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
+                        KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+                    fi
+                fi
+            elif type -p kde5-config >/dev/null 2>&1; then
+                KDE_CONFIG_DIR=$(kde5-config --localprefix)
+                if [[ -d ${KDE_CONFIG_DIR} ]]; then
+                    if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
+                        KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+                    fi
+                fi
+            elif type -p kde-config >/dev/null 2>&1; then
+                KDE_CONFIG_DIR=$(kde-config --localprefix)
+                if [[ -d ${KDE_CONFIG_DIR} ]]; then
+                    if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
+                        KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+                    fi
+                fi
+            fi
+
+            if [[ -n ${KDE_CONFIG_FILE} ]]; then
+                if grep -q 'widgetStyle=' "${KDE_CONFIG_FILE}"; then
+                    gtk2Theme=$(awk -F"=" '/widgetStyle=/ {print $2}' "${KDE_CONFIG_FILE}")
+                elif grep -q 'colorScheme=' "${KDE_CONFIG_FILE}"; then
+                    gtk2Theme=$(awk -F"=" '/colorScheme=/ {print $2}' "${KDE_CONFIG_FILE}")
+                fi
+
+                if grep -q 'Theme=' "${KDE_CONFIG_FILE}"; then
+                    gtkIcons=$(awk -F"=" '/Theme=/ {print $2}' "${KDE_CONFIG_FILE}")
+                fi
+
+                if grep -q 'Font=' "${KDE_CONFIG_FILE}"; then
+                    gtkFont=$(awk -F"=" '/font=/ {print $2}' "${KDE_CONFIG_FILE}")
+                fi
+            fi
+
+            if [[ -f $HOME/.gtkrc-2.0 ]]; then
+                gtk2Theme=$(grep '^gtk-theme-name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
+                gtk2Theme=${gtk2Theme//\"/}
+                gtkIcons=$(grep '^gtk-icon-theme-name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
+                gtkIcons=${gtkIcons//\"/}
+                gtkFont=$(grep 'font_name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
+                gtkFont=${gtkFont//\"/}
+            fi
+
+            if [[ -f $HOME/.config/gtk-3.0/settings.ini ]]; then
+                gtk3Theme=$(grep '^gtk-theme-name=' "$HOME"/.config/gtk-3.0/settings.ini | awk -F'=' '{print $2}')
+            fi
+            ;;
+        'Cinnamon'*) # Desktop Environment found as "Cinnamon"
+            if type -p gsettings >/dev/null 2>&1; then
+                gtk3Theme=$(gsettings get org.cinnamon.desktop.interface gtk-theme)
+                gtk3Theme=${gtk3Theme//"'"}
+                gtk2Theme=${gtk3Theme}
+
+                gtkIcons=$(gsettings get org.cinnamon.desktop.interface icon-theme)
+                gtkIcons=${gtkIcons//"'"}
+                gtkFont=$(gsettings get org.cinnamon.desktop.interface font-name)
+                gtkFont=${gtkFont//"'"}
+            fi
+            ;;
+        'GNOME'*|'Unity'*|'Budgie') # Desktop Environment found as "GNOME"
+            if type -p gsettings >/dev/null 2>&1; then
+                gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+                gtk3Theme=${gtk3Theme//"'"}
+                gtk2Theme=${gtk3Theme}
+                gtkIcons=$(gsettings get org.gnome.desktop.interface icon-theme)
+                gtkIcons=${gtkIcons//"'"}
+                gtkFont=$(gsettings get org.gnome.desktop.interface font-name)
+                gtkFont=${gtkFont//"'"}
+            elif type -p gconftool-2 >/dev/null 2>&1; then
+                gtk2Theme=$(gconftool-2 -g /desktop/gnome/interface/gtk_theme)
+                gtkIcons=$(gconftool-2 -g /desktop/gnome/interface/icon_theme)
+                gtkFont=$(gconftool-2 -g /desktop/gnome/interface/font_name)
+            fi
+            ;;
+        'MATE'*) # MATE desktop environment
+            if type -p gsettings >/dev/null 2>&1; then
+                gtk3Theme=$(gsettings get org.mate.interface gtk-theme)
+                gtk3Theme=${gtk3Theme//"'"}
+                gtk2Theme=${gtk3Theme}
+                gtkIcons=$(gsettings get org.mate.interface icon-theme)
+                gtkIcons=${gtkIcons//"'"}
+                gtkFont=$(gsettings get org.mate.interface font-name)
+                gtkFont=${gtkFont//"'"}
+            fi
+            ;;
+        'Xfce'*) # Desktop Environment found as "Xfce"
+            if [ "$distro" == "BunsenLabs" ] ; then
+                gtk2Theme=$(awk -F'"' '/^gtk-theme/ {print $2}' "$HOME"/.gtkrc-2.0)
+                gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME"/.config/gtk-3.0/settings.ini)
+                gtkIcons=$(awk -F'"' '/^gtk-icon-theme/ {print $2}' "$HOME"/.gtkrc-2.0)
+                gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' "$HOME"/.gtkrc-2.0)
+            else
+                if type -p xfconf-query >/dev/null 2>&1; then
+                    gtk2Theme=$(xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)
+                    [ -z "$gtk2Theme" ] && gtk2Theme="Not Found"
+                fi
+
+                if type -p xfconf-query >/dev/null 2>&1; then
+                    gtkIcons=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null)
+                    [ -z "$gtkIcons" ] && gtkIcons="Not Found"
+                fi
+
+                if type -p xfconf-query >/dev/null 2>&1; then
+                    gtkFont=$(xfconf-query -c xsettings -p /Gtk/FontName 2>/dev/null)
+                    [ -z "$gtkFont" ] && gtkFont="Not Identified"
+                fi
+            fi
+            ;;
+        'LXDE'*)
+            config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
+            if [ -f "$config_home/lxde/config" ]; then
+                lxdeconf="/lxde/config"
+            elif [ "$distro" == "Trisquel" ] || [ "$distro" == "FreeBSD" ]; then
+                lxdeconf=""
+            elif [ -f "$config_home/lxsession/Lubuntu/desktop.conf" ]; then
+                lxdeconf="/lxsession/Lubuntu/desktop.conf"
+            else
+                lxdeconf="/lxsession/LXDE/desktop.conf"
+            fi
+
+            if grep -q 'sNet\/ThemeName' "${config_home}${lxdeconf}" 2>/dev/null; then
+                gtk2Theme=$(awk -F'=' '/sNet\/ThemeName/ {print $2}' "${config_home}${lxdeconf}")
+            fi
+
+            if grep -q 'IconThemeName' "${config_home}${lxdeconf}" 2>/dev/null; then
+                gtkIcons=$(awk -F'=' '/sNet\/IconThemeName/ {print $2}' "${config_home}${lxdeconf}")
+            fi
+
+            if grep -q 'FontName' "${config_home}${lxdeconf}" 2>/dev/null; then
+                gtkFont=$(awk -F'=' '/sGtk\/FontName/ {print $2}' "${config_home}${lxdeconf}")
+            fi
+            ;;
+
+        *)	# Lightweight or No DE Found
+            if [ -f "$HOME/.gtkrc-2.0" ]; then
+                if grep -q 'gtk-theme' "$HOME/.gtkrc-2.0"; then
+                    gtk2Theme=$(awk -F'"' '/^gtk-theme/ {print $2}' "$HOME/.gtkrc-2.0")
+                fi
+
+                if grep -q 'icon-theme' "$HOME/.gtkrc-2.0"; then
+                    gtkIcons=$(awk -F'"' '/^gtk-icon-theme/ {print $2}' "$HOME/.gtkrc-2.0")
+                fi
+
+                if grep -q 'font' "$HOME/.gtkrc-2.0"; then
+                    gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' "$HOME/.gtkrc-2.0")
+                fi
+            fi
+            # $HOME/.gtkrc.mine theme detect only
+            if [[ -f "$HOME/.gtkrc.mine" ]]; then
+                minegtkrc="$HOME/.gtkrc.mine"
+            elif [[ -f "$HOME/.gtkrc-2.0.mine" ]]; then
+                minegtkrc="$HOME/.gtkrc-2.0.mine"
+            fi
+            if [ -f "$minegtkrc" ]; then
+                if grep -q '^include' "$minegtkrc"; then
+                    gtk2Theme=$(grep '^include.*gtkrc' "$minegtkrc" | awk -F "/" '{ print $5 }')
+                fi
+                if grep -q '^gtk-icon-theme-name' "$minegtkrc"; then
+                    gtkIcons=$(grep '^gtk-icon-theme-name' "$minegtkrc" | awk -F '"' '{print $2}')
+                fi
+            fi
+            # /etc/gtk-2.0/gtkrc compatibility
+            if [[ -f /etc/gtk-2.0/gtkrc && ! -f "$HOME/.gtkrc-2.0" && ! -f "$HOME/.gtkrc.mine" && ! -f "$HOME/.gtkrc-2.0.mine" ]]; then
+                if grep -q 'gtk-theme-name' /etc/gtk-2.0/gtkrc; then
+                    gtk2Theme=$(awk -F'"' '/^gtk-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
+                fi
+                if grep -q 'gtk-fallback-theme-name' /etc/gtk-2.0/gtkrc  && ! [ "x$gtk2Theme" = "x" ]; then
+                    gtk2Theme=$(awk -F'"' '/^gtk-fallback-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
+                fi
+
+                if grep -q 'icon-theme' /etc/gtk-2.0/gtkrc; then
+                    gtkIcons=$(awk -F'"' '/^icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
+                fi
+                if  grep -q 'gtk-fallback-icon-theme' /etc/gtk-2.0/gtkrc  && ! [ "x$gtkIcons" = "x" ]; then
+                    gtkIcons=$(awk -F'"' '/^gtk-fallback-icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
+                fi
+
+                if grep -q 'font' /etc/gtk-2.0/gtkrc; then
+                    gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' /etc/gtk-2.0/gtkrc)
+                fi
+            fi
+            # EXPERIMENTAL gtk3 Theme detection
+            if [[ "$gtk3Theme" = "Not Found" && -f "$HOME/.config/gtk-3.0/settings.ini" ]]; then
+                if grep -q 'gtk-theme-name' "$HOME/.config/gtk-3.0/settings.ini"; then
+                    gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME/.config/gtk-3.0/settings.ini")
+                fi
+            fi
+
+             # Proper gtk3 Theme detection
+             if type -p gsettings >/dev/null 2>&1; then
+                 if [[ -z "$gtk3Theme"  || "$gtk3Theme" = "Not Found" ]]; then
+                     gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null)
+                     gtk3Theme=${gtk3Theme//"'"}
+                 fi
+             fi
+
+            # E17 detection
+            if [ "$E_ICON_THEME" ]; then
+                gtkIcons=${E_ICON_THEME}
+                gtk2Theme="Not available."
+                gtkFont="Not available."
+            fi
+            ;;
+    esac
+
+    if [ "$gtk2Theme" == "$gtk2Theme" ];then
+        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme »" "${res}${b_wht}$gtk2Theme (GTK2/3)${res}"
+    else
+        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme »" "${res}${b_wht}$gtk2Theme (GTK2) $gtk3Theme (GTK3)${res}"
+    fi
+    printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons »" "${res}${b_wht}$gtkIcons${res}"
+    printf -v gtkFonts "%b %b" "${b_mag}${bld}Font »" "${res}${b_wht}$gtkFont${res}"
+    verbose "Finding GTK2 theme...found as '$gtk2Theme'"
+    verbose "Finding GTK3 theme...found as '$gtk3Theme'"
+    verbose "Finding icon theme...found as '$gtkIcons'"
+    verbose "Finding user font...found as '$gtkFont'"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_end
+# Description: Prints hwinfo info to main.
+#==============================================================================
+
+get_end() {
+    printf -v end "%b" "${b_red}╚══════════════════════════════════════════════════════╝${res}"
 }
 
 #=== FUNCTION =================================================================
@@ -226,143 +857,42 @@ get_hwinfo() {
 #==============================================================================
 
 main() {
-    # Load default config.
-    eval "$config"
-
-    #get_user_config
-
     get_ascii
     get_title
     get_sep
     get_hwinfo
+    get_swinfo
+    get_distro
+    get_wmtheme
+    get_gtk
+    get_end
 
     count=0
     while IFS= read -r Line; do
-        if [ $count -eq 0 ]; then
-            if [ "$title_on" == "yes" ]; then
-                printf "%b\t%b" "$Line" "$title"
-            else
-                printf "%b\t%b" "$Line" "$count"
-            fi
-        fi
-        if [ $count -eq 1 ]; then
-            if [ "$sep_on" == "yes" ]; then
-                printf "%b\t%b" "$Line" "$sep"
-            else
-                printf "%b" "$Line"
-            fi
-        fi
-        if [ $count -eq 3 ]; then
-            printf "%b\t%b" "$Line" "$hwinfo"
-        fi
-        if [ $count -eq 4 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 5 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 6 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 7 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 8 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 9 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 10 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 11 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 12 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 13 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 14 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 15 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
-        fi
-        if [ $count -eq 16 ]; then
-            if [ "$_on" == "yes" ]; then
-                printf "%b\t%b\n" "$Line" "$sep"
-            else
-                printf "%b\n" "$Line"
-            fi
+        if [ ! -z "${!display[$count]}" ]; then
+            printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
+            # else
+            #     if [ ! -z "$Line" ]; then
+            #         printf "%b\t%b\n" "$Line"
+            #     fi
         fi
         count=$(( count + 1 ))
     done <<< "$ascii_art"
 }
 
 while true; do
-	case $1 in
+    case $1 in
         -h|--help|-\?)
             usage
             exit 0 ;;
-		-v|--version)
+        -v|--version)
             version
-			exit 0 ;;
-		*)
+            exit 0 ;;
+        *)
             main "$@"
-			exit 0 ;;
-	esac
-	shift
+            exit 0 ;;
+    esac
+    shift
 done
 
 # vim: noai:ts=4:sw=4:expandtab
