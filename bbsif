@@ -110,6 +110,7 @@ display=(
     'pinfo'
     'keyboard'
     'mouse'
+    'monitor'
     'audio'
     'swinfo'
     'distro'
@@ -690,6 +691,32 @@ get_mouse () {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_monitor
+# Description: Prints monitor info to main.
+#==============================================================================
+
+get_monitor () {
+    DataOut=
+	monitor="Unknown"
+    while IFS= read -r Line; do
+        if [[ $Line == *"Monitor"* ]]; then
+            monitor="${Line%,*}"
+        fi
+    done <<< $( hwinfo --short )
+
+    IFS=' ' read -a Arr <<< $monitor
+    for Val in "${Arr[@]}"; do
+	    LCase=${Val,,}
+	    [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    monitor="${DataOut:1}"
+    monitor=${monitor#"${monitor%%[![:space:]]*}"}
+
+	verbose "Finding current disk usage...found as '$monitor'"
+    printf -v monitor "%b %b" "${b_mag}${bld}Monitor » \t" "${del}${b_wht}$monitor${del}"
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_audio
 # Description: Prints audio info to main.
 #==============================================================================
@@ -712,7 +739,7 @@ get_audio () {
     audio="${DataOut:1}"
     audio=${audio#"${audio%%[![:space:]]*}"}
 
-	verbose "Finding current disk usage...found as '$mouse'"
+	verbose "Finding current disk usage...found as '$audio'"
     printf -v audio "%b %b" "${b_mag}${bld}Audio » \t" "${del}${b_wht}$audio${del}"
 }
 
@@ -1920,6 +1947,7 @@ main() {
     get_pinfo
     get_keyboard
     get_mouse
+    get_monitor
     get_audio
     get_swinfo
     get_distro
