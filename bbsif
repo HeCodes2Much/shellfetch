@@ -558,7 +558,7 @@ get_gpu () {
 		fi
 		GPU="${GPU}"
 	else
-		GPU="Not Found"
+		GPU="Not_Found"
 	fi
 
 	verbose "Finding current GPU...found as '$GPU'"
@@ -571,7 +571,7 @@ get_gpu () {
 #==============================================================================
 
 get_intel_gpu() {
-    GPU="Not Found"
+    GPU="Not_Found"
 	if [ -r /proc/fb ]; then
 		GPU=$(awk 'BEGIN {ORS = " &"} {$1="";print}' /proc/fb | sed  -r s/'^\s+|\s*&$'//g)
 	fi
@@ -584,7 +584,7 @@ get_intel_gpu() {
 			GPU="intel"
 			;;
 		*)
-			GPU="Not Found"
+			GPU="Not_Found"
 			;;
 	esac
 
@@ -620,13 +620,13 @@ get_intel_gpu() {
 				#7th Kabylake
 				#8th Cannonlake
 			*)
-				GPU='Not Applicable'
+				GPU='Not_Applicable'
 				;; #Unknown GPU model
 		esac
 	fi
     verbose "Finding intel GPU ...found as '$gpu'"
-    if [ ! "$gpu" == "Not Found" ] && [ ! "$gpu" == "Not Applicable" ]; then
-        printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t\t" "${del}${b_wht}$GPU${del}"
+    if [ ! "$gpu" == "Not_Found" ] && [ ! "$gpu" == "Not_Applicable" ]; then
+        printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
     fi
 }
 
@@ -1019,7 +1019,7 @@ get_term () {
 #==============================================================================
 
 get_de () {
-	DE="Not Found"
+	DE="Not_Found"
 	if [[ "${distro}" == "Mac OS X" || "${distro}" == "macOS" ]]; then
 		if ps -U "${USER}" | grep -q -i 'finder'; then
 			DE="Aqua"
@@ -1038,7 +1038,7 @@ get_de () {
 			xprop_root="$(xprop -root 2>/dev/null)"
 			if [[ -n ${xprop_root} ]]; then
 				DE=$(echo "${xprop_root}" | awk 'BEGIN {
-					de = "Not Applicable"
+					de = "Not_Applicable"
 				}
 				{
 					if ($1 ~ /^_DT_SAVE_MODE/) {
@@ -1073,7 +1073,7 @@ get_de () {
 			fi
 		fi
 
-		if [[ ${DE} == "Not Applicable" ]]; then
+		if [[ ${DE} == "Not_Applicable" ]]; then
 			# Let's use xdg-open code for GNOME/Enlightment/KDE/LXDE/MATE/Xfce detection
 			# http://bazaar.launchpad.net/~vcs-imports/xdg-utils/master/view/head:/scripts/xdg-utils-common.in#L251
 			if [ -n "${XDG_CURRENT_DESKTOP}" ]; then
@@ -1133,7 +1133,7 @@ get_de () {
 				fi
 			fi
 
-			if [[ -z "$DE" || "$DE" = "Not Applicable" ]]; then
+			if [[ -z "$DE" || "$DE" = "Not_Applicable" ]]; then
 				# fallback to checking $DESKTOP_SESSION
 				local _DESKTOP_SESSION=
 				if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
@@ -1214,7 +1214,7 @@ get_de () {
 			fi
 		fi
 
-		if [[ ${DE} != "Not Applicable" ]]; then
+		if [[ ${DE} != "Not_Applicable" ]]; then
 			if [[ ${DE} == "Cinnamon" ]]; then
 				if type -p >/dev/null 2>&1; then
 					DEver=$(cinnamon --version)
@@ -1290,7 +1290,7 @@ get_de () {
 			fi
 		fi
 
-		if [[ "${DE}" == "Not Applicable" ]]; then
+		if [[ "${DE}" == "Not_Applicable" ]]; then
 			if pgrep -U ${UID} lxsession >/dev/null 2>&1; then
 				DE="LXDE"
 				if type -p lxpanel >/dev/null 2>&1; then
@@ -1307,7 +1307,7 @@ get_de () {
 		fi
 	fi
 	verbose "Finding desktop environment...found as '$DE'"
-    if [ ! "$DE" == "Not Found" ] && [ ! "$DE" == "Not Applicable" ]; then
+    if [ ! "$DE" == "Not_Found" ] && [ ! "$DE" == "Not_Applicable" ]; then
         printf -v de "%b %b" "${b_mag}${bld}DE » \t\t" "${del}${b_wht}$DE${del}"
     fi
 }
@@ -1318,7 +1318,7 @@ get_de () {
 #==============================================================================
 
 get_wm () {
-	WM="Not Found"
+	WM="Not_Found"
 	if [[ ${distro} == "Mac OS X" || ${distro} == "macOS" ]]; then
 		if ps -U "${USER}" | grep -q -i 'finder'; then
 			WM="Quartz Compositor"
@@ -1391,22 +1391,22 @@ get_wm () {
 					'xmonad.*') WM="XMonad";;
 				esac
 			fi
-			if [[ ${WM} != "Not Applicable" ]]; then
+			if [[ ${WM} != "Not_Applicable" ]]; then
 				break 1
 			fi
 		done
 
-		if [[ ${WM} == "Not Found" ]]; then
+		if [[ ${WM} == "Not_Found" ]]; then
 			if type -p xprop >/dev/null 2>&1; then
 				WM=$(xprop -root _NET_SUPPORTING_WM_CHECK)
-				if [[ "$WM" =~ 'not found' ]]; then
-					WM="Not Applicable"
-				elif [[ "$WM" =~ 'Not found' ]]; then
-					WM="Not Applicable"
+				if [[ "$WM" =~ 'Not_Found' ]]; then
+					WM="Not_Applicable"
+				elif [[ "$WM" =~ 'Not_Found' ]]; then
+					WM="Not_Applicable"
 				elif [[ "$WM" =~ '[Ii]nvalid window id format' ]]; then
-					WM="Not Applicable"
+					WM="Not_Applicable"
 				elif [[ "$WM" =~ "no such" ]]; then
-					WM="Not Applicable"
+					WM="Not_Applicable"
 				else
 					WM=${WM//* }
 					WM=$(xprop -id "${WM}" 8s _NET_WM_NAME)
@@ -1477,7 +1477,7 @@ get_wm () {
 		esac
 	fi
 	verbose "Finding window manager...found as '$WM'"
-    if [ ! "$WM" == "Not Found" ] && [ ! "$WM" == "Not Applicable" ]; then
+    if [ ! "$WM" == "Not_Found" ] && [ ! "$WM" == "Not_Applicable" ]; then
         printf -v wm "%b %b" "${b_mag}${bld}WM » \t\t" "${del}${b_wht}$WM${del}"
     fi
 }
@@ -1488,11 +1488,11 @@ get_wm () {
 #==============================================================================
 
 get_wmtheme () {
-	Win_theme="Not Found"
+	Win_theme="Not_Found"
 	case $WM in
 		'2bwm'|'9wm'|'Beryl'|'bspwm'|'dminiwm'|'dwm'|'echinus'|'FVWM'|'howm'|'i3'|'monsterwm'|'Musca'|\
 		'Notion'|'Ratpoison'|'ScrotWM'|'SpectrWM'|'swm'|'subtle'|'WindowMaker'|'WMFS'|'wmii'|'XMonad')
-			Win_theme="Not Applicable"
+			Win_theme="Not_Applicable"
 		;;
 		'Awesome')
 			if [ -f "/usr/bin/awesome-client" ]; then
@@ -1548,31 +1548,31 @@ get_wmtheme () {
 				fi
 			fi
 			if [[ -n $KDE_CONFIG_DIR ]]; then
-				Win_theme="Not Applicable"
+				Win_theme="Not_Applicable"
 				KDE_CONFIG_DIR=${KDE_CONFIG_DIR%/}
 				if [[ -f $KDE_CONFIG_DIR/share/config/kwinrc ]]; then
 					Win_theme="$(awk '/PluginLib=kwin3_/{gsub(/PluginLib=kwin3_/,"",$0); print $0; exit}' "$KDE_CONFIG_DIR/share/config/kwinrc")"
 					if [[ -z "$Win_theme" ]]; then
-						Win_theme="Not Applicable"
+						Win_theme="Not_Applicable"
 					fi
 				fi
-				if [[ "$Win_theme" == "Not Applicable" ]]; then
+				if [[ "$Win_theme" == "Not_Applicable" ]]; then
 					if [[ -f $KDE_CONFIG_DIR/share/config/kdebugrc ]]; then
 						Win_theme="$(awk '/(decoration)/ {gsub(/\[/,"",$1); print $1; exit}' "$KDE_CONFIG_DIR/share/config/kdebugrc")"
 						if [[ -z "$Win_theme" ]]; then
-							Win_theme="Not Applicable"
+							Win_theme="Not_Applicable"
 						fi
 					fi
 				fi
-				if [[ "$Win_theme" == "Not Applicable" ]]; then
+				if [[ "$Win_theme" == "Not_Applicable" ]]; then
 					if [[ -f $KDE_CONFIG_DIR/share/config/kdeglobals ]]; then
 						Win_theme="$(awk '/\[General\]/ {flag=1;next} /^$/{flag=0} flag {print}' "$KDE_CONFIG_DIR/share/config/kdeglobals" | grep -oP 'Name=\K.*')"
 						if [[ -z "$Win_theme" ]]; then
-							Win_theme="Not Applicable"
+							Win_theme="Not_Applicable"
 						fi
 					fi
 				fi
-				if [[ "$Win_theme" != "Not Applicable" ]]; then
+				if [[ "$Win_theme" != "Not_Applicable" ]]; then
 					if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
 						if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
 							Win_theme="${Win_theme^}"
@@ -1602,7 +1602,7 @@ get_wmtheme () {
     esac
 
 	verbose "Finding window manager theme...found as '$Win_theme'"
-    if [ ! "$Win_theme" == "Not Found" ] && [ ! "$Win_theme" == "Not Applicable" ]; then
+    if [ ! "$Win_theme" == "Not_Found" ] && [ ! "$Win_theme" == "Not_Applicable" ]; then
         printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem » \t" "${del}${b_wht}$Win_theme${del}"
     fi
 }
@@ -1613,10 +1613,10 @@ get_wmtheme () {
 #==============================================================================
 
 get_gtk () {
-    gtk2Theme="Not Found"
-    gtk3Theme="Not Found"
-    gtkIcons="Not Found"
-    gtkFont="Not Found"
+    gtk2Theme="Not_Found"
+    gtk3Theme="Not_Found"
+    gtkIcons="Not_Found"
+    gtkFont="Not_Found"
     case $DE in
         'KDE'*) # Desktop Environment found as "KDE"
             if type - p kde4-config >/dev/null 2>&1; then
@@ -1718,12 +1718,12 @@ get_gtk () {
             else
                 if type -p xfconf-query >/dev/null 2>&1; then
                     gtk2Theme=$(xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)
-                    [ -z "$gtk2Theme" ] && gtk2Theme="Not Found"
+                    [ -z "$gtk2Theme" ] && gtk2Theme="Not_Found"
                 fi
 
                 if type -p xfconf-query >/dev/null 2>&1; then
                     gtkIcons=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null)
-                    [ -z "$gtkIcons" ] && gtkIcons="Not Found"
+                    [ -z "$gtkIcons" ] && gtkIcons="Not_Found"
                 fi
 
                 if type -p xfconf-query >/dev/null 2>&1; then
@@ -1806,7 +1806,7 @@ get_gtk () {
                 fi
             fi
             # EXPERIMENTAL gtk3 Theme detection
-            if [[ "$gtk3Theme" = "Not Found" && -f "$HOME/.config/gtk-3.0/settings.ini" ]]; then
+            if [[ "$gtk3Theme" = "Not_Found" && -f "$HOME/.config/gtk-3.0/settings.ini" ]]; then
                 if grep -q 'gtk-theme-name' "$HOME/.config/gtk-3.0/settings.ini"; then
                     gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME/.config/gtk-3.0/settings.ini")
                 fi
@@ -1814,7 +1814,7 @@ get_gtk () {
 
              # Proper gtk3 Theme detection
              if type -p gsettings >/dev/null 2>&1; then
-                 if [[ -z "$gtk3Theme"  || "$gtk3Theme" = "Not Found" ]]; then
+                 if [[ -z "$gtk3Theme"  || "$gtk3Theme" = "Not_Found" ]]; then
                      gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null)
                      gtk3Theme=${gtk3Theme//"'"}
                  fi
@@ -1886,7 +1886,7 @@ main() {
     get_host
     get_cpu
     get_gpu
-    if [ "$(clean $gpu)" = 'Not Found' ] ; then
+    if [ "$(clean ${gpu##* })" = 'Not_Found' ] ; then
 	    get_intel_gpu
     fi
     get_memory
