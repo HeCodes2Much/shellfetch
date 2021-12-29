@@ -165,8 +165,7 @@ msg () {
 clean () {
 
     local mesg=$1;
-    mesg=${mesg//\x1b\[[0-9;]*[a-zA-Z]/}
-    mesg=${mesg#"${mesg%%[![:space:]]*}"}
+    mesg=$(echo $mesg | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g')
     printf "%b\n" "$mesg"
 }
 
