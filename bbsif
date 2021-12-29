@@ -110,6 +110,7 @@ display=(
     'pinfo'
     'keyboard'
     'mouse'
+    'audio'
     'swinfo'
     'distro'
     'init'
@@ -689,6 +690,33 @@ get_mouse () {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_audio
+# Description: Prints audio info to main.
+#==============================================================================
+
+get_audio () {
+    DataOut=
+	audio="Unknown"
+    while IFS= read -r Line; do
+        if [[ $Line == *"Server Name"* ]]; then
+            IFS=':' read Type Server <<< "$Line";
+            audio="${Server%,*}"
+        fi
+    done <<< $( pactl info )
+
+    IFS=' ' read -a Arr <<< $audio
+    for Val in "${Arr[@]}"; do
+	    LCase=${Val,,}
+	    [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    audio="${DataOut:1}"
+    audio=${audio#"${audio%%[![:space:]]*}"}
+
+	verbose "Finding current disk usage...found as '$mouse'"
+    printf -v audio "%b %b" "${b_mag}${bld}Audio » \t" "${del}${b_wht}$audio${del}"
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_swinfo
 # Description: Prints hwinfo info to main.
 #==============================================================================
@@ -968,22 +996,43 @@ get_shell () {
 #==============================================================================
 get_term () {
     if [[ -z "$term" ]]; then
-        parent="$(get_ppid "$parent")"
-        [[ -z "$parent" ]] && break
-        name="$(get_process_name "$parent")"
-        case ${name// } in
-            "${SHELL/*\/}"|*"sh"|"screen"|"su"*|"newgrp") ;;
+        # Check $PPID for terminal emulator.
+        while [[ -z "$term" ]]; do
+            parent="$(get_ppid "$parent")"
+            [[ -z "$parent" ]] && break
+            name="$(get_process_name "$parent")"
 
-            "login"*|*"Login"*|"init"|"(init)")
-                term="$(tty)"
-            ;;
+            case ${name// } in
+                "${SHELL/*\/}"|*"sh"|"screen"|"su"*|"newgrp") ;;
 
-            *)
-                [[ $os == Linux ]] && term=$(realpath "/proc/$parent/exe")
+                "login"*|*"Login"*|"init"|"(init)")
+                    term="$(tty)"
+                ;;
 
-                term="${name##*/}"
-            ;;
-        esac
+                "ruby"|"1"|"tmux"*|"systemd"|"sshd"*|"python"*|\
+                "USER"*"PID"*|"kdeinit"*|"launchd"*|"bwrap")
+                    break
+                ;;
+
+                "gnome-terminal-") term="gnome-terminal" ;;
+                "urxvtd")          term="urxvt" ;;
+                *"nvim")           term="Neovim Terminal" ;;
+                *"NeoVimServer"*)  term="VimR Terminal" ;;
+
+                *)
+                    # Fix issues with long process names on Linux.
+                    [[ $os == Linux ]] && term=$(realpath "/proc/$parent/exe")
+
+                    term="${name##*/}"
+
+                    # Fix wrapper names in Nix.
+                    [[ $term == .*-wrapped ]] && {
+                        term="${term#.}"
+                        term="${term%-wrapped}"
+                    }
+                ;;
+            esac
+        done
     fi
     verbose "Finding current terminal...found as '$term'"
     printf -v term "%b %b" "${b_mag}${bld}Terminal » \t" "${del}${b_wht}$term${del}"
@@ -1871,6 +1920,7 @@ main() {
     get_pinfo
     get_keyboard
     get_mouse
+    get_audio
     get_swinfo
     get_distro
     get_init
