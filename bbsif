@@ -58,6 +58,15 @@ del="\e[0;0m"
 
 readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag cyn wht bld del
 
+#=== STRINMG ==================================================================
+#        Name: space
+# Description: Give space to main function
+#==============================================================================
+
+spaces="\t\t\t\t\n\t\t\t\t\n\t\t\t\t"
+
+readonly spaces
+
 #=== DEFAULTS =================================================================
 # Speed up script by not using unicode.
 LC_ALL=C
@@ -100,13 +109,13 @@ display=(
     'kernel'
     'pkgs'
     'shell'
+    'term'
     'de'
     'wm'
     'wmTheme'
     'gtkTheme'
     'gtkIcons'
     'gtkFonts'
-    'term'
     'end'
     'blank'
     'blank'
@@ -119,7 +128,7 @@ display=(
 # Description: Repeat given char 80 times using shell function
 # Parameter 1: Message to repeat
 #==============================================================================
-repeat(){
+repeat() {
     printf "$1"'%.s' {1..20}
 }
 
@@ -135,6 +144,18 @@ msg () {
     local mesg=$1; shift
     printf "${grn}${bld}==>${del}${wht} %b${del}\n" "$mesg" "$@"
     exit 0
+}
+
+#=== FUNCTION =================================================================
+#        Name: clean
+# Description: Print message with a cleaned up text.
+# Parameter 1: Message to print.
+#==============================================================================
+
+clean () {
+
+    local mesg=$(echo $1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'); shift
+    printf "%b\n" "$mesg" "$@"
 }
 
 #=== FUNCTION =================================================================
@@ -207,6 +228,29 @@ version() {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_ppid
+# Description: Prints ppid to function.
+#==============================================================================
+
+get_ppid () {
+    # Get parent process ID of PID.
+    ppid="$(grep -i -F "PPid:" "/proc/${1:-$PPID}/status")"
+    ppid="$(clean "${ppid/PPid:}")"
+    printf "%s" "$ppid"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_process_name
+# Description: Prints process_name to function.
+#==============================================================================
+
+get_process_name() {
+    # Get PID name.
+    name="$(< "/proc/${1:-$PPID}/comm")"
+    printf "%s" "$name"
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_ascii
 # Description: Prints ascii_art to main.
 #==============================================================================
@@ -229,13 +273,10 @@ get_ascii() {
     ${b_wht}║    ${b_red}sudo rm -rf /* _$     ${b_wht}     ║${del}
     ${b_wht}║                                 ║${del}
     ${b_wht}╚═════════════════════════════════╝${del}
-    \t\t\t\t
-    \t\t\t\t
-    \t\t\t\t
-    \t\t\t\t
-    \t\t\t\t
-    \t\t\t\t
-    \t\t\t\t"
+    ${spaces}
+    ${spaces}
+    ${spaces}
+    ${spaces}"
 }
 
 #=== FUNCTION =================================================================
@@ -268,12 +309,325 @@ get_sep() {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_uptime
+# Description: Prints uptime info to main.
+#==============================================================================
+
+get_uptime () {
+	unset uptime
+	if [[ -r /proc/uptime ]]; then
+        s=$(< /proc/uptime)
+        s=${s/.*}
+    else
+        boot=$(date -d"$(uptime -s)" +%s)
+        now=$(date +%s)
+        s=$((now - boot))
+    fi
+
+	d="$((s / 60 / 60 / 24)) days"
+    h="$((s / 60 / 60 % 24)) hours"
+    m="$((s / 60 % 60)) minutes"
+    # Remove plural if < 2.
+    ((${d/ *} == 1)) && d=${d/s}
+    ((${h/ *} == 1)) && h=${h/s}
+    ((${m/ *} == 1)) && m=${m/s}
+
+    # Hide empty fields.
+    ((${d/ *} == 0)) && unset d
+    ((${h/ *} == 0)) && unset h
+    ((${m/ *} == 0)) && unset m
+
+    uptime=${d:+$d, }${h:+$h, }$m
+    uptime=${uptime%', '}
+    uptime=${uptime:-$s seconds}
+
+	verbose "Finding current uptime...found as '${uptime}'"
+    printf -v uptime "%b %b" "${b_mag}${bld}Uptime » \t" "${del}${b_wht}$uptime${del}"
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_hwinfo
 # Description: Prints hwinfo info to main.
 #==============================================================================
 
 get_hwinfo() {
     printf -v hwinfo "%b" "${b_red}╔════════════════ ${b_grn}Hardware Information ${b_red}════════════════╗${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_host
+# Description: Prints host info to main.
+#==============================================================================
+
+get_host() {
+    if [[ -d /system/app/ && -d /system/priv-app ]]; then
+        host="$(getprop ro.product.brand) $(getprop ro.product.model)"
+
+    elif [[ -f /sys/devices/virtual/dmi/id/product_name ||
+        -f /sys/devices/virtual/dmi/id/product_version ]]; then
+        host=$(< /sys/devices/virtual/dmi/id/product_name)
+        host+=" $(< /sys/devices/virtual/dmi/id/product_version)"
+
+    elif [[ -f /sys/devices/virtual/dmi/id/board_vendor ||
+        -f /sys/devices/virtual/dmi/id/board_name ]]; then
+        host=$(< /sys/devices/virtual/dmi/id/board_vendor)
+        host+=" $(< /sys/devices/virtual/dmi/id/board_name)"
+
+    elif [[ -f /sys/firmware/devicetree/base/model ]]; then
+        host=$(< /sys/firmware/devicetree/base/model)
+
+    elif [[ -f /tmp/sysinfo/model ]]; then
+        host=$(< /tmp/sysinfo/model)
+    fi
+
+    case $host in
+        "Standard PC"*) host="KVM/QEMU (${model})" ;;
+        OpenBSD*)       host="vmm ($model)" ;;
+    esac
+
+	verbose "Finding hostname and user...found as '${host}'"
+    printf -v host "%b %b" "${b_mag}${bld}Host » \t" "${del}${b_wht}$host${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_cpu
+# Description: Prints CPU info to main.
+#==============================================================================
+
+get_cpu () {
+	local REGEXP="-r"
+	if [[ "$distro" == "Mac OS X" || "$distro" == "macOS" ]]; then
+		CPU=$(machine)
+		if [[ $cpu == "ppc750" ]]; then
+			CPU="IBM PowerPC G3"
+		elif [[ $cpu == "ppc7400" || $cpu == "ppc7450" ]]; then
+			CPU="IBM PowerPC G4"
+		elif [[ $cpu == "ppc970" ]]; then
+			CPU="IBM PowerPC G5"
+		else
+			CPU=$(sysctl -n machdep.cpu.brand_string)
+		fi
+		REGEXP="-E"
+	elif [ "$OSTYPE" == "gnu" ]; then
+		# no /proc/cpuinfo on GNU/Hurd
+		if uname -m | grep -q 'i.86'; then
+			CPU="Unknown x86"
+		else
+			CPU="Unknown"
+		fi
+	elif [ "$distro" == "FreeBSD" ]; then
+		CPU=$(dmesg | awk -F': ' '/^CPU/ {gsub(/ +/," "); gsub(/\([^\(\)]*\)|CPU /,"", $2); print $2; exit}')
+	elif [ "$distro" == "DragonFlyBSD" ]; then
+		CPU=$(sysctl -n hw.model)
+	elif [ "$distro" == "OpenBSD" ]; then
+		CPU=$(sysctl -n hw.model | sed 's/@.*//')
+	elif [ "$distro" == "Haiku" ]; then
+		CPU=$(sysinfo -cpu | awk -F': ' '/^CPU #0/ {gsub(/ +/," "); gsub(/\([^\(\)]*\)|CPU /,"", $2); print $2; exit}')
+	else
+		CPU=$(awk -F':' '/^model name/ {split($2, A, " @"); print A[1]; exit}' /proc/cpuinfo)
+		cpun=$(grep -c '^processor' /proc/cpuinfo)
+		if [ -z "$CPU" ]; then
+			CPU=$(awk 'BEGIN{FS=":"} /Hardware/ { print $2; exit }' /proc/cpuinfo)
+		fi
+		if [ -z "$CPU" ]; then
+			CPU=$(awk 'BEGIN{FS=":"} /^cpu/ { gsub(/  +/," ",$2); print $2; exit}' /proc/cpuinfo | sed 's/, altivec supported//;s/^ //')
+			if [[ $CPU =~ ^(PPC)*9.+ ]]; then
+				model="IBM PowerPC G5 "
+			elif [[ $CPU =~ 740/750 ]]; then
+				model="IBM PowerPC G3 "
+			elif [[ $CPU =~ ^74.+ ]]; then
+				model="Motorola PowerPC G4 "
+			elif [[ $CPU =~ ^POWER.* ]]; then
+				model="IBM POWER "
+			elif grep -q -i 'BCM2708' /proc/cpuinfo ; then
+				model="Broadcom BCM2835 ARM1176JZF-S"
+			else
+				arch=$(uname -m)
+				if [[ "$arch" == "s390x" || "$arch" == "s390" ]]; then
+					CPU=""
+					args=$(grep 'machine' /proc/cpuinfo | sed 's/^.*://g; s/ //g; s/,/\n/g' | grep '^machine=.*')
+					eval "$args"
+					case "$machine" in
+						# information taken from https://github.com/SUSE/s390-tools/blob/master/cputype
+						2064) model="IBM eServer zSeries 900" ;;
+						2066) model="IBM eServer zSeries 800" ;;
+						2084) model="IBM eServer zSeries 990" ;;
+						2086) model="IBM eServer zSeries 890" ;;
+						2094) model="IBM System z9 Enterprise Class" ;;
+						2096) model="IBM System z9 Business Class" ;;
+						2097) model="IBM System z10 Enterprise Class" ;;
+						2098) model="IBM System z10 Business Class" ;;
+						2817) model="IBM zEnterprise 196" ;;
+						2818) model="IBM zEnterprise 114" ;;
+						2827) model="IBM zEnterprise EC12" ;;
+						2828) model="IBM zEnterprise BC12" ;;
+						2964) model="IBM z13" ;;
+						   *) model="IBM S/390 machine type $machine" ;;
+					esac
+				elif [[ "$arch" == "aarch64" ]]; then
+					cpu_vendor=$(lscpu | grep ^Vendor | sed 's/^.*://g; s/ //g; s/,/\n/g')
+					CPU=$(lscpu | grep ^Model\ name: | sed 's/^.*://g; s/ //g; s/,/\n/g')
+					CPU="${cpu_vendor} ${CPU}"
+				else
+					model="Unknown"
+				fi
+			fi
+			cpu="${model}${cpu}"
+		fi
+		loc="/sys/devices/system/cpu/cpu0/cpufreq"
+		bl="${loc}/bios_limit"
+		smf="${loc}/scaling_max_freq"
+		if [ -f "$bl" ] && [ -r "$bl" ]; then
+			cpu_mhz=$(awk '{print $1/1000}' "$bl")
+		elif [ -f "$smf" ] && [ -r "$smf" ]; then
+			cpu_mhz=$(awk '{print $1/1000}' "$smf")
+		else
+			cpu_mhz=$(awk -F':' '/cpu MHz/{ print int($2+.5) }' /proc/cpuinfo | head -n 1)
+		fi
+		if [ -n "$cpu_mhz" ]; then
+			if [ "${cpu_mhz%.*}" -ge 1000 ]; then
+				cpu_ghz=$(awk '{print $1/1000}' <<< "${cpu_mhz}")
+				cpufreq="${cpu_ghz}GHz"
+			else
+				cpufreq="${cpu_mhz}MHz"
+			fi
+		fi
+	fi
+	if [[ "${cpun}" -gt "1" ]]; then
+		cpun="${cpun}x "
+	else
+		cpun=""
+	fi
+	if [ -z "$cpufreq" ]; then
+		CPU="${cpun}${CPU}"
+	else
+		CPU="$CPU @ ${cpun}${cpufreq}"
+	fi
+	if [ -d '/sys/class/hwmon/' ]; then
+		for dir in /sys/class/hwmon/* ; do
+			hwmonfile=""
+			[ -e "$dir/name" ] && hwmonfile=$dir/name
+			[ -e "$dir/device/name" ] && hwmonfile=$dir/device/name
+			[ -n "$hwmonfile" ] && if grep -q 'coretemp' "$hwmonfile"; then
+				thermal="$dir/temp1_input"
+				break
+			fi
+		done
+		if [ -e "$thermal" ] && [ "${thermal:+isSetToNonNull}" = 'isSetToNonNull' ]; then
+			temperature=$(bc <<< "scale=1; $(cat "$thermal")/1000")
+		fi
+	fi
+	if [ -n "$temperature" ]; then
+		CPU="$CPU [${temperature}°C]"
+	fi
+	CPU=$(sed $REGEXP 's/\([tT][mM]\)|\([Rr]\)|[pP]rocessor|CPU//g' <<< "${CPU}" | xargs)
+	verbose "Finding current CPU...found as '$cpu'"
+    printf -v cpu "%b %b" "${b_mag}${bld}CPU » \t" "${del}${b_wht}$CPU${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_gpu
+# Description: Prints GPU info to main.
+#==============================================================================
+
+get_gpu () {
+	if [[ -n "$(PATH="/opt/bin:$PATH" type -p nvidia-smi)" ]]; then
+		GPU=$($(PATH="/opt/bin:$PATH" type -p nvidia-smi | cut -f1) -q | awk -F':' '/Product Name/ {gsub(/: /,":"); print $2}' | sed ':a;N;$!ba;s/\n/, /g')
+	elif [[ -n "$(PATH="/usr/sbin:$PATH" type -p glxinfo)" && -z "${GPU}" ]]; then
+		gpu_info=$($(PATH="/usr/sbin:$PATH" type -p glxinfo | cut -f1) 2>/dev/null)
+		GPU=$(grep "OpenGL renderer string" <<< "${gpu_info}" | cut -d ':' -f2 | sed -n -e '1h;2,$H;${g;s/\n/, /g' -e 'p' -e '}')
+		GPU="${GPU:1}"
+		gpu_info=$(grep "OpenGL vendor string" <<< "${gpu_info}")
+	elif [[ -n "$(PATH="/usr/sbin:$PATH" type -p lspci)" && -z "$GPU" ]]; then
+		gpu_info=$($(PATH="/usr/bin:$PATH" type -p lspci | cut -f1) 2> /dev/null | grep VGA)
+		GPU=$(grep -oE '\[.*\]' <<< "${gpu_info}" | sed 's/\[//;s/\]//' | sed -n -e '1h;2,$H;${g;s/\n/, /g' -e 'p' -e '}')
+	fi
+
+	if [ -n "$GPU" ];then
+		if grep -q -i 'nvidia' <<< "${gpu_info}"; then
+			gpu_info="NVidia "
+		elif grep -q -i 'intel' <<< "${gpu_info}"; then
+			gpu_info="Intel "
+		elif grep -q -i 'amd' <<< "${gpu_info}"; then
+			gpu_info="AMD "
+		elif grep -q -i 'ati' <<< "${gpu_info}" || grep -q -i 'radeon' <<< "${gpu_info}"; then
+			gpu_info="ATI "
+		else
+			gpu_info=$(cut -d ':' -f2 <<< "${gpu_info}")
+			gpu_info="${gpu_info:1} "
+		fi
+		GPU="${GPU}"
+	else
+		GPU="Not Found"
+	fi
+
+	verbose "Finding current GPU...found as '$GPU'"
+    printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_intel_gpu
+# Description: Prints intel GPU info to main.
+#==============================================================================
+
+get_intel_gpu() {
+    GPU="Not Found"
+	if [ -r /proc/fb ]; then
+		GPU=$(awk 'BEGIN {ORS = " &"} {$1="";print}' /proc/fb | sed  -r s/'^\s+|\s*&$'//g)
+	fi
+
+	case $gpu in
+		*mfb)
+			GPU=$(lspci | grep -i vga | awk -F ": " '{print $2}')
+			;;
+		*intel*)
+			GPU="intel"
+			;;
+		*)
+			GPU="Not Found"
+			;;
+	esac
+
+	if [[ "$GPU" = "intel" ]]; then
+		#Detect CPU
+		local CPU=$(uname -p | awk '{print $3}')
+		CPU=${CPU#*'-'}; #Detect CPU number
+
+		#Detect Intel GPU
+		case $CPU in
+			[3-6][3-9][0-5]|[3-6][3-9][0-5][K-Y])
+				GPU='Intel HD Graphics'
+				;; #1st
+			2[1-5][0-3][0-2]*|2390T|2600S)
+				GPU='Intel HD Graphics 2000'
+				;; #2nd
+			2[1-5][1-7][0-8]*|2105|2500K)
+				GPU='Intel HD Graphics 3000'
+				;; #2nd
+			32[1-5]0*|3[4-5][5-7]0*|33[3-4]0*)
+				GPU='Intel HD Graphics 2500'
+				;; #3rd
+			3570K|3427U)
+				GPU='Intel HD Graphics 4000'
+				;; #3rd
+			4[3-7][0-9][0-5]*)
+				GPU='Intel HD Graphics 4600'
+				;; #4th Haswell
+			5[5-6]75[C-R]|5350H)
+				GPU='Intel Iris Pro Graphics 6200'
+				;; #5th Broadwell
+				#6th Skylake
+				#7th Kabylake
+				#8th Cannonlake
+			*)
+				GPU='Not Applicable'
+				;; #Unknown GPU model
+		esac
+	fi
+    verbose "Finding intel GPU ...found as '$gpu'"
+    if [ ! "$gpu" == "Not Found" ] && [ ! "$gpu" == "Not Applicable" ]; then
+        printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t\t" "${del}${b_wht}$GPU${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -347,23 +701,7 @@ get_res () {
 get_disk () {
 	diskusage="Unknown"
 	if type -p df >/dev/null 2>&1; then
-		if [[ "${distro}" =~ (Free|Net|DragonFly)BSD ]]; then
-			totaldisk=$(df -h -c 2>/dev/null | tail -1)
-		elif [[ "${distro}" == "OpenBSD" ]]; then
-			totaldisk=$(df -Pk 2> /dev/null | awk '
-				/^\// {total+=$2; used+=$3; avail+=$4}
-				END{printf("total %.1fG %.1fG %.1fG %d%%\n", total/1048576, used/1048576, avail/1048576, used*100/total)}')
-		elif [[ "${distro}" == "Mac OS X" || "${distro}" == "macOS" ]]; then
-                        majorVers=$(sw_vers | grep "ProductVersion" | cut -d ':' -f 2 | awk -F "." '{print $1}') # Major version
-			minorVers=$(sw_vers | grep "ProductVersion" | cut -d ':' -f 2 | awk -F "." '{print $2}') # Minor version
-			if [[ "${minorVers}" -ge "15" || "${majorVers}" -ge "11" ]]; then # Catalina or newer
-				totaldisk=$(df -H /System/Volumes/Data 2>/dev/null | tail -1)
-			else
-				totaldisk=$(df -H / 2>/dev/null | tail -1)
-			fi
-		else
-			totaldisk=$(df -h -x aufs -x tmpfs -x overlay -x drvfs -x devtmpfs --total 2>/dev/null | tail -1)
-		fi
+		totaldisk=$(df -h -x aufs -x tmpfs -x overlay -x drvfs -x devtmpfs --total 2>/dev/null | tail -1)
 		disktotal=$(awk '{print $2}' <<< "${totaldisk}")
 		diskused=$(awk '{print $3}' <<< "${totaldisk}")
 		diskusedper=$(awk '{print $5}' <<< "${totaldisk}")
@@ -392,13 +730,7 @@ get_distro () {
     if [[ -z "${distro}" ]]; then
         distro="Unknown"
         # LSB Release or MCST Version Check
-        if [[ -e "/etc/mcst_version" ]]; then
-            distro="OS Elbrus"
-            distro_release="$(tail -n 1 /etc/mcst_version)"
-            if [[ -n ${distro_release} ]]; then
-                distro_more="$distro_release"
-            fi
-        elif type -p lsb_release >/dev/null 2>&1; then
+        if type -p lsb_release >/dev/null 2>&1; then
             distro_detect="$(lsb_release -si)"
             distro_release="$(lsb_release -sr)"
             distro_codename="$(lsb_release -sc)"
@@ -516,8 +848,66 @@ get_distro () {
         ubuntu) distro="Ubuntu";;
         void*linux) distro="Void Linux" ;;
     esac
-    printf -v distro "%b %b" "${b_mag}${bld}OS » \t\t" "${del}${b_wht}$distro${del}"
+
     verbose "Finding distro...found as '${distro} ${distro_release}'"
+    printf -v distro "%b %b" "${b_mag}${bld}Distro » \t" "${del}${b_wht}$distro${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_init
+# Description: Prints init info to main.
+#==============================================================================
+
+get_init () {
+	init=$(readlink /sbin/init)
+	init=${init##*/}
+	init=${init%%-*}
+	verbose "Finding distro...found as '${distro} ${init}'"
+    printf -v init "%b %b" "${b_mag}${bld}Init » \t" "${del}${b_wht}$init${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_kernel
+# Description: Prints kernel info to main.
+#==============================================================================
+
+get_kernel () {
+	kernel=$(uname -srm)
+	kernel=${kernel% *}
+	verbose "Finding kernel version...found as '${kernel}'"
+    printf -v kernel "%b %b" "${b_mag}${bld}Kernel » \t" "${del}${b_wht}$kernel${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_pkgs
+# Description: Prints packages info to main.
+#==============================================================================
+
+get_pkgs () {
+	pkgs="Unknown"
+    dist=$(clean ${distro##* })
+	case "${dist}" in
+		'Arch Linux'|'Arch Linux 32'|'ArcoLinux'|'Parabola GNU/Linux-libre'|'Hyperbola GNU/Linux-libre'|'Chakra'|'Manjaro'|'Antergos'| \
+		'Netrunner'|'KaOS'|'Obarun'|'SwagArch'|'OBRevenge'|'Artix Linux'|'EndeavourOS'|'Alter Linux'|'TeArch')
+			pkgs=$(pacman -Qq | wc -l) ;;
+		'Debian'|'Ubuntu'|'Mint'|'Fuduntu'|'KDE neon'|'Devuan'|'OS Elbrus'|'Raspbian'|'LMDE'|'CrunchBang'|'Peppermint'| \
+		'LinuxDeepin'|'Deepin'|'Kali Linux'|'Trisquel'|'elementary OS'|'gNewSense'|'BunsenLabs'|'SteamOS'|'Parrot Security'| \
+		'GrombyangOS'|'DesaOS'|'Zorin OS'|'Proxmox VE'|'PureOS'|'DraugerOS')
+			pkgs=$(dpkg -l | grep -c '^i') ;;
+		'Gentoo'|'Sabayon'|'Funtoo'|'Kogaion')
+			pkgs=$(ls -d /var/db/pkg/*/* | wc -l) ;;
+		'ALDOS'|'Fedora'|'Fux'|'Korora'|'BLAG'|'Chapeau'|'openSUSE'|'SUSE Linux Enterprise'|'Red Hat Enterprise Linux'| \
+		'ROSA'|'Oracle Linux'|'Scientific Linux'|'EuroLinux'|'CentOS'|'CentOS Stream'|'Mandriva'|'Mandrake'|'Mageia'|'Mer'|'SailfishOS'|'PCLinuxOS'|'Viperr'|'Qubes OS'| \
+		'Red Star OS'|'blackPanther OS'|'Amazon Linux')
+			pkgs=$(rpm -qa | wc -l) ;;
+		'Void Linux')
+			pkgs=$(xbps-query -l | wc -l) ;;
+		'Source Mage GNU/Linux')
+			pkgs=$(gaze installed | wc -l) ;;
+	esac
+
+	verbose "Finding current package count...found as '$pkgs'"
+    printf -v pkgs "%b %b" "${b_mag}${bld}Packages » \t" "${del}${b_wht}$pkgs${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -594,6 +984,33 @@ get_shell () {
 	myShell=${shell_type}
 	verbose "Finding current shell...found as '$myShell'"
     printf -v shell "%b %b" "${b_mag}${bld}Shell » \t" "${del}${b_wht}$myShell${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_term
+# Description: Prints terminal info to main.
+#==============================================================================
+get_term () {
+    if [[ -z "$term" ]]; then
+        parent="$(get_ppid "$parent")"
+        [[ -z "$parent" ]] && break
+        name="$(get_process_name "$parent")"
+        case ${name// } in
+            "${SHELL/*\/}"|*"sh"|"screen"|"su"*|"newgrp") ;;
+
+            "login"*|*"Login"*|"init"|"(init)")
+                term="$(tty)"
+            ;;
+
+            *)
+                [[ $os == Linux ]] && term=$(realpath "/proc/$parent/exe")
+
+                term="${name##*/}"
+            ;;
+        esac
+    fi
+    verbose "Finding current terminal...found as '$term'"
+    printf -v term "%b %b" "${b_mag}${bld}Terminal » \t" "${del}${b_wht}$term${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -1427,11 +1844,32 @@ get_gtk () {
 
 #=== FUNCTION =================================================================
 #        Name: get_end
-# Description: Prints hwinfo info to main.
+# Description: Prints end info to main.
 #==============================================================================
 
 get_end() {
     printf -v end "%b" "${b_red}╚══════════════════════════════════════════════════════╝${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_blank
+# Description: Prints blank info to main.
+#==============================================================================
+
+get_blank() {
+    printf -v blank "%b" "\t"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_colors
+# Description: Prints color1 and color2 info to main.
+#==============================================================================
+
+get_colors() {
+    color1="${blk} ⬤ ${red} ⬤ ${grn} ⬤ ${yel} ⬤ ${blu} ⬤ ${mag} ⬤ ${cyn} ⬤ ${wht} ⬤ ${del}"
+    printf -v color1 "%b" "$color1"
+    color2="${b_blk} ⬤ ${b_red} ⬤ ${b_grn} ⬤ ${b_yel} ⬤ ${b_blu} ⬤ ${b_mag} ⬤ ${b_cyn} ⬤ ${b_wht} ⬤ ${del}"
+    printf -v color2 "%b" "$color2"
 }
 
 #=== FUNCTION =================================================================
@@ -1443,27 +1881,36 @@ main() {
     get_ascii
     get_title
     get_sep
+    get_uptime
     get_hwinfo
+    get_host
+    get_cpu
+    get_gpu
+    if [ "$gpu" = 'Not Found' ] ; then
+	    get_intel_gpu
+    fi
     get_memory
     get_res
     get_disk
     get_swinfo
     get_distro
+    get_init
+    get_kernel
+    get_pkgs
     get_shell
+    get_term
     get_de
     get_wm
     get_wmtheme
     get_gtk
     get_end
+    get_blank
+    get_colors
 
     count=0
     while IFS= read -r Line; do
         if [ ! -z "${!display[$count]}" ]; then
             printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
-        else
-            if [ ! -z "$Line" ]; then
-                printf "%b\t%b\n" "$Line"
-            fi
         fi
         count=$(( count + 1 ))
     done <<< "$ascii_art"
