@@ -88,6 +88,8 @@ display_index=0
 gtk_2line="no"
 
 log_dir="$HOME/.cache/bbsif"
+
+declare -A AArr
 #==============================================================================
 
 #=== ARRAY ====================================================================
@@ -752,14 +754,22 @@ get_pinfo () {
 #==============================================================================
 
 get_keyboard () {
+    DataOut=
 	keyboard="Unknown"
     while IFS= read -r Line; do
         if [[ $Line == *"Keyboard"* ]]; then
             keyboard="${Line%,*}"
-            keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
-            keyboard=$(echo $keyboard | xargs -n1 | uniq -i | xargs)
         fi
     done <<< $( hwinfo --short )
+
+    IFS=' ' read -a Arr <<< $keyboard
+    for Val in "${Arr[@]}"; do
+	    LCase=${Val,,}
+	    [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    keyboard="${DataOut:1}"
+    keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
+
 	verbose "Finding current disk usage...found as '$keyboard'"
     printf -v keyboard "%b %b" "${b_mag}${bld}Keyboard » \t" "${del}${b_wht}$keyboard${del}"
 }
@@ -770,13 +780,23 @@ get_keyboard () {
 #==============================================================================
 
 get_mouse () {
+    DataOut=
 	mouse="Unknown"
     while IFS= read -r Line; do
         if [[ $Line == *"Mouse"* ]]; then
             mouse="${Line%,*}"
-            mouse=${mouse:23:100}
         fi
     done <<< $( hwinfo --short )
+
+    IFS=' ' read -a Arr <<< $mouse
+    for Val in "${Arr[@]}"; do
+	    LCase=${Val,,}
+	    [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    mouse="${DataOut:1}"
+    mouse=${mouse#* }
+    mouse=${mouse#"${mouse%%[![:space:]]*}"}
+
 	verbose "Finding current disk usage...found as '$mouse'"
     printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
 }
