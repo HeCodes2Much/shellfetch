@@ -148,8 +148,8 @@ repeat() {
 # copied from makepkg and modified
 msg () {
 
-    local mesg=$1; shift
-    printf "${grn}${bld}==>${del}${wht} %b${del}\n" "$mesg" "$@"
+    local mesg=$1;
+    printf "${grn}${bld}==>${del}${wht} %b${del}\n" "$mesg"
     exit 0
 }
 
@@ -161,8 +161,10 @@ msg () {
 
 clean () {
 
-    local mesg=$(echo $1 | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'); shift
-    printf "%b\n" "$mesg" "$@"
+    local mesg=$1;
+    mesg=${mesg//\x1b\[[0-9;]*[a-zA-Z]/}
+    mesg=${mesg#"${mesg%%[![:space:]]*}"}
+    printf "%b\n" "$mesg"
 }
 
 #=== FUNCTION =================================================================
@@ -173,9 +175,9 @@ clean () {
 
 # copied from makepkg
 error() {
-    local mesg=$1; shift
-    printf "${red}${bld}==> ERROR:${wht} %b${del}\n" "$mesg" "$@" >&2
-
+    local mesg=$1;
+    printf "${red}${bld}==> ERROR:${wht} %b${del}\n" "$mesg"
+    exit 0
 }
 
 #=== FUNCTION =================================================================
@@ -299,7 +301,7 @@ get_user_bday() {
     [ -f $log_dir/userbday.log ] || { mkdir -p $log_dir ; echo "00/00" > $log_dir/userbday.log; }
     [ -s $log_dir/userbday.log ] || echo "00/00" > $log_dir/userbday.log
     date="$(date +"%d/%m")"
-    userbday="$(cat $log_dir/userbday.log)"
+    userbday="$(< $log_dir/userbday.log)"
     if [ "$date" = "$userbday" ]; then
         printf -v birthday "%b" "Happy Birthday"
     fi
@@ -424,133 +426,16 @@ get_host() {
 #==============================================================================
 
 get_cpu () {
-	local REGEXP="-r"
-	if [[ "$distro" == "Mac OS X" || "$distro" == "macOS" ]]; then
-		CPU=$(machine)
-		if [[ $cpu == "ppc750" ]]; then
-			CPU="IBM PowerPC G3"
-		elif [[ $cpu == "ppc7400" || $cpu == "ppc7450" ]]; then
-			CPU="IBM PowerPC G4"
-		elif [[ $cpu == "ppc970" ]]; then
-			CPU="IBM PowerPC G5"
-		else
-			CPU=$(sysctl -n machdep.cpu.brand_string)
-		fi
-		REGEXP="-E"
-	elif [ "$OSTYPE" == "gnu" ]; then
-		# no /proc/cpuinfo on GNU/Hurd
-		if uname -m | grep -q 'i.86'; then
-			CPU="Unknown x86"
-		else
-			CPU="Unknown"
-		fi
-	elif [ "$distro" == "FreeBSD" ]; then
-		CPU=$(dmesg | awk -F': ' '/^CPU/ {gsub(/ +/," "); gsub(/\([^\(\)]*\)|CPU /,"", $2); print $2; exit}')
-	elif [ "$distro" == "DragonFlyBSD" ]; then
-		CPU=$(sysctl -n hw.model)
-	elif [ "$distro" == "OpenBSD" ]; then
-		CPU=$(sysctl -n hw.model | sed 's/@.*//')
-	elif [ "$distro" == "Haiku" ]; then
-		CPU=$(sysinfo -cpu | awk -F': ' '/^CPU #0/ {gsub(/ +/," "); gsub(/\([^\(\)]*\)|CPU /,"", $2); print $2; exit}')
-	else
-		CPU=$(awk -F':' '/^model name/ {split($2, A, " @"); print A[1]; exit}' /proc/cpuinfo)
-		cpun=$(grep -c '^processor' /proc/cpuinfo)
-		if [ -z "$CPU" ]; then
-			CPU=$(awk 'BEGIN{FS=":"} /Hardware/ { print $2; exit }' /proc/cpuinfo)
-		fi
-		if [ -z "$CPU" ]; then
-			CPU=$(awk 'BEGIN{FS=":"} /^cpu/ { gsub(/  +/," ",$2); print $2; exit}' /proc/cpuinfo | sed 's/, altivec supported//;s/^ //')
-			if [[ $CPU =~ ^(PPC)*9.+ ]]; then
-				model="IBM PowerPC G5 "
-			elif [[ $CPU =~ 740/750 ]]; then
-				model="IBM PowerPC G3 "
-			elif [[ $CPU =~ ^74.+ ]]; then
-				model="Motorola PowerPC G4 "
-			elif [[ $CPU =~ ^POWER.* ]]; then
-				model="IBM POWER "
-			elif grep -q -i 'BCM2708' /proc/cpuinfo ; then
-				model="Broadcom BCM2835 ARM1176JZF-S"
-			else
-				arch=$(uname -m)
-				if [[ "$arch" == "s390x" || "$arch" == "s390" ]]; then
-					CPU=""
-					args=$(grep 'machine' /proc/cpuinfo | sed 's/^.*://g; s/ //g; s/,/\n/g' | grep '^machine=.*')
-					eval "$args"
-					case "$machine" in
-						# information taken from https://github.com/SUSE/s390-tools/blob/master/cputype
-						2064) model="IBM eServer zSeries 900" ;;
-						2066) model="IBM eServer zSeries 800" ;;
-						2084) model="IBM eServer zSeries 990" ;;
-						2086) model="IBM eServer zSeries 890" ;;
-						2094) model="IBM System z9 Enterprise Class" ;;
-						2096) model="IBM System z9 Business Class" ;;
-						2097) model="IBM System z10 Enterprise Class" ;;
-						2098) model="IBM System z10 Business Class" ;;
-						2817) model="IBM zEnterprise 196" ;;
-						2818) model="IBM zEnterprise 114" ;;
-						2827) model="IBM zEnterprise EC12" ;;
-						2828) model="IBM zEnterprise BC12" ;;
-						2964) model="IBM z13" ;;
-						   *) model="IBM S/390 machine type $machine" ;;
-					esac
-				elif [[ "$arch" == "aarch64" ]]; then
-					cpu_vendor=$(lscpu | grep ^Vendor | sed 's/^.*://g; s/ //g; s/,/\n/g')
-					CPU=$(lscpu | grep ^Model\ name: | sed 's/^.*://g; s/ //g; s/,/\n/g')
-					CPU="${cpu_vendor} ${CPU}"
-				else
-					model="Unknown"
-				fi
-			fi
-			cpu="${model}${cpu}"
-		fi
-		loc="/sys/devices/system/cpu/cpu0/cpufreq"
-		bl="${loc}/bios_limit"
-		smf="${loc}/scaling_max_freq"
-		if [ -f "$bl" ] && [ -r "$bl" ]; then
-			cpu_mhz=$(awk '{print $1/1000}' "$bl")
-		elif [ -f "$smf" ] && [ -r "$smf" ]; then
-			cpu_mhz=$(awk '{print $1/1000}' "$smf")
-		else
-			cpu_mhz=$(awk -F':' '/cpu MHz/{ print int($2+.5) }' /proc/cpuinfo | head -n 1)
-		fi
-		if [ -n "$cpu_mhz" ]; then
-			if [ "${cpu_mhz%.*}" -ge 1000 ]; then
-				cpu_ghz=$(awk '{print $1/1000}' <<< "${cpu_mhz}")
-				cpufreq="${cpu_ghz}GHz"
-			else
-				cpufreq="${cpu_mhz}MHz"
-			fi
-		fi
-	fi
-	if [[ "${cpun}" -gt "1" ]]; then
-		cpun="${cpun}x "
-	else
-		cpun=""
-	fi
-	if [ -z "$cpufreq" ]; then
-		CPU="${cpun}${CPU}"
-	else
-		CPU="$CPU @ ${cpun}${cpufreq}"
-	fi
-	if [ -d '/sys/class/hwmon/' ]; then
-		for dir in /sys/class/hwmon/* ; do
-			hwmonfile=""
-			[ -e "$dir/name" ] && hwmonfile=$dir/name
-			[ -e "$dir/device/name" ] && hwmonfile=$dir/device/name
-			[ -n "$hwmonfile" ] && if grep -q 'coretemp' "$hwmonfile"; then
-				thermal="$dir/temp1_input"
-				break
-			fi
-		done
-		if [ -e "$thermal" ] && [ "${thermal:+isSetToNonNull}" = 'isSetToNonNull' ]; then
-			temperature=$(bc <<< "scale=1; $(cat "$thermal")/1000")
-		fi
-	fi
-	if [ -n "$temperature" ]; then
-		CPU="$CPU [${temperature}°C]"
-	fi
-	CPU=$(sed $REGEXP 's/\([tT][mM]\)|\([Rr]\)|[pP]rocessor|CPU//g' <<< "${CPU}" | xargs)
-	verbose "Finding current CPU...found as '$cpu'"
+	while IFS=":" read -r type name; do
+        case $type in
+            "model name"*)
+                IFS='@ ' read -r -a array <<< "$name";
+                CPU="$name"
+                CPU=${CPU#"${CPU%%[![:space:]]*}"}
+                ;;
+        esac
+    done < /proc/cpuinfo
+	verbose "Finding current CPU...found as '$CPU'"
     printf -v cpu "%b %b" "${b_mag}${bld}CPU » \t" "${del}${b_wht}$CPU${del}"
 }
 
