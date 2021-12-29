@@ -69,6 +69,7 @@ readonly spaces
 
 #=== DEFAULTS =================================================================
 # Speed up script by not using unicode.
+setterm -linewrap off
 LC_ALL=C
 LANG=C
 
