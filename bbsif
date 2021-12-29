@@ -54,9 +54,9 @@ mag="\e[0;35m"
 cyn="\e[0;36m"
 wht="\e[0;37m"
 bld="\e[1;1m"
-res="\e[0;0m"
+del="\e[0;0m"
 
-readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag cyn wht bld res
+readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag cyn wht bld del
 
 #=== DEFAULTS =================================================================
 # Speed up script by not using unicode.
@@ -114,66 +114,6 @@ display=(
     'color2'
 )
 
-#=== ARRAY ====================================================================
-#        Name: wmnames
-# Description: Window Managers We Support
-#==============================================================================
-
-wmnames=(
-    'fluxbox'
-    'openbox'
-    'blackbox'
-    'xfwm4'
-    'metacity'
-    'kwin'
-    'twin'
-    'icewm'
-    'pekwm'
-    'flwm'
-    'flwm_topside'
-    'fvwm'
-    'dwm'
-    'twm'
-    'repowm'
-    'worm'
-    'awesome'
-    'wmaker'
-    'stumpwm'
-    'musca'
-    'xmonad.*'
-    'i3'
-    'ratpoison'
-    'scrotwm'
-    'spectrwm'
-    'wmfs'
-    'wmii'
-    'beryl'
-    'subtle'
-    'e16'
-    'enlightenment'
-    'sawfish'
-    'emerald'
-    'monsterwm'
-    'dminiwm'
-    'compiz'
-    'Finder'
-    'herbstluftwm'
-    'howm'
-    'notion'
-    'bspwm'
-    'cinnamon'
-    '2bwm'
-    'echinus'
-    'swm'
-    'budgie-wm'
-    'dtwm'
-    '9wm'
-    'chromeos-wm'
-    'deepin-wm'
-    'sway'
-    'mwm'
-)
-
 #=== FUNCTION =================================================================
 #        Name: repeat
 # Description: Repeat given char 80 times using shell function
@@ -193,7 +133,7 @@ repeat(){
 msg () {
 
     local mesg=$1; shift
-    printf "${grn}${bld}==>${res}${wht} %b${res}\n" "$mesg" "$@"
+    printf "${grn}${bld}==>${del}${wht} %b${del}\n" "$mesg" "$@"
     exit 0
 }
 
@@ -206,7 +146,7 @@ msg () {
 # copied from makepkg
 error() {
     local mesg=$1; shift
-    printf "${red}${bld}==> ERROR:${wht} %b${res}\n" "$mesg" "$@" >&2
+    printf "${red}${bld}==> ERROR:${wht} %b${del}\n" "$mesg" "$@" >&2
 
 }
 
@@ -220,7 +160,7 @@ error() {
 verbose() {
     if [[ "$verbosity" -eq "1" ]]; then
         local mesg=$1; shift
-        printf "${red}${bld}==> VERBOSE:${wht} %b${res}\n" "$mesg" "$@" >&2
+        printf "${red}${bld}==> VERBOSE:${wht} %b${del}\n" "$mesg" "$@" >&2
     fi
 }
 
@@ -273,22 +213,22 @@ version() {
 
 get_ascii() {
     printf -v ascii_art "%b\n" "\t\t\t\t
-    ${b_wht}╔══════════════════════╦══════════╗${res}
-    ${b_wht}║                      ║ ${b_grn} ${b_wht} ${b_mag} ${b_wht} ${b_yel} ${b_wht} ║${res}
-    ${b_wht}╠══════════════════════╝          ║${res}
-    ${b_wht}║                                 ║${res}
-    ${b_wht}║                                 ║${res}
-    ${b_wht}║           ${b_red}█▀▀▀▀▀▀▀▀█${b_wht}            ║${res}
-    ${b_wht}║           ${b_red}█        █${b_wht}            ║${res}
-    ${b_wht}║           ${b_blk}█ ${b_red} █  █ ${b_blk} █${b_wht}            ║${res}\t
-    ${b_wht}║           ${b_blk}█        █${b_wht}            ║${res}
-    ${b_wht}║           ${b_blk}▀█▄▄▄▄▄▄█▀${b_wht}            ║${res}
-    ${b_wht}║                                 ║${res}
-    ${b_wht}║                                 ║${res}
-    ${b_wht}║                                 ║${res}
-    ${b_wht}║    ${b_red}sudo rm -rf /* _$     ${b_wht}     ║${res}
-    ${b_wht}║                                 ║${res}
-    ${b_wht}╚═════════════════════════════════╝${res}
+    ${b_wht}╔══════════════════════╦══════════╗${del}
+    ${b_wht}║                      ║ ${b_grn} ${b_wht} ${b_mag} ${b_wht} ${b_yel} ${b_wht} ║${del}
+    ${b_wht}╠══════════════════════╝          ║${del}
+    ${b_wht}║                                 ║${del}
+    ${b_wht}║                                 ║${del}
+    ${b_wht}║           ${b_red}█▀▀▀▀▀▀▀▀█${b_wht}            ║${del}
+    ${b_wht}║           ${b_red}█        █${b_wht}            ║${del}
+    ${b_wht}║           ${b_blk}█ ${b_red} █  █ ${b_blk} █${b_wht}            ║${del}
+    ${b_wht}║           ${b_blk}█        █${b_wht}            ║${del}
+    ${b_wht}║           ${b_blk}▀█▄▄▄▄▄▄█▀${b_wht}            ║${del}
+    ${b_wht}║                                 ║${del}
+    ${b_wht}║                                 ║${del}
+    ${b_wht}║                                 ║${del}
+    ${b_wht}║    ${b_red}sudo rm -rf /* _$     ${b_wht}     ║${del}
+    ${b_wht}║                                 ║${del}
+    ${b_wht}╚═════════════════════════════════╝${del}
     \t\t\t\t
     \t\t\t\t
     \t\t\t\t
@@ -315,7 +255,7 @@ get_title() {
         { [ "$hour" -eq 12 ] || [ "$hour" -lt 5 ]; } && good="Good afternoon, "
     fi
 
-    printf -v title "%b\n" "${b_red}${bld}${good}${user}!${res}"
+    printf -v title "%b\n" "${b_red}${bld}${good}${user}!${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -324,7 +264,7 @@ get_title() {
 #==============================================================================
 
 get_sep() {
-    printf -v sep "%b" "${b_wht}$(repeat "~")${res}"
+    printf -v sep "%b" "${b_wht}$(repeat "~")${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -333,7 +273,114 @@ get_sep() {
 #==============================================================================
 
 get_hwinfo() {
-    printf -v hwinfo "%b" "${b_red}╔════════════════ ${b_grn}Hardware Information ${b_red}════════════════╗${res}"
+    printf -v hwinfo "%b" "${b_red}╔════════════════ ${b_grn}Hardware Information ${b_red}════════════════╗${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_memory
+# Description: Prints memory info to main.
+#==============================================================================
+
+get_memory () {
+	while IFS=":" read -r a b; do
+        case $a in
+            "MemTotal") ((mem_used+=${b/kB})); mem_total="${b/kB}" ;;
+            "Shmem") ((mem_used+=${b/kB}))  ;;
+            "MemFree" | "Buffers" | "Cached" | "SReclaimable")
+                mem_used="$((mem_used-=${b/kB}))"
+            ;;
+
+            "MemAvailable")
+                mem_avail=${b/kB}
+            ;;
+        esac
+    done < /proc/meminfo
+
+    if [[ $mem_avail ]]; then
+        mem_used=$(((mem_total - mem_avail) / 1024))
+    else
+        mem_used="$((mem_used / 1024))"
+    fi
+
+    mem_total="$((mem_total / 1024))"
+
+    mem_perc=$(( mem_used * 100 / mem_total ))
+
+    mem_used=$(awk '{printf "%.2f", $1 / $2}' <<< "$mem_used 1024")
+    mem_total=$(awk '{printf "%.2f", $1 / $2}' <<< "$mem_total 1024")
+    mem_label=GiB
+
+	mem="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
+	verbose "Finding current RAM usage...found as '$mem'"
+    printf -v mem "%b %b" "${b_mag}${bld}Memory » \t" "${del}${b_wht}$mem${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_res
+# Description: Prints res info to main.
+#==============================================================================
+
+get_res () {
+	xResolution="No X Server"
+	if [[ -n ${DISPLAY} ]]; then
+		if type -p xdpyinfo >/dev/null 2>&1; then
+			xResolution=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
+		fi
+	fi
+    if type -p xrandr >/dev/null && [[ $DISPLAY && -z $WAYLAND_DISPLAY ]]; then
+        xResolution="$(xrandr --nograb --current |\
+            awk 'match($0,/[0-9]*\.[0-9]*\*/) {
+            printf $1 " @ " substr($0,RSTART,RLENGTH) "Hz, "}')"
+    fi
+    xResolution="${xResolution//\*}"
+    xResolution="${xResolution%%,}"
+    xResolution="${xResolution%%, }"
+	verbose "Finding current resolution(s)...found as '$xResolution'"
+    printf -v res "%b %b" "${b_mag}${bld}Resolution » \t" "${del}${b_wht}$xResolution${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_disk
+# Description: Prints hwinfo info to main.
+#==============================================================================
+
+get_disk () {
+	diskusage="Unknown"
+	if type -p df >/dev/null 2>&1; then
+		if [[ "${distro}" =~ (Free|Net|DragonFly)BSD ]]; then
+			totaldisk=$(df -h -c 2>/dev/null | tail -1)
+		elif [[ "${distro}" == "OpenBSD" ]]; then
+			totaldisk=$(df -Pk 2> /dev/null | awk '
+				/^\// {total+=$2; used+=$3; avail+=$4}
+				END{printf("total %.1fG %.1fG %.1fG %d%%\n", total/1048576, used/1048576, avail/1048576, used*100/total)}')
+		elif [[ "${distro}" == "Mac OS X" || "${distro}" == "macOS" ]]; then
+                        majorVers=$(sw_vers | grep "ProductVersion" | cut -d ':' -f 2 | awk -F "." '{print $1}') # Major version
+			minorVers=$(sw_vers | grep "ProductVersion" | cut -d ':' -f 2 | awk -F "." '{print $2}') # Minor version
+			if [[ "${minorVers}" -ge "15" || "${majorVers}" -ge "11" ]]; then # Catalina or newer
+				totaldisk=$(df -H /System/Volumes/Data 2>/dev/null | tail -1)
+			else
+				totaldisk=$(df -H / 2>/dev/null | tail -1)
+			fi
+		else
+			totaldisk=$(df -h -x aufs -x tmpfs -x overlay -x drvfs -x devtmpfs --total 2>/dev/null | tail -1)
+		fi
+		disktotal=$(awk '{print $2}' <<< "${totaldisk}")
+		diskused=$(awk '{print $3}' <<< "${totaldisk}")
+		diskusedper=$(awk '{print $5}' <<< "${totaldisk}")
+		diskusage="${diskused} / ${disktotal} (${diskusedper})"
+		diskusage_verbose=$(sed 's/%/%%/' <<< "$diskusage")
+	fi
+	verbose "Finding current disk usage...found as '$diskusage_verbose'"
+    printf -v disk "%b %b" "${b_mag}${bld}Disk » \t" "${del}${b_wht}$diskusage${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_swinfo
+# Description: Prints hwinfo info to main.
+#==============================================================================
+
+get_swinfo () {
+    printf -v swinfo "%b" "${b_red}╠════════════════ ${b_grn}Software Information ${b_red}════════════════╣${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -469,17 +516,553 @@ get_distro () {
         ubuntu) distro="Ubuntu";;
         void*linux) distro="Void Linux" ;;
     esac
-    printf -v distro "%b %b" "${b_mag}${bld}OS »" "${res}${b_wht}$distro${res}"
+    printf -v distro "%b %b" "${b_mag}${bld}OS » \t\t" "${del}${b_wht}$distro${del}"
     verbose "Finding distro...found as '${distro} ${distro_release}'"
 }
 
 #=== FUNCTION =================================================================
-#        Name: get_swinfo
-# Description: Prints hwinfo info to main.
+#        Name: shell_ver
+# Description: Prints shell version to get_shell.
 #==============================================================================
 
-get_swinfo() {
-    printf -v swinfo "%b" "${b_red}╠════════════════ ${b_grn}Software Information ${b_red}════════════════╣${res}"
+shell_ver () {
+	local version_data='' version='' get_version='--version'
+
+	version_data="$( $1 $get_version 2>/dev/null )"
+
+	if [[ -n $version_data ]];then
+		version=$(awk '
+		BEGIN {
+			IGNORECASE=1
+		}
+		/'$2'/ {
+			gsub(/(,|v|V)/, "",$'$3')
+			if ($2 ~ /[Bb][Aa][Ss][Hh]/) {
+				gsub(/\(.*|-release|-version\)/,"",$4)
+			}
+			print $'$3'
+			exit # quit after first match prints
+		}' <<< "$version_data")
+	fi
+	echo "$version"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_shell
+# Description: Prints shell info to main.
+#==============================================================================
+
+get_shell () {
+	if [[ ! "${shell_type}" ]]; then
+		if [[ "${distro}" == "Cygwin" || "${distro}" == "Msys" || "${distro}" == "Haiku" || "${distro}" == "Alpine Linux" ||
+			"${distro}" == "Mac OS X" || "${distro}" == "macOS" || "${distro}" == "TinyCore" || "${distro}" == "Raspbian" || "${OSTYPE}" == "gnu" ]]; then
+			shell_type=$(echo "$SHELL" | awk -F'/' '{print $NF}')
+		elif readlink -f "$SHELL" 2>&1 | grep -q -i 'busybox'; then
+			shell_type="BusyBox"
+		else
+			if [[ "${OSTYPE}" =~ "linux" ]]; then
+				shell_type=$(realpath /proc/$PPID/exe | awk -F'/' '{print $NF}')
+			elif [[ "${distro}" =~ "BSD" ]]; then
+				shell_type=$(ps -p $PPID -o command | tail -1)
+			else
+				shell_type=$(ps -p "$(ps -p $PPID | awk '$1 !~ /PID/ {print $1}')" | awk 'FNR>1 {print $1}')
+			fi
+			shell_type=${shell_type/-}
+			shell_type=${shell_type//*\/}
+		fi
+	fi
+
+	case $shell_type in
+		bash)
+			shell_version_data=$( shell_ver "$shell_type" "^GNU.bash,.version" "4" )
+			;;
+		dash)
+			shell_version_data=$( shell_ver "$shell_type" "$shell_type" "3" )
+			;;
+		zsh)
+			shell_version_data=$( shell_ver "$shell_type" "^zsh" "2" )
+			;;
+		fish)
+			shell_version_data=$( fish --version | awk '{print $3}' )
+			;;
+	esac
+
+	if [[ -n $shell_version_data ]];then
+		shell_type="$shell_type $shell_version_data"
+	fi
+
+	myShell=${shell_type}
+	verbose "Finding current shell...found as '$myShell'"
+    printf -v shell "%b %b" "${b_mag}${bld}Shell » \t" "${del}${b_wht}$myShell${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_de
+# Description: Prints de info to main.
+#==============================================================================
+
+get_de () {
+	DE="Not Found"
+	if [[ "${distro}" == "Mac OS X" || "${distro}" == "macOS" ]]; then
+		if ps -U "${USER}" | grep -q -i 'finder'; then
+			DE="Aqua"
+		fi
+	elif [[ "${distro}" == "Cygwin" || "${distro}" == "Msys" ]]; then
+		# https://msdn.microsoft.com/en-us/library/ms724832%28VS.85%29.aspx
+		if wmic os get version | grep -q '^\(6\.[01]\)'; then
+			DE="Aero"
+		elif wmic os get version | grep -q '^\(6\.[23]\|10\)'; then
+			DE="Modern UI/Metro"
+		else
+			DE="Luna"
+		fi
+	elif [[ -n ${DISPLAY} ]]; then
+		if type -p xprop >/dev/null 2>&1;then
+			xprop_root="$(xprop -root 2>/dev/null)"
+			if [[ -n ${xprop_root} ]]; then
+				DE=$(echo "${xprop_root}" | awk 'BEGIN {
+					de = "Not Applicable"
+				}
+				{
+					if ($1 ~ /^_DT_SAVE_MODE/) {
+						de = $NF
+						gsub(/"/,"",de)
+						de = toupper(de)
+						exit
+					}
+					else if ($1 ~/^KDE_SESSION_VERSION/) {
+						de = "KDE"$NF
+						exit
+					}
+					else if ($1 ~ /^_MUFFIN/) {
+						de = "Cinnamon"
+						exit
+					}
+					else if ($1 ~ /^TDE_FULL_SESSION/) {
+						de = "Trinity"
+						exit
+					}
+					else if ($0 ~ /"xfce4"/) {
+						de = "Xfce4"
+						exit
+					}
+					else if ($0 ~ /"xfce5"/) {
+						de = "Xfce5"
+						exit
+					}
+				} END {
+					print de
+				}')
+			fi
+		fi
+
+		if [[ ${DE} == "Not Applicable" ]]; then
+			# Let's use xdg-open code for GNOME/Enlightment/KDE/LXDE/MATE/Xfce detection
+			# http://bazaar.launchpad.net/~vcs-imports/xdg-utils/master/view/head:/scripts/xdg-utils-common.in#L251
+			if [ -n "${XDG_CURRENT_DESKTOP}" ]; then
+				case "${XDG_CURRENT_DESKTOP,,}" in
+					'enlightenment')
+						DE="Enlightenment"
+						;;
+					'gnome')
+						DE="GNOME"
+						;;
+					'kde')
+						DE="KDE"
+						;;
+					'lumina')
+						DE="Lumina"
+						;;
+					'lxde')
+						DE="LXDE"
+						;;
+					'mate')
+						DE="MATE"
+						;;
+					'xfce')
+						DE="Xfce"
+						;;
+					'x-cinnamon')
+						DE="Cinnamon"
+						;;
+					'unity')
+						DE="Unity"
+						;;
+					'lxqt')
+						DE="LXQt"
+						;;
+				esac
+			fi
+
+			if [ -n "$DE" ]; then
+				# classic fallbacks
+				if [ -n "$KDE_FULL_SESSION" ]; then
+					DE="KDE"
+				elif [ -n "$TDE_FULL_SESSION" ]; then
+					DE="Trinity"
+				elif [ -n "$GNOME_DESKTOP_SESSION_ID" ]; then
+					DE="GNOME"
+				elif [ -n "$MATE_DESKTOP_SESSION_ID" ]; then
+					DE="MATE"
+				elif dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+					org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager >/dev/null 2>&1 ; then
+					DE="GNOME"
+				elif xprop -root _DT_SAVE_MODE 2> /dev/null | grep -q -i ' = \"xfce4\"$'; then
+					DE="Xfce"
+				elif xprop -root 2> /dev/null | grep -q -i '^xfce_desktop_window'; then
+					DE="Xfce"
+				elif echo "$DESKTOP" | grep -q -i '^Enlightenment'; then
+					DE="Enlightenment"
+				fi
+			fi
+
+			if [[ -z "$DE" || "$DE" = "Not Applicable" ]]; then
+				# fallback to checking $DESKTOP_SESSION
+				local _DESKTOP_SESSION=
+				if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+					if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
+						_DESKTOP_SESSION=${DESKTOP_SESSION,,}
+					else
+						_DESKTOP_SESSION="$(tr '[:upper:]' '[:lower:]' <<< "${DESKTOP_SESSION}")"
+					fi
+				else
+					_DESKTOP_SESSION="$(tr '[:upper:]' '[:lower:]' <<< "${DESKTOP_SESSION}")"
+				fi
+				case "${_DESKTOP_SESSION}" in
+					'gnome'*)
+						DE="GNOME"
+						;;
+					'deepin')
+						DE="Deepin"
+						;;
+					'lumina')
+						DE="Lumina"
+						;;
+					'lxde'|'lubuntu')
+						DE="LXDE"
+						;;
+					'mate')
+						DE="MATE"
+						;;
+					'xfce'*)
+						DE="Xfce"
+						;;
+					'budgie-desktop')
+						DE="Budgie"
+						;;
+					'cinnamon')
+						DE="Cinnamon"
+						;;
+					'trinity')
+						DE="Trinity"
+						;;
+				esac
+			fi
+
+			if [ -n "$DE" ]; then
+				# fallback to checking $GDMSESSION
+				case "${GDMSESSION,,}" in
+					'lumina'*)
+						DE="Lumina"
+						;;
+					'mate')
+						DE="MATE"
+						;;
+				esac
+			fi
+
+			if [[ ${DE} == "GNOME" ]]; then
+				if type -p xprop >/dev/null 2>&1; then
+					if xprop -name "unity-launcher" >/dev/null 2>&1; then
+						DE="Unity"
+					elif xprop -name "launcher" >/dev/null 2>&1 &&
+						xprop -name "panel" >/dev/null 2>&1; then
+						DE="Unity"
+					fi
+				fi
+			fi
+
+			if [[ ${DE} == "KDE" ]]; then
+				if [[ -n ${KDE_SESSION_VERSION} ]]; then
+					if [[ ${KDE_SESSION_VERSION} == '5' ]]; then
+						DE="KDE5"
+					elif [[ ${KDE_SESSION_VERSION} == '4' ]]; then
+						DE="KDE4"
+					fi
+				elif [[ ${KDE_FULL_SESSION} == 'true' ]]; then
+					DE="KDE"
+					DEver_data=$(kded --version 2>/dev/null)
+					DEver=$(grep -si '^KDE:' <<< "$DEver_data" | awk '{print $2}')
+				fi
+			fi
+		fi
+
+		if [[ ${DE} != "Not Applicable" ]]; then
+			if [[ ${DE} == "Cinnamon" ]]; then
+				if type -p >/dev/null 2>&1; then
+					DEver=$(cinnamon --version)
+					DE="${DE} ${DEver//* }"
+				fi
+			elif [[ ${DE} == "GNOME" ]]; then
+				if type -p gnome-control-center>/dev/null 2>&1; then
+					DEver=$(gnome-control-center --version 2> /dev/null)
+					DE="${DE} ${DEver//* }"
+				elif type -p gnome-session-properties >/dev/null 2>&1; then
+					DEver=$(gnome-session-properties --version 2> /dev/null)
+					DE="${DE} ${DEver//* }"
+				elif type -p gnome-session >/dev/null 2>&1; then
+					DEver=$(gnome-session --version 2> /dev/null)
+					DE="${DE} ${DEver//* }"
+				fi
+			elif [[ ${DE} == "KDE4" || ${DE} == "KDE5" ]]; then
+				if type -p kded${DE#KDE} >/dev/null 2>&1; then
+					DEver=$(kded${DE#KDE} --version)
+					if [[ $(( $(echo "$DEver" | wc -w) )) -eq 2 ]] && [[ "$(echo "$DEver" | cut -d ' ' -f1)" == "kded${DE#KDE}" ]]; then
+						DEver=$(echo "$DEver" | cut -d ' ' -f2)
+						DE="KDE ${DEver}"
+					else
+						for l in $(echo "${DEver// /_}"); do
+							if [[ ${l//:*} == "KDE_Development_Platform" ]]; then
+								DEver=${l//*:_}
+								DE="KDE ${DEver//_*}"
+							fi
+						done
+					fi
+					if pgrep -U ${UID} plasmashell >/dev/null 2>&1; then
+						DEver=$(plasmashell --version | cut -d ' ' -f2)
+						DE="$DE / Plasma $DEver"
+					fi
+				fi
+			elif [[ ${DE} == "Lumina" ]]; then
+				if type -p Lumina-DE.real >/dev/null 2>&1; then
+					lumina="$(type -p Lumina-DE.real)"
+				elif type -p Lumina-DE >/dev/null 2>&1; then
+					lumina="$(type -p Lumina-DE)"
+				fi
+				if [ -n "$lumina" ]; then
+					if grep -q '--version' "$lumina"; then
+						DEver=$("$lumina" --version 2>&1 | tr -d \")
+						DE="${DE} ${DEver}"
+					fi
+				fi
+			elif [[ ${DE} == "LXQt" ]]; then
+				if type -p lxqt-about >/dev/null 2>&1; then
+					DEver=$(lxqt-about --version | awk '/^liblxqt/ {print $2}')
+					DE="${DE} ${DEver}"
+				fi
+			elif [[ ${DE} == "MATE" ]]; then
+				if type -p mate-session >/dev/null 2>&1; then
+					DEver=$(mate-session --version)
+					DE="${DE} ${DEver//* }"
+				fi
+			elif [[ ${DE} == "Unity" ]]; then
+				if type -p unity >/dev/null 2>&1; then
+					DEver=$(unity --version)
+					DE="${DE} ${DEver//* }"
+				fi
+			elif [[ ${DE} == "Deepin" ]]; then
+				if [[ -f /etc/deepin-version ]]; then
+					DEver="$(awk -F '=' '/Version/ {print $2}' /etc/deepin-version)"
+					DE="${DE} ${DEver//* }"
+				fi
+			elif [[ ${DE} == "Trinity" ]]; then
+				if type -p tde-config >/dev/null 2>&1; then
+					DEver="$(tde-config --version | awk -F ' ' '/TDE:/ {print $2}')"
+					DE="${DE} ${DEver//* }"
+				fi
+			fi
+		fi
+
+		if [[ "${DE}" == "Not Applicable" ]]; then
+			if pgrep -U ${UID} lxsession >/dev/null 2>&1; then
+				DE="LXDE"
+				if type -p lxpanel >/dev/null 2>&1; then
+					DEver=$(lxpanel -v)
+					DE="${DE} $DEver"
+				fi
+			elif pgrep -U ${UID} lxqt-session >/dev/null 2>&1; then
+				DE="LXQt"
+			elif pgrep -U ${UID} razor-session >/dev/null 2>&1; then
+				DE="RazorQt"
+			elif pgrep -U ${UID} dtsession >/dev/null 2>&1; then
+				DE="CDE"
+			fi
+		fi
+	fi
+	verbose "Finding desktop environment...found as '$DE'"
+    if [ ! "$DE" == "Not Found" ] && [ ! "$DE" == "Not Applicable" ]; then
+        printf -v de "%b %b" "${b_mag}${bld}DE » \t\t" "${del}${b_wht}$DE${del}"
+    fi
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_wm
+# Description: Prints wm info to main.
+#==============================================================================
+
+get_wm () {
+	WM="Not Found"
+	if [[ ${distro} == "Mac OS X" || ${distro} == "macOS" ]]; then
+		if ps -U "${USER}" | grep -q -i 'finder'; then
+			WM="Quartz Compositor"
+		fi
+	elif [[ "${distro}" == "Cygwin" || "${distro}" == "Msys" ]]; then
+		if [ "$(tasklist | grep -o 'bugn' | tr -d '\r \n')" = "bugn" ]; then
+			WM="bug.n"
+		elif [ "$(tasklist | grep -o 'Windawesome' | tr -d '\r \n')" = "Windawesome" ]; then
+			WM="Windawesome"
+		elif [ "$(tasklist | grep -o 'blackbox' | tr -d '\r \n')" = "blackbox" ]; then
+			WM="Blackbox"
+		else
+			WM="DWM/Explorer"
+		fi
+	elif [[ -n ${DISPLAY} ]]; then
+		if [[ "${distro}" == "FreeBSD" ]]; then
+			pgrep_flags="-aU"
+		else
+			pgrep_flags="-U"
+		fi
+		for each in "${wmnames[@]}"; do
+			PID="$(pgrep ${pgrep_flags} ${UID} "^$each$")"
+			if [ "$PID" ]; then
+				case $each in
+					'2bwm') WM="2bwm";;
+					'9wm') WM="9wm";;
+					'awesome') WM="Awesome";;
+					'beryl') WM="Beryl";;
+					'blackbox') WM="BlackBox";;
+					'bspwm') WM="bspwm";;
+					'budgie-wm') WM="BudgieWM";;
+					'chromeos-wm') WM="chromeos-wm";;
+					'cinnamon') WM="Muffin";;
+					'compiz') WM="Compiz";;
+					'deepin-wm') WM="deepin-wm";;
+					'dminiwm') WM="dminiwm";;
+					'dtwm') WM="dtwm";;
+					'dwm') WM="dwm";;
+					'e16') WM="E16";;
+					'emerald') WM="Emerald";;
+					'enlightenment') WM="E17";;
+					'fluxbox') WM="FluxBox";;
+					'flwm'|'flwm_topside') WM="FLWM";;
+					'fvwm') WM="FVWM";;
+					'herbstluftwm') WM="herbstluftwm";;
+					'howm') WM="howm";;
+					'i3') WM="i3";;
+					'icewm') WM="IceWM";;
+					'kwin') WM="KWin";;
+					'metacity') WM="Metacity";;
+					'monsterwm') WM="monsterwm";;
+					'musca') WM="Musca";;
+					'mwm') WM="MWM";;
+					'notion') WM="Notion";;
+					'openbox') WM="OpenBox";;
+					'pekwm') WM="PekWM";;
+					'ratpoison') WM="Ratpoison";;
+					'sawfish') WM="Sawfish";;
+					'scrotwm') WM="ScrotWM";;
+					'spectrwm') WM="SpectrWM";;
+					'stumpwm') WM="StumpWM";;
+					'subtle') WM="subtle";;
+					'sway') WM="sway";;
+					'swm') WM="swm";;
+					'twin') WM="TWin";;
+					'wmaker') WM="WindowMaker";;
+					'wmfs') WM="WMFS";;
+					'wmii') WM="wmii";;
+					'xfwm4') WM="Xfwm4";;
+					'xmonad.*') WM="XMonad";;
+				esac
+			fi
+			if [[ ${WM} != "Not Applicable" ]]; then
+				break 1
+			fi
+		done
+
+		if [[ ${WM} == "Not Found" ]]; then
+			if type -p xprop >/dev/null 2>&1; then
+				WM=$(xprop -root _NET_SUPPORTING_WM_CHECK)
+				if [[ "$WM" =~ 'not found' ]]; then
+					WM="Not Applicable"
+				elif [[ "$WM" =~ 'Not found' ]]; then
+					WM="Not Applicable"
+				elif [[ "$WM" =~ '[Ii]nvalid window id format' ]]; then
+					WM="Not Applicable"
+				elif [[ "$WM" =~ "no such" ]]; then
+					WM="Not Applicable"
+				else
+					WM=${WM//* }
+					WM=$(xprop -id "${WM}" 8s _NET_WM_NAME)
+					WM=$(echo "$(WM=${WM//*= }; echo "${WM//\"}")")
+				fi
+			fi
+		fi
+
+		# Proper format WM names that need it.
+		if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+			if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
+				WM_lower=${WM,,}
+			else
+				WM_lower="$(tr '[:upper:]' '[:lower:]' <<< "${WM}")"
+			fi
+		else
+			WM_lower="$(tr '[:upper:]' '[:lower:]' <<< "${WM}")"
+		fi
+		case ${WM_lower} in
+			*'gala'*) WM="Gala";;
+			'2bwm') WM="2bwm";;
+			'awesome') WM="Awesome";;
+			'beryl') WM="Beryl";;
+			'blackbox') WM="BlackBox";;
+			'budgiewm') WM="BudgieWM";;
+			'chromeos-wm') WM="chromeos-wm";;
+			'cinnamon') WM="Cinnamon";;
+			'compiz') WM="Compiz";;
+			'deepin-wm') WM="Deepin WM";;
+			'dminiwm') WM="dminiwm";;
+			'dwm') WM="dwm";;
+			'e16') WM="E16";;
+			'echinus') WM="echinus";;
+			'emerald') WM="Emerald";;
+			'enlightenment') WM="E17";;
+			'fluxbox') WM="FluxBox";;
+			'flwm'|'flwm_topside') WM="FLWM";;
+			'fvwm') WM="FVWM";;
+			'gnome shell'*) WM="Mutter";;
+			'herbstluftwm') WM="herbstluftwm";;
+			'howm') WM="howm";;
+			'i3') WM="i3";;
+			'icewm') WM="IceWM";;
+			'kwin') WM="KWin";;
+			'metacity') WM="Metacity";;
+			'monsterwm') WM="monsterwm";;
+			'muffin') WM="Muffin";;
+			'musca') WM="Musca";;
+			'mutter'*) WM="Mutter";;
+			'mwm') WM="MWM";;
+			'notion') WM="Notion";;
+			'openbox') WM="OpenBox";;
+			'pekwm') WM="PekWM";;
+			'ratpoison') WM="Ratpoison";;
+			'sawfish') WM="Sawfish";;
+			'scrotwm') WM="ScrotWM";;
+			'spectrwm') WM="SpectrWM";;
+			'stumpwm') WM="StumpWM";;
+			'subtle') WM="subtle";;
+			'sway') WM="sway";;
+			'swm') WM="swm";;
+			'twin') WM="TWin";;
+			'wmaker') WM="WindowMaker";;
+			'wmfs') WM="WMFS";;
+			'wmii') WM="wmii";;
+			'xfwm4') WM="Xfwm4";;
+			'xmonad') WM="XMonad";;
+		esac
+	fi
+	verbose "Finding window manager...found as '$WM'"
+    if [ ! "$WM" == "Not Found" ] && [ ! "$WM" == "Not Applicable" ]; then
+        printf -v wm "%b %b" "${b_mag}${bld}WM » \t\t" "${del}${b_wht}$WM${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -599,11 +1182,11 @@ get_wmtheme () {
 				Win_theme="$(xfconf-query -c xfwm4 -p /general/theme)"
 			fi
 		;;
-	esac
+    esac
 
 	verbose "Finding window manager theme...found as '$Win_theme'"
-    if [ ! "$Win_theme" == "Not Found" ]; then
-        printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem »" "${res}${b_wht}$Win_theme${res}"
+    if [ ! "$Win_theme" == "Not Found" ] && [ ! "$Win_theme" == "Not Applicable" ]; then
+        printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem » \t" "${del}${b_wht}$Win_theme${del}"
     fi
 }
 
@@ -830,12 +1413,12 @@ get_gtk () {
     esac
 
     if [ "$gtk2Theme" == "$gtk2Theme" ];then
-        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme »" "${res}${b_wht}$gtk2Theme (GTK2/3)${res}"
+        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2/3)${del}"
     else
-        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme »" "${res}${b_wht}$gtk2Theme (GTK2) $gtk3Theme (GTK3)${res}"
+        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2) $gtk3Theme (GTK3)${del}"
     fi
-    printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons »" "${res}${b_wht}$gtkIcons${res}"
-    printf -v gtkFonts "%b %b" "${b_mag}${bld}Font »" "${res}${b_wht}$gtkFont${res}"
+    printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons${del}"
+    printf -v gtkFonts "%b %b" "${b_mag}${bld}Font » \t" "${del}${b_wht}$gtkFont${del}"
     verbose "Finding GTK2 theme...found as '$gtk2Theme'"
     verbose "Finding GTK3 theme...found as '$gtk3Theme'"
     verbose "Finding icon theme...found as '$gtkIcons'"
@@ -848,7 +1431,7 @@ get_gtk () {
 #==============================================================================
 
 get_end() {
-    printf -v end "%b" "${b_red}╚══════════════════════════════════════════════════════╝${res}"
+    printf -v end "%b" "${b_red}╚══════════════════════════════════════════════════════╝${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -861,8 +1444,14 @@ main() {
     get_title
     get_sep
     get_hwinfo
+    get_memory
+    get_res
+    get_disk
     get_swinfo
     get_distro
+    get_shell
+    get_de
+    get_wm
     get_wmtheme
     get_gtk
     get_end
@@ -871,10 +1460,10 @@ main() {
     while IFS= read -r Line; do
         if [ ! -z "${!display[$count]}" ]; then
             printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
-            # else
-            #     if [ ! -z "$Line" ]; then
-            #         printf "%b\t%b\n" "$Line"
-            #     fi
+        else
+            if [ ! -z "$Line" ]; then
+                printf "%b\t%b\n" "$Line"
+            fi
         fi
         count=$(( count + 1 ))
     done <<< "$ascii_art"
