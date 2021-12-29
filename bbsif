@@ -86,6 +86,8 @@ display_index=0
 
 # User options
 gtk_2line="no"
+
+log_dir="$HOME/.cache/bbsif"
 #==============================================================================
 
 #=== ARRAY ====================================================================
@@ -103,6 +105,9 @@ display=(
     'mem'
     'res'
     'disk'
+    'pinfo'
+    'keyboard'
+    'mouse'
     'swinfo'
     'distro'
     'init'
@@ -200,6 +205,7 @@ usage() {
     Options:
     -h, --help              Print the help message.
     -v, --version           Print the version infomation.
+    -b, --birthday          Set the birthday infomation.
     \n" "$SCRIPTNAME"
 }
 
@@ -280,6 +286,22 @@ get_ascii() {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_user_bday
+# Description: Prints user_bday info to title.
+#==============================================================================
+
+get_user_bday() {
+    # Check user's birthday
+    [ -f $log_dir/userbday.log ] || { mkdir -p $log_dir ; echo "00/00" > $log_dir/userbday.log; }
+    [ -s $log_dir/userbday.log ] || echo "00/00" > $log_dir/userbday.log
+    date="$(date +"%d/%m")"
+    userbday="$(cat $log_dir/userbday.log)"
+    if [ "$date" = "$userbday" ]; then
+        printf -v birthday "%b" "Happy Birthday"
+    fi
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_title
 # Description: Prints title info to main.
 #==============================================================================
@@ -295,6 +317,9 @@ get_title() {
     else
         { [ "$hour" -eq 12 ] || [ "$hour" -lt 5 ]; } && good="Good afternoon, "
     fi
+    get_user_bday
+
+    [ "$birthday" ] && good="$birthday, "
 
     printf -v title "%b\n" "${b_red}${bld}${good}${user}!${del}"
 }
@@ -351,7 +376,7 @@ get_uptime () {
 #==============================================================================
 
 get_hwinfo() {
-    printf -v hwinfo "%b" "${b_red}╔════════════════ ${b_grn}Hardware Information ${b_red}════════════════╗${del}"
+    printf -v hwinfo "%b" "${b_red}╔════════════════${b_grn} Hardware Information ${b_red}════════════════╗${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -695,7 +720,7 @@ get_res () {
 
 #=== FUNCTION =================================================================
 #        Name: get_disk
-# Description: Prints hwinfo info to main.
+# Description: Prints disk info to main.
 #==============================================================================
 
 get_disk () {
@@ -713,12 +738,56 @@ get_disk () {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_pinfo
+# Description: Prints pinfo info to main.
+#==============================================================================
+
+get_pinfo () {
+    printf -v pinfo "%b" "${b_red}╠═══════════════${b_grn} Peripherals Information ${b_red}═══════════════╣${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_keyboard
+# Description: Prints keyboard info to main.
+#==============================================================================
+
+get_keyboard () {
+	keyboard="Unknown"
+    while IFS= read -r Line; do
+        if [[ $Line == *"Keyboard"* ]]; then
+            keyboard="${Line%,*}"
+            keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
+            keyboard=$(echo $keyboard | xargs -n1 | uniq -i | xargs)
+        fi
+    done <<< $( hwinfo --short )
+	verbose "Finding current disk usage...found as '$keyboard'"
+    printf -v keyboard "%b %b" "${b_mag}${bld}Keyboard » \t" "${del}${b_wht}$keyboard${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_mouse
+# Description: Prints mouse info to main.
+#==============================================================================
+
+get_mouse () {
+	mouse="Unknown"
+    while IFS= read -r Line; do
+        if [[ $Line == *"Mouse"* ]]; then
+            mouse="${Line%,*}"
+            mouse=${mouse:23:100}
+        fi
+    done <<< $( hwinfo --short )
+	verbose "Finding current disk usage...found as '$mouse'"
+    printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_swinfo
 # Description: Prints hwinfo info to main.
 #==============================================================================
 
 get_swinfo () {
-    printf -v swinfo "%b" "${b_red}╠════════════════ ${b_grn}Software Information ${b_red}════════════════╣${del}"
+    printf -v swinfo "%b" "${b_red}╠═════════════════${b_grn} Software Information ${b_red}════════════════╣${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -1848,7 +1917,7 @@ get_gtk () {
 #==============================================================================
 
 get_end() {
-    printf -v end "%b" "${b_red}╚══════════════════════════════════════════════════════╝${del}"
+    printf -v end "%b" "${b_red}╚════════════════════════════════════════════════════════╝${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -1892,6 +1961,9 @@ main() {
     get_memory
     get_res
     get_disk
+    get_pinfo
+    get_keyboard
+    get_mouse
     get_swinfo
     get_distro
     get_init
@@ -1923,6 +1995,11 @@ while true; do
             exit 0 ;;
         -v|--version)
             version
+            exit 0 ;;
+        -b|--birthday)
+            userbday="$2"
+            [ ${#userbday} -eq 5 ] && echo "$userbday" > $log_dir/userbday.log
+            main "$@"
             exit 0 ;;
         *)
             main "$@"
