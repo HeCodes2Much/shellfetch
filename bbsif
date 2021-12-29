@@ -1886,7 +1886,7 @@ main() {
     get_host
     get_cpu
     get_gpu
-    if [ "$gpu" = 'Not Found' ] ; then
+    if [ "$(clean $gpu)" = 'Not Found' ] ; then
 	    get_intel_gpu
     fi
     get_memory
