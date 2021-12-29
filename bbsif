@@ -58,6 +58,32 @@ res="\e[1;0m"
 
 readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag cyn wht bld res
 
+# Speed up script by not using unicode.
+LC_ALL=C
+LANG=C
+
+# Bfetch default config.
+read -rd '' config <<'EOF'
+# Hide/Show Fully domain name.
+# Default:  'yes'
+# Values:   'yes', 'no'
+title_on="yes"
+
+# Hide/Show Separator.
+# Default:  'yes'
+# Values:   'yes', 'no'
+sep_on="yes"
+EOF
+
+#=== FUNCTION =================================================================
+#        Name: repeat
+# Description: Repeat given char 80 times using shell function
+# Parameter 1: Message to repeat
+#==============================================================================
+repeat(){
+	printf "$1"'%.s' {1..20}
+}
+
 #=== FUNCTION =================================================================
 #        Name: msg
 # Description: Print message with a green pretag if $quiet is not set.
@@ -68,7 +94,7 @@ readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag
 msg () {
 
     local mesg=$1; shift
-    printf "${grn}==>${res}${bld} %s${res}\n" "$mesg" "$@"
+    printf "${grn}==>${res}${bld} %b${res}\n" "$mesg" "$@"
     exit 0
 }
 
@@ -81,7 +107,7 @@ msg () {
 # copied from makepkg
 error() {
     local mesg=$1; shift
-    printf "${red}==> ERROR:${res} %s${res}\n" "$mesg" "$@" >&2
+    printf "${red}==> ERROR:${res} %b${res}\n" "$mesg" "$@" >&2
 
 }
 
@@ -95,12 +121,12 @@ usage() {
     Run a command using the selected default program
 
     Usage:
-      %s [options]...
+      %b [options]...
 
     Options:
         -h, --help              Print the help message.
         -v, --version           Print the version infomation.
-    \n" "${0##*/}"
+    \n" "$SCRIPTNAME"
 }
 
 #=== FUNCTION =================================================================
@@ -117,24 +143,211 @@ version() {
    _| |__) |   _| |__) |  |'\____) |   _| |_    _| |_
   |_______/   |_______/   |_______.'  |_____|  |_____|
 
-    %s - v%s
+    %b - v%b
 
     This program may be freely redistributed
     under the terms of The MIT License.
 
-    %s
+    %b
     \n" "$DESCRIPTION" "$VERSION" "$AUTHOR"
     exit
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_ascii
+# Description: Prints ascii_art to main.
+#==============================================================================
+
+get_ascii() {
+    printf -v ascii_art "%b\n" "\t\t\t\t
+${b_wht}╔══════════════════════╦══════════╗
+${b_wht}║                      ║ ${b_grn} ${b_wht} ${b_mag} ${b_wht} ${b_yel} ${b_wht} ║
+${b_wht}╠══════════════════════╝          ║
+${b_wht}║                                 ║
+${b_wht}║                                 ║
+${b_wht}║           ${b_red}█▀▀▀▀▀▀▀▀█${b_wht}            ║
+${b_wht}║           ${b_red}█        █${b_wht}            ║
+${b_wht}║           ${b_blk}█ ${b_red} █  █ ${b_blk} █${b_wht}            ║
+${b_wht}║           ${b_blk}█        █${b_wht}            ║
+${b_wht}║           ${b_blk}▀█▄▄▄▄▄▄█▀${b_wht}            ║
+${b_wht}║                                 ║
+${b_wht}║                                 ║
+${b_wht}║                                 ║
+${b_wht}║    ${b_red}sudo rm -rf /* _$     ${b_wht}     ║
+${b_wht}║                                 ║
+${b_wht}╚═════════════════════════════════╝
+\t\t\t\t"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_title
+# Description: Prints title info to main.
+#==============================================================================
+
+get_title() {
+    user=${USER:-$(id -un || printf %b "${HOME/*\/}")}
+    daynight="$(date +"%r" | awk '{print $2}')"
+    hour=$(date +"%l")
+    good="Good evening, "
+
+    if [[ $daynight = "AM" ]]; then
+        [ "$hour" -ge 5 ] && [ "$hour" -lt 12 ] && good="Good morning, "
+    else
+        { [ "$hour" -eq 12 ] || [ "$hour" -lt 5 ]; } && good="Good afternoon, "
+    fi
+
+    title="${red}${bld}${good}${user}!${res}"
+    printf -v title "%b\n" "$title"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_sep
+# Description: Prints sep info to main.
+#==============================================================================
+
+get_sep() {
+    sep="${wht}$(repeat "~")${res}"
+    printf -v sep "%b\n" "$sep"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_hwinfo
+# Description: Prints hwinfo info to main.
+#==============================================================================
+
+get_hwinfo() {
+    hwinfo="${red}╔════════════════ ${grn}Hardware Information ${red}════════════════╗"
+    printf -v hwinfo "%b\n" "$hwinfo"
+}
+
+#=== FUNCTION =================================================================
 #        Name: main
-# Description: Prints systenm information.
+# Description: Prints system information.
 #==============================================================================
 
 main() {
-    printf "%s\n" "INFOHERE"
+    # Load default config.
+    eval "$config"
 
+    #get_user_config
+
+    get_ascii
+    get_title
+    get_sep
+    get_hwinfo
+
+    count=0
+    while IFS= read -r Line; do
+        if [ $count -eq 0 ]; then
+            if [ "$title_on" == "yes" ]; then
+                printf "%b\t%b" "$Line" "$title"
+            else
+                printf "%b\t%b" "$Line" "$count"
+            fi
+        fi
+        if [ $count -eq 1 ]; then
+            if [ "$sep_on" == "yes" ]; then
+                printf "%b\t%b" "$Line" "$sep"
+            else
+                printf "%b" "$Line"
+            fi
+        fi
+        if [ $count -eq 3 ]; then
+            printf "%b\t%b" "$Line" "$hwinfo"
+        fi
+        if [ $count -eq 4 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 5 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 6 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 7 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 8 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 9 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 10 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 11 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 12 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 13 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 14 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 15 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        if [ $count -eq 16 ]; then
+            if [ "$_on" == "yes" ]; then
+                printf "%b\t%b\n" "$Line" "$sep"
+            else
+                printf "%b\n" "$Line"
+            fi
+        fi
+        count=$(( count + 1 ))
+    done <<< "$ascii_art"
 }
 
 while true; do
@@ -153,5 +366,3 @@ while true; do
 done
 
 # vim: noai:ts=4:sw=4:expandtab
-# shellcheck source=/dev/null
-# shellcheck disable=2009
