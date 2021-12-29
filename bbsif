@@ -576,7 +576,7 @@ get_intel_gpu() {
 		GPU=$(awk 'BEGIN {ORS = " &"} {$1="";print}' /proc/fb | sed  -r s/'^\s+|\s*&$'//g)
 	fi
 
-	case $gpu in
+	case $GPU in
 		*mfb)
 			GPU=$(lspci | grep -i vga | awk -F ": " '{print $2}')
 			;;
