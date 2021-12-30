@@ -269,6 +269,25 @@ get_process_name() {
 }
 
 #=== FUNCTION =================================================================
+#        Name: get_user_config
+# Description: Prints config to main.
+#==============================================================================
+
+get_user_config() {
+    if [[ -f "${XDG_CONFIG_HOME}/bbsif/config" ]]; then
+        source "${XDG_CONFIG_HOME}/bbsif/config"
+        verbose "Config: Sourced user config.    (${XDG_CONFIG_HOME}/bbsif/config)"
+
+    elif [[ -z "$no_config" ]]; then
+        config_file="${XDG_CONFIG_HOME}/bbsif/config"
+
+        # The config file doesn't exist, create it.
+        mkdir -p "${XDG_CONFIG_HOME}/bbsif/"
+        printf '%s\n' "$config" > "$config_file"
+    fi
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_ascii
 # Description: Prints ascii_art to main.
 #==============================================================================
@@ -1950,6 +1969,8 @@ get_colors() {
 main() {
     # Load default config.
     eval "$config"
+
+    get_user_config
 
     get_ascii
     get_title
