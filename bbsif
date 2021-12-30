@@ -68,6 +68,8 @@ spaces="\t\t\t\t\n\t\t\t\t\n\t\t\t\t"
 readonly spaces
 
 #=== DEFAULTS =================================================================
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
+
 # Speed up script by not using unicode.
 setterm -linewrap off
 LC_ALL=C
@@ -97,6 +99,8 @@ declare -A AArr
 #        Name: display
 # Description: Information to display
 #==============================================================================
+read -rd '' config <<'EOF'
+
 display=(
     'title'
     'sep'
@@ -132,6 +136,8 @@ display=(
     'color1'
     'color2'
 )
+
+EOF
 
 #=== FUNCTION =================================================================
 #        Name: repeat
@@ -916,25 +922,37 @@ get_kernel () {
 
 get_pkgs () {
 	pkgs="Unknown"
+    basher=""
+    pip=""
     dist=$(clean ${distro##* })
 	case "${dist}" in
 		'Arch Linux'|'Arch Linux 32'|'ArcoLinux'|'Parabola GNU/Linux-libre'|'Hyperbola GNU/Linux-libre'|'Chakra'|'Manjaro'|'Antergos'| \
 		'Netrunner'|'KaOS'|'Obarun'|'SwagArch'|'OBRevenge'|'Artix Linux'|'EndeavourOS'|'Alter Linux'|'TeArch')
-			pkgs=$(pacman -Qq | wc -l) ;;
+            if [ "$(pacman -Qqm | wc -l)" -gt "0" ]; then
+                pkgs="pacman [$(pacman -Qqn | wc -l)] aur [$(pacman -Qqm | wc -l)]"
+            else
+			    pkgs="pacman [$(pacman -Qqn | wc -l)]"
+            fi
+            ;;
 		'Debian'|'Ubuntu'|'Mint'|'Fuduntu'|'KDE neon'|'Devuan'|'OS Elbrus'|'Raspbian'|'LMDE'|'CrunchBang'|'Peppermint'| \
 		'LinuxDeepin'|'Deepin'|'Kali Linux'|'Trisquel'|'elementary OS'|'gNewSense'|'BunsenLabs'|'SteamOS'|'Parrot Security'| \
 		'GrombyangOS'|'DesaOS'|'Zorin OS'|'Proxmox VE'|'PureOS'|'DraugerOS')
-			pkgs=$(dpkg -l | grep -c '^i') ;;
+            pkgs="dpkg [$(dpkg -l | grep -c '^i')]"
+            ;;
 		'Gentoo'|'Sabayon'|'Funtoo'|'Kogaion')
-			pkgs=$(ls -d /var/db/pkg/*/* | wc -l) ;;
+			pkgs="emerge [$(ls -d /var/db/pkg/*/* | wc -l)]"
+            ;;
 		'ALDOS'|'Fedora'|'Fux'|'Korora'|'BLAG'|'Chapeau'|'openSUSE'|'SUSE Linux Enterprise'|'Red Hat Enterprise Linux'| \
 		'ROSA'|'Oracle Linux'|'Scientific Linux'|'EuroLinux'|'CentOS'|'CentOS Stream'|'Mandriva'|'Mandrake'|'Mageia'|'Mer'|'SailfishOS'|'PCLinuxOS'|'Viperr'|'Qubes OS'| \
 		'Red Star OS'|'blackPanther OS'|'Amazon Linux')
-			pkgs=$(rpm -qa | wc -l) ;;
+			pkgs="rpm [$(rpm -qa | wc -l)]"
+            ;;
 		'Void Linux')
-			pkgs=$(xbps-query -l | wc -l) ;;
+			pkgs="xbps [$(xbps-query -l | wc -l)]"
+            ;;
 		'Source Mage GNU/Linux')
-			pkgs=$(gaze installed | wc -l) ;;
+			pkgs="gaze [$(gaze installed | wc -l)]"
+            ;;
 	esac
 
 	verbose "Finding current package count...found as '$pkgs'"
@@ -1930,6 +1948,9 @@ get_colors() {
 #==============================================================================
 
 main() {
+    # Load default config.
+    eval "$config"
+
     get_ascii
     get_title
     get_sep
@@ -1971,6 +1992,9 @@ main() {
         fi
         count=$(( count + 1 ))
     done <<< "$ascii_art"
+
+    userbday_content="$(< $log_dir/userbday.log)"
+    [ "$userbday_content" = "00/00" ] && printf "Please input your birthday (dd/mm) for better experience. Example 12 June: %b --birthday 12/06" "$SCRIPTNAME"
 }
 
 while true; do
