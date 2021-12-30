@@ -101,6 +101,7 @@ declare -A AArr
 #==============================================================================
 read -rd '' config <<'EOF'
 
+# Comment out below or deleted the lines for things you dont want displayed!
 display=(
     'title'
     'sep'
