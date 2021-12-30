@@ -116,27 +116,27 @@ display=(
     'disk'          # Disk Information (All disks installed)
     'pinfo'         # Peripherals Information (Header)
     'keyboard'      # Keyboard Information
-    'mouse'
-    'monitor'
-    'audio'
-    'swinfo'
-    'distro'
-    'init'
-    'kernel'
-    'pkgs'
-    'shell'
-    'term'
-    'de'
-    'wm'
-    'wmTheme'
-    'gtkTheme'
-    'gtkIcons'
-    'gtkFonts'
-    'end'
-    'blank'
-    'blank'
-    'color1'
-    'color2'
+    'mouse'         # Mouse Information
+    'monitor'       # Monitor Information
+    'audio'         # Audio Information
+    'swinfo'        # Software Information (Header)
+    'distro'        # Distro Information
+    'init'          # Init Information
+    'kernel'        # Kernel Information
+    'pkgs'          # Packages Information
+    'shell'         # Shell Information
+    'term'          # Terminal Information
+    'de'            # Desktop Environment Information
+    'wm'            # Window Manager Information
+    'wmTheme'       # Window Manager Theme Information
+    'gtkTheme'      # GTK Theme Information
+    'gtkIcons'      # GTK Icons Information
+    'gtkFonts'      # Fonts Information
+    'end'           # End (Header)
+    'blank'         # Empty Block
+    'blank'         # Empty Block
+    'color1'        # Normal Colors
+    'color2'        # Bright Colors
 )
 
 EOF
@@ -421,50 +421,50 @@ get_hwinfo() {
 
 get_host() {
     if [[ -d /system/app/ && -d /system/priv-app ]]; then
-        model="$(getprop ro.product.brand) $(getprop ro.product.model)"
+        host="$(getprop ro.product.brand) $(getprop ro.product.model)"
     fi
 
     if [[ -f /sys/devices/virtual/dmi/id/board_vendor ||
         -f /sys/devices/virtual/dmi/id/board_name ]]; then
-        model=$(< /sys/devices/virtual/dmi/id/board_vendor)
-        model+=" $(< /sys/devices/virtual/dmi/id/board_name)"
+        host=$(< /sys/devices/virtual/dmi/id/board_vendor)
+        host+=" $(< /sys/devices/virtual/dmi/id/board_name)"
     fi
 
     if [[ -f /sys/devices/virtual/dmi/id/product_name ||
         -f /sys/devices/virtual/dmi/id/product_version ]]; then
-        model=$(< /sys/devices/virtual/dmi/id/product_name)
-        model+=" $(< /sys/devices/virtual/dmi/id/product_version)"
+        host=$(< /sys/devices/virtual/dmi/id/product_name)
+        host+=" $(< /sys/devices/virtual/dmi/id/product_version)"
     fi
 
     if [[ -f /sys/firmware/devicetree/base/model ]]; then
-        model=$(< /sys/firmware/devicetree/base/model)
+        host=$(< /sys/firmware/devicetree/base/model)
     fi
 
     if [[ -f /tmp/sysinfo/model ]]; then
-        model=$(< /tmp/sysinfo/model)
+        host=$(< /tmp/sysinfo/model)
     fi
 
     # Remove dummy OEM info.
-    model=${model//To be filled by O.E.M.}
-    model=${model//To Be Filled*}
-    model=${model//OEM*}
-    model=${model//Not Applicable}
-    model=${model//System Product Name}
-    model=${model//System Version}
-    model=${model//Undefined}
-    model=${model//Default string}
-    model=${model//Not Specified}
-    model=${model//Type1ProductConfigId}
-    model=${model//INVALID}
-    model=${model//All Series}
+    host=${host//To be filled by O.E.M.}
+    host=${host//To Be Filled*}
+    host=${host//OEM*}
+    host=${host//Not Applicable}
+    host=${host//System Product Name}
+    host=${host//System Version}
+    host=${host//Undefined}
+    host=${host//Default string}
+    host=${host//Not Specified}
+    host=${host//Type1ProductConfigId}
+    host=${host//INVALID}
+    host=${host//All Series}
 
     case $model in
-        "Standard PC"*) model="KVM/QEMU (${model})" ;;
-        OpenBSD*)       model="vmm ($model)" ;;
+        "Standard PC"*) host="KVM/QEMU (${model})" ;;
+        OpenBSD*)       host="vmm ($model)" ;;
     esac
 
-	verbose "Finding hostname and user...found as '${model}'"
-    printf -v host "%b %b" "${b_mag}${bld}Host » \t" "${del}${b_wht}$model${del}"
+	verbose "Finding hostname and user...found as '${host}'"
+    printf -v host "%b %b" "${b_mag}${bld}Host » \t" "${del}${b_wht}$host${del}"
 }
 
 #=== FUNCTION =================================================================
