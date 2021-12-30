@@ -63,7 +63,7 @@ readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag
 # Description: Give space to main function
 #==============================================================================
 
-spaces="\t\t\t\t\n\t\t\t\t\n\t\t\t\t"
+spaces="\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t"
 
 readonly spaces
 
@@ -82,7 +82,7 @@ display_type="ASCII"
 display_logo="no"
 
 # Verbose Setting - Set to 1 for verbose output.
-verbosity=
+verbosity=0
 
 # Static variables
 display_index=0
@@ -131,7 +131,10 @@ display=(
     'wmTheme'       # Window Manager Theme Information
     'gtkTheme'      # GTK Theme Information
     'gtkIcons'      # GTK Icons Information
-    'gtkFonts'      # Fonts Information
+    'gtkFonts'      # GTK Fonts Information
+    'qtTheme'       # QT Theme Information
+    'qtIcons'       # QT Icons Information
+    'qtFonts'       # QT Fonts Information
     'end'           # End (Header)
     'blank'         # Empty Block
     'blank'         # Empty Block
@@ -175,6 +178,19 @@ clean () {
     local mesg=$1;
     mesg=$(echo $mesg | sed 's/\x1b\[[0-9;]*[a-zA-Z]//g')
     printf "%b\n" "$mesg"
+}
+
+#=== FUNCTION =================================================================
+#        Name: trim
+# Description: Print message with a trimed up text.
+# Parameter 1: Message to print.
+#==============================================================================
+
+trim () {
+    set -f
+    set -- $*
+    printf '%s\n' "${*//[[:space:]]/}"
+    set +f
 }
 
 #=== FUNCTION =================================================================
@@ -327,10 +343,10 @@ get_ascii() {
 
 get_user_bday() {
     # Check user's birthday
-    [ -f $log_dir/userbday.log ] || { mkdir -p $log_dir ; echo "00/00" > $log_dir/userbday.log; }
-    [ -s $log_dir/userbday.log ] || echo "00/00" > $log_dir/userbday.log
+    [ -f "$log_dir"/userbday.log ] || { mkdir -p "$log_dir" ; echo "00/00" > "$log_dir"/userbday.log; }
+    [ -s "$log_dir"/userbday.log ] || echo "00/00" > "$log_dir"/userbday.log
     date="$(date +"%d/%m")"
-    userbday="$(< $log_dir/userbday.log)"
+    userbday="$(< "$log_dir"/userbday.log)"
     if [ "$date" = "$userbday" ]; then
         printf -v birthday "%b" "Happy Birthday"
     fi
@@ -938,7 +954,8 @@ get_init () {
 	init=$(readlink /sbin/init)
 	init=${init##*/}
 	init=${init%%-*}
-	verbose "Finding distro...found as '${distro} ${init}'"
+
+	verbose "Finding init...found as '${init}'"
     printf -v init "%b %b" "${b_mag}${bld}Init » \t" "${del}${b_wht}$init${del}"
 }
 
@@ -979,7 +996,7 @@ get_pkgs () {
             pkgs="dpkg [$(dpkg -l | grep -c '^i')]"
             ;;
 		'Gentoo'|'Sabayon'|'Funtoo'|'Kogaion')
-			pkgs="emerge [$(ls -d /var/db/pkg/*/* | wc -l)]"
+			pkgs="emerge [$(q qlist -I | wc -l)]"
             ;;
 		'ALDOS'|'Fedora'|'Fux'|'Korora'|'BLAG'|'Chapeau'|'openSUSE'|'SUSE Linux Enterprise'|'Red Hat Enterprise Linux'| \
 		'ROSA'|'Oracle Linux'|'Scientific Linux'|'EuroLinux'|'CentOS'|'CentOS Stream'|'Mandriva'|'Mandrake'|'Mageia'|'Mer'|'SailfishOS'|'PCLinuxOS'|'Viperr'|'Qubes OS'| \
@@ -1938,17 +1955,112 @@ get_gtk () {
             ;;
     esac
 
+    verbose "Finding GTK2 theme...found as '$gtk2Theme'"
+    verbose "Finding GTK3 theme...found as '$gtk3Theme'"
+    verbose "Finding GTK Icons...found as '$gtkIcons'"
+    verbose "Finding GTK font...found as '$gtkFont'"
+
     if [ "$gtk2Theme" == "$gtk2Theme" ];then
         printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2/3)${del}"
     else
         printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2) $gtk3Theme (GTK3)${del}"
     fi
     printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons${del}"
-    printf -v gtkFonts "%b %b" "${b_mag}${bld}Font » \t" "${del}${b_wht}$gtkFont${del}"
-    verbose "Finding GTK2 theme...found as '$gtk2Theme'"
-    verbose "Finding GTK3 theme...found as '$gtk3Theme'"
-    verbose "Finding icon theme...found as '$gtkIcons'"
-    verbose "Finding user font...found as '$gtkFont'"
+    printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont${del}"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_qt
+# Description: Prints qt info to main.
+#==============================================================================
+
+get_qt() {
+    # Handle Qt5ct platform theme
+    get_output() {
+        qt5ct=$1
+        if [[ "$QT_QPA_PLATFORMTHEME" == 'qt5ct' && -f "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf" ]]; then
+            qt5ct="$(grep "^${qt5ct}" "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf")"
+            qt5ct="${qt5ct/*=}"
+        fi
+        echo $qt5ct
+    }
+
+    get_theme() {
+        qtTheme=$(get_output "style=")
+
+        # Handle Qt theme engines that load external themes
+        case "$qtTheme" in
+            'Kvantum')
+                if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
+                    qtTheme="$kvantum_theme"
+                    qtTheme="${qtTheme/*=}"
+                fi
+                ;;
+            *'gtk2')
+                qtTheme="$gtk2_theme"
+                ;;
+        esac
+
+        custom=$(get_output "custom_palette=")
+        if [[ "${custom}" == "true" ]]; then
+            qtTheme=$(get_output "color_scheme_path=")
+            qtTheme=$(basename ${qtTheme})
+            IFS='.' read -r name ext <<< "$qtTheme"
+            qtTheme=${name}
+        fi
+
+        qtTheme="$(trim "$qtTheme")"
+
+    }
+
+    get_icons() {
+        qtIcons=$(get_output "icon_theme=")
+        qtIcons="$(trim "$qtIcons")"
+    }
+
+    get_font() {
+        qtFont=$(get_output "general=")
+        # Trim quotes and parentheses
+        qtFont="${qtFont#'"'}"
+        qtFont="${qtFont%'"'}"
+        qtFont="${qtFont#@Variant(}"
+        qtFont="${qtFont%)}"
+
+        # Read font name
+        qt5ct_font_name="${qtFont#*@}"
+        qt5ct_font_name="${qt5ct_font_name%%@*}"
+        # Interpret backslashes
+        qt5ct_font_name=$(printf "%b" "$qt5ct_font_name" | tr -d '\0')
+        qt5ct_font_name="${qt5ct_font_name#','}"
+        qt5ct_font_name="${qt5ct_font_name//[[:cntrl:]]}" # trim control characters
+
+        # Get font size
+        # Tread carefully, Qt sometimes uses @ in binary data
+        local pre_size="${qtFont#*@}"
+        local pre_size="${pre_size#*@}"
+        # Need to declare array and manually handle the second byte
+        # (workaround for `od` without --endian)
+        IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
+        # Split the upper 4 bits (exponent) the lower 12.
+        local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
+        local upper4=$((raw_size[0]>>4 ))
+        qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
+
+        qtFont="$qt5ct_font_name $qt5ct_font_size"
+        qtFont="$(trim "$qtFont")"
+    }
+
+    get_theme
+    verbose "Finding QT theme...found as '$qtTheme'"
+    printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qtTheme${del}"
+
+    get_icons
+    verbose "Finding icon theme...found as '$qtIcons'"
+    printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qtIcons${del}"
+
+    get_font
+    verbose "Finding user font...found as '$qtFont'"
+    printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qtFont${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -2022,6 +2134,7 @@ main() {
     get_wm
     get_wmtheme
     get_gtk
+    get_qt
     get_end
     get_blank
     get_colors
@@ -2034,7 +2147,7 @@ main() {
         count=$(( count + 1 ))
     done <<< "$ascii_art"
 
-    userbday_content="$(< $log_dir/userbday.log)"
+    userbday_content="$(< "$log_dir"/userbday.log)"
     [ "$userbday_content" = "00/00" ] && printf "Please input your birthday (dd/mm) for better experience. Example 12 June: %b --birthday 12/06" "$SCRIPTNAME"
 }
 
@@ -2048,7 +2161,7 @@ while true; do
             exit 0 ;;
         -b|--birthday)
             userbday="$2"
-            [ ${#userbday} -eq 5 ] && echo "$userbday" > $log_dir/userbday.log
+            [ ${#userbday} -eq 5 ] && echo "$userbday" > "$log_dir"/userbday.log
             main "$@"
             exit 0 ;;
         *)
