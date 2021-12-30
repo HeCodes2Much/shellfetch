@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-
+# vim: noai:ts=4:sw=4:expandtab
+# shellcheck disable=2009
+# shellcheck disable=SC2034
+#
 # Path          - /usr/bin/ecofetch
 # Author        - The-Repo-Club [wayne6324@gmail.com]
 # Github        - https://github.com/The-Repo-Club/ecofetch
 # Start on      - Tue 28 Dec 21:26:12 GMT 2021
 # Modified on   - Tue 28 Dec 21:26:12 GMT 2021
-
+#
 # The MIT License (MIT)
 #
 # Copyright (c) 2021 Wayne Wesley
@@ -601,7 +604,7 @@ get_intel_gpu() {
 				;; #Unknown GPU model
 		esac
 	fi
-    verbose "Finding intel GPU ...found as '$gpu'"
+    verbose "Finding intel GPU ...found as '$GPU'"
     if [ ! "$gpu" == "Not_Found" ] && [ ! "$gpu" == "Not_Applicable" ]; then
         printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
     fi
@@ -1717,7 +1720,7 @@ get_wmtheme () {
 			elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml && "${DE}" == "LXDE" ]]; then
 				Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml")";
 			elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxqt-rc.xml && "${DE}" =~ "LXQt" ]]; then
-				Win_theme="$(awk -F'=' '/^theme/ {print $2}' ${HOME}/.config/lxqt/lxqt.conf)"
+				Win_theme="$(awk -F'=' '/^theme/ {print $2}' "${HOME}"/.config/lxqt/lxqt.conf)"
 			fi
 		;;
 		'Xfwm4')
@@ -1916,6 +1919,7 @@ get_gtk () {
                 if grep -q 'gtk-theme-name' /etc/gtk-2.0/gtkrc; then
                     gtk2Theme=$(awk -F'"' '/^gtk-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
                 fi
+                # shellcheck disable=SC2268
                 if grep -q 'gtk-fallback-theme-name' /etc/gtk-2.0/gtkrc  && ! [ "x$gtk2Theme" = "x" ]; then
                     gtk2Theme=$(awk -F'"' '/^gtk-fallback-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
                 fi
@@ -1923,6 +1927,7 @@ get_gtk () {
                 if grep -q 'icon-theme' /etc/gtk-2.0/gtkrc; then
                     gtkIcons=$(awk -F'"' '/^icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
                 fi
+                # shellcheck disable=SC2268
                 if  grep -q 'gtk-fallback-icon-theme' /etc/gtk-2.0/gtkrc  && ! [ "x$gtkIcons" = "x" ]; then
                     gtkIcons=$(awk -F'"' '/^gtk-fallback-icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
                 fi
@@ -1958,15 +1963,25 @@ get_gtk () {
     verbose "Finding GTK2 theme...found as '$gtk2Theme'"
     verbose "Finding GTK3 theme...found as '$gtk3Theme'"
     verbose "Finding GTK Icons...found as '$gtkIcons'"
-    verbose "Finding GTK font...found as '$gtkFont'"
+    verbose "Finding GTK Font...found as '$gtkFont'"
 
-    if [ "$gtk2Theme" == "$gtk2Theme" ];then
+    if [ "$gtk2Theme" == "$gtk3Theme" ];then
         printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2/3)${del}"
+        printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons (GTK2/3)${del}"
+        printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont (GTK2/3)${del}"
     else
-        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2) $gtk3Theme (GTK3)${del}"
+        if [ -z "$gtk2Theme" ]; then
+            gtk2Theme="$gtk2Theme (GTK2)"
+        fi
+        if [ -z "$gtk3Theme" ]; then
+            gtk3Theme="$gtk3Theme (GTK3)"
+
+        fi
+        gtkThemes=$(clean "$gtk2Theme $gtk3Theme")
+        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtkThemes${del}"
+        printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons${del}"
+        printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont${del}"
     fi
-    printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons${del}"
-    printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont${del}"
 }
 
 #=== FUNCTION =================================================================
@@ -1976,91 +1991,221 @@ get_gtk () {
 
 get_qt() {
     # Handle Qt5ct platform theme
-    get_output() {
+    get_qt5ct_output() {
         qt5ct=$1
-        if [[ "$QT_QPA_PLATFORMTHEME" == 'qt5ct' && -f "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf" ]]; then
+        if [[ -f "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf" ]]; then
             qt5ct="$(grep "^${qt5ct}" "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf")"
             qt5ct="${qt5ct/*=}"
-        fi
-        echo $qt5ct
-    }
-
-    get_theme() {
-        qtTheme=$(get_output "style=")
-
-        # Handle Qt theme engines that load external themes
-        case "$qtTheme" in
-            'Kvantum')
-                if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
-                    qtTheme="$kvantum_theme"
-                    qtTheme="${qtTheme/*=}"
-                fi
-                ;;
-            *'gtk2')
-                qtTheme="$gtk2_theme"
-                ;;
-        esac
-
-        custom=$(get_output "custom_palette=")
-        if [[ "${custom}" == "true" ]]; then
-            qtTheme=$(get_output "color_scheme_path=")
-            qtTheme=$(basename ${qtTheme})
-            IFS='.' read -r name ext <<< "$qtTheme"
-            qtTheme=${name}
+            echo "$qt5ct"
+        else
+            echo ""
         fi
 
-        qtTheme="$(trim "$qtTheme")"
+    }
+
+    # Handle Qt6ct platform theme
+    get_qt6ct_output() {
+        qt6ct=$1
+        if [[ -f "${XDG_CONFIG_HOME}/qt6ct/qt6ct.conf" ]]; then
+            qt6ct="$(grep "^${qt6ct}" "${XDG_CONFIG_HOME}/qt6ct/qt6ct.conf")"
+            qt6ct="${qt6ct/*=}"
+            echo "$qt6ct"
+        else
+            echo ""
+        fi
 
     }
 
-    get_icons() {
-        qtIcons=$(get_output "icon_theme=")
-        qtIcons="$(trim "$qtIcons")"
+    get_qt5Theme() {
+        qt5Theme=$(get_qt5ct_output "style=")
+        if [ ! -z "$qt6Theme" ]; then
+            # Handle Qt theme engines that load external themes
+            case "$qt5Theme" in
+                'Kvantum')
+                    if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
+                        qt5Theme="$kvantum_theme"
+                        qt5Theme="${qt5Theme/*=}"
+                    fi
+                    ;;
+                *'gtk2')
+                    qt5Theme="$gtk2_theme"
+                    ;;
+            esac
+
+            custom=$(get_qt5ct_output "custom_palette=")
+            if [[ "${custom}" == "true" ]]; then
+                qt5Theme=$(get_qt5ct_output "color_scheme_path=")
+                qt5Theme=$(basename "${qt5Theme}")
+                IFS='.' read -r name ext <<< "$qt5Theme"
+                qt5Theme="${name}"
+            fi
+
+            qt5Theme="$(trim "$qt5Theme")"
+        fi
     }
 
-    get_font() {
-        qtFont=$(get_output "general=")
-        # Trim quotes and parentheses
-        qtFont="${qtFont#'"'}"
-        qtFont="${qtFont%'"'}"
-        qtFont="${qtFont#@Variant(}"
-        qtFont="${qtFont%)}"
-
-        # Read font name
-        qt5ct_font_name="${qtFont#*@}"
-        qt5ct_font_name="${qt5ct_font_name%%@*}"
-        # Interpret backslashes
-        qt5ct_font_name=$(printf "%b" "$qt5ct_font_name" | tr -d '\0')
-        qt5ct_font_name="${qt5ct_font_name#','}"
-        qt5ct_font_name="${qt5ct_font_name//[[:cntrl:]]}" # trim control characters
-
-        # Get font size
-        # Tread carefully, Qt sometimes uses @ in binary data
-        local pre_size="${qtFont#*@}"
-        local pre_size="${pre_size#*@}"
-        # Need to declare array and manually handle the second byte
-        # (workaround for `od` without --endian)
-        IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
-        # Split the upper 4 bits (exponent) the lower 12.
-        local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
-        local upper4=$((raw_size[0]>>4 ))
-        qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
-
-        qtFont="$qt5ct_font_name $qt5ct_font_size"
-        qtFont="$(trim "$qtFont")"
+    get_qt5Icons() {
+        qt5Icons=$(get_qt5ct_output "icon_theme=")
+        if [ ! -z "$qt6Theme" ]; then
+            qt5Icons="$(trim "$qt5Icons")"
+        fi
     }
 
-    get_theme
-    verbose "Finding QT theme...found as '$qtTheme'"
-    printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qtTheme${del}"
+    get_qt5Font() {
+        qt5Font=$(get_qt5ct_output "general=")
+        if [ ! -z "$qt6Theme" ]; then
+            # Trim quotes and parentheses
+            qt5Font="${qt5Font#'"'}"
+            qt5Font="${qt5Font%'"'}"
+            qt5Font="${qt5Font#@Variant(}"
+            qt5Font="${qt5Font%)}"
 
-    get_icons
-    verbose "Finding icon theme...found as '$qtIcons'"
-    printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qtIcons${del}"
+            # Read font name
+            qt5ct_font_name="${qt5Font#*@}"
+            qt5ct_font_name="${qt5ct_font_name%%@*}"
+            # Interpret backslashes
+            qt5ct_font_name=$(printf "%b" "$qt5ct_font_name" | tr -d '\0')
+            qt5ct_font_name="${qt5ct_font_name#','}"
+            qt5ct_font_name="${qt5ct_font_name//[[:cntrl:]]}" # trim control characters
 
-    get_font
-    verbose "Finding user font...found as '$qtFont'"
-    printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qtFont${del}"
+            # Get font size
+            # Tread carefully, Qt sometimes uses @ in binary data
+            local pre_size="${qt5Font#*@}"
+            local pre_size="${pre_size#*@}"
+            # Need to declare array and manually handle the second byte
+            # (workaround for `od` without --endian)
+            IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
+            # Split the upper 4 bits (exponent) the lower 12.
+            local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
+            local upper4=$((raw_size[0]>>4 ))
+            qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
+
+            qt5Font="$qt5ct_font_name $qt5ct_font_size"
+            qt5Font="$(trim "$qt5Font")"
+        fi
+    }
+
+    get_qt6Theme() {
+        qt6Theme=$(get_qt6ct_output "style=")
+        if [ ! -z "$qt6Theme" ]; then
+            # Handle Qt theme engines that load external themes
+            case "$qt6Theme" in
+                'Kvantum')
+                    if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
+                        qt6Theme="$kvantum_theme"
+                        qt6Theme="${qt6Theme/*=}"
+                    fi
+                    ;;
+                *'gtk2')
+                    qt6Theme="$gtk2_theme"
+                    ;;
+            esac
+
+            custom=$(get_qt6ct_output "custom_palette=")
+            if [[ "${custom}" == "true" ]]; then
+                qt6Theme=$(get_qt6ct_output "color_scheme_path=")
+                qt6Theme=$(basename "${qt6Theme}")
+                IFS='.' read -r name ext <<< "$qt6Theme"
+                qt6Theme="${name}"
+            fi
+
+            qt6Theme="$(trim "$qt6Theme")"
+        fi
+    }
+
+    get_qt6Icons() {
+        qt6Icons=$(get_qt6ct_output "icon_theme=")
+        if [ ! -z "$qt6Icons" ]; then
+            qt6Icons="$(trim "$qt6Icons")"
+        fi
+    }
+
+    get_qt6Font() {
+        qt6Font=$(get_qt6ct_output "general=")
+        if [ ! -z "$qt6Font" ]; then
+
+            # Trim quotes and parentheses
+            qt6Font="${qt6Font#'"'}"
+            qt6Font="${qt6Font%'"'}"
+            qt6Font="${qt6Font#@Variant(}"
+            qt6Font="${qt6Font%)}"
+
+            # Read font name
+            qt6ct_font_name="${qt6Font#*@}"
+            qt6ct_font_name="${qt6ct_font_name%%@*}"
+            # Interpret backslashes
+            qt6ct_font_name=$(printf "%b" "$qt6ct_font_name" | tr -d '\0')
+            qt6ct_font_name="${qt6ct_font_name#','}"
+            qt6ct_font_name="${qt6ct_font_name//[[:cntrl:]]}" # trim control characters
+
+            # Get font size
+            # Tread carefully, Qt sometimes uses @ in binary data
+            local pre_size="${qt6Font#*@}"
+            local pre_size="${pre_size#*@}"
+            # Need to declare array and manually handle the second byte
+            # (workaround for `od` without --endian)
+            IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
+            # Split the upper 4 bits (exponent) the lower 12.
+            local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
+            local upper4=$((raw_size[0]>>4 ))
+            qt6ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
+
+            qt6Font="$qt6ct_font_name $qt6ct_font_size"
+            qt6Font="$(trim "$qt6Font")"
+        fi
+    }
+
+    get_qt5Theme
+    get_qt6Theme
+    verbose "Finding QT5 theme...found as '$qt5Theme'"
+    verbose "Finding QT6 theme...found as '$qt6Theme'"
+    if [ "$qt5Theme" == "$qt6Theme" ]; then
+        printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qt5Theme (QT5/QT6)${del}"
+    else
+        if [ -z "$qt5Theme" ]; then
+            qt5Theme="$qt5Theme (QT5)"
+        fi
+        if [ -z "$qt6Theme" ]; then
+            qt6Theme="$qt6Theme (QT6)"
+        fi
+        qtThemes=$(clean "$qt5Theme $qt6Theme")
+        printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qtThemes${del}"
+    fi
+
+    get_qt5Icons
+    get_qt6Icons
+    verbose "Finding QT5 Icons...found as '$qt5Icons'"
+    verbose "Finding QT6 Icons...found as '$qt6Icons'"
+    if [ "$qt5Icons" == "$qt6Icons" ]; then
+        printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qt5Icons (QT5/QT6)${del}"
+    else
+        if [ -z "$qt5Icons" ]; then
+            qt5Icons="$qt5Icons (QT5)"
+        fi
+        if [ -z "$qt6Icons" ]; then
+            qt6Icons="$qt6Icons (QT6)"
+        fi
+        qtIcons=$(clean "$qt5Icons $qt6Icons")
+        printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qtIcons${del}"
+    fi
+
+    get_qt5Font
+    get_qt6Font
+    verbose "Finding QT5 Font...found as '$qt5Font'"
+    verbose "Finding QT6 Font...found as '$qt6Font'"
+    if [ "$qt5Font" == "$qt6Font" ]; then
+        printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qt5Font (QT5/QT6)${del}"
+    else
+        if [ -z "$qt5Font" ]; then
+            qt5Font="$qt5Font (QT5)"
+        fi
+        if [ -z "$qt6Font" ]; then
+            qt6Font="$qt6Font (QT6)"
+        fi
+        qtFonts=$(clean "$qt5Font $qt6Font")
+        printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qtFonts${del}"
+    fi
+
 }
 
 #=== FUNCTION =================================================================
@@ -2112,7 +2257,7 @@ main() {
     get_host
     get_cpu
     get_gpu
-    if [ "$(clean ${gpu##* })" = 'Not_Found' ] ; then
+    if [ "$(clean "${gpu##* }")" = 'Not_Found' ] ; then
 	    get_intel_gpu
     fi
     get_memory
