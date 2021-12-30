@@ -699,10 +699,10 @@ get_monitor () {
     DataOut=
 	monitor="Unknown"
     while IFS= read -r Line; do
-        if [[ $Line == *"Monitor"* ]]; then
+        if [[ ! $Line == "monitor"* ]]; then
             monitor="${Line%,*}"
         fi
-    done <<< $( hwinfo --short )
+    done <<< $( hwinfo --short --monitor )
 
     IFS=' ' read -a Arr <<< $monitor
     for Val in "${Arr[@]}"; do
