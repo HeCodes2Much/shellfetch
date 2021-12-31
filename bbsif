@@ -2366,7 +2366,7 @@ main() {
     if [[ ! "$verbosity" -eq "1" ]]; then
         count=0
         while IFS= read -r Line; do
-            if [ -n "${!display[$count]}" ]; then
+            if [ -n "${!display[$count]}" ] && [ ! "${!display[$count]}" == "Unknown" ]; then
                 printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
             fi
             count=$(( count + 1 ))
