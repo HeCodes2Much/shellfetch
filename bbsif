@@ -2286,7 +2286,7 @@ main() {
 
     count=0
     while IFS= read -r Line; do
-        if [ ! -z "${!display[$count]}" ]; then
+        if [ -n "${!display[$count]}" ]; then
             printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
         fi
         count=$(( count + 1 ))
