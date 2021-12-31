@@ -551,6 +551,8 @@ get_gpu () {
     if [ -n "$GPU" ]; then
         if [ ! "$GPU" == "Not_Found" ] && [ ! "$GPU" == "Not_Applicable" ]; then
             printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+        else
+            printf -v gpu "%b" "$GPU"
         fi
     fi
 }
@@ -625,11 +627,11 @@ get_intel_gpu() {
 		esac
 	fi
     verbose "Finding intel GPU ...found as '$GPU'"
-    #if [ -n "$GPU" ]; then
-        #if [ ! "$GPU" == "Not_Found" ] && [ ! "$GPU" == "Not_Applicable" ]; then
+    if [ -n "$GPU" ]; then
+        if [ ! "$GPU" == "Not_Found" ] && [ ! "$GPU" == "Not_Applicable" ]; then
             printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
-        #fi
-    #fi
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -2334,7 +2336,7 @@ main() {
     get_host
     get_cpu
     get_gpu
-    if [ "$(clean "${gpu##* }")" = 'Not_Found' ] ; then
+    if [ "${gpu}" = 'Not_Found' ] || [ "${gpu}" = 'Not_Applicable' ] ; then
 	    get_intel_gpu
     fi
     get_memory
