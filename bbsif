@@ -421,7 +421,7 @@ get_uptime () {
     uptime=${uptime:-$s seconds}
 
 	verbose "Finding current uptime...found as '${uptime}'"
-    if [ ! -z "$uptime" ]; then
+    if [ -n "$uptime" ]; then
         printf -v uptime "%b %b" "${b_mag}${bld}Uptime » \t" "${del}${b_wht}$uptime${del}"
     fi
 }
@@ -485,7 +485,7 @@ get_host() {
     esac
 
 	verbose "Finding hostname and user...found as '${host}'"
-    if [ ! -z "$host" ]; then
+    if [ -n "$host" ]; then
         printf -v host "%b %b" "${b_mag}${bld}Host » \t" "${del}${b_wht}$host${del}"
     fi
 }
@@ -506,7 +506,7 @@ get_cpu () {
         esac
     done < /proc/cpuinfo
 	verbose "Finding current CPU...found as '$CPU'"
-    if [ ! -z "$CPU" ]; then
+    if [ -n "$CPU" ]; then
         printf -v cpu "%b %b" "${b_mag}${bld}CPU » \t" "${del}${b_wht}$CPU${del}"
     fi
 }
@@ -548,8 +548,10 @@ get_gpu () {
 	fi
 
 	verbose "Finding current GPU...found as '$GPU'"
-    if [ ! -z "$GPU" ]; then
-        printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+    if [ -n "$GPU" ]; then
+        if [ ! "$GPU" == "Not_Found" ] && [ ! "$GPU" == "Not_Applicable" ]; then
+            printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+        fi
     fi
 }
 
@@ -570,6 +572,9 @@ get_intel_gpu() {
 			;;
 		*intel*)
 			GPU="intel"
+			;;
+        *i915*)
+			GPU=$(lspci | grep -i vga | awk -F ": " '{print $2}')
 			;;
 		*)
 			GPU="Not_Found"
@@ -608,16 +613,23 @@ get_intel_gpu() {
 				#7th Kabylake
 				#8th Cannonlake
 			*)
-				GPU='Not_Applicable'
+				GPU="${GPU/*Intel/Intel}"
+                GPU="${GPU/\(R\)}"
+                GPU="${GPU/Corporation}"
+                GPU="${GPU/ \(*}"
+                GPU="${GPU/Integrated Graphics Controller}"
+                GPU="${GPU/*Xeon*/Intel HD Graphics}"
+
+                [[ -z "$(trim "$GPU")" ]] && GPU="Intel Integrated Graphics"
 				;; #Unknown GPU model
 		esac
 	fi
     verbose "Finding intel GPU ...found as '$GPU'"
-    if [ ! -z "$GPU" ]; then
-        if [ ! "$gpu" == "Not_Found" ] && [ ! "$gpu" == "Not_Applicable" ]; then
+    #if [ -n "$GPU" ]; then
+        #if [ ! "$GPU" == "Not_Found" ] && [ ! "$GPU" == "Not_Applicable" ]; then
             printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
-        fi
-    fi
+        #fi
+    #fi
 }
 
 #=== FUNCTION =================================================================
@@ -656,7 +668,7 @@ get_memory () {
 
 	mem="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
 	verbose "Finding current RAM usage...found as '$mem'"
-    if [ ! -z "$mem" ]; then
+    if [ -n "$mem" ]; then
         printf -v mem "%b %b" "${b_mag}${bld}Memory » \t" "${del}${b_wht}$mem${del}"
     fi
 }
@@ -682,7 +694,7 @@ get_res () {
     xResolution="${xResolution%%,}"
     xResolution="${xResolution%%, }"
 	verbose "Finding current resolution(s)...found as '$xResolution'"
-    if [ ! -z "$xResolution" ]; then
+    if [ -n "$xResolution" ]; then
         printf -v res "%b %b" "${b_mag}${bld}Resolution » \t" "${del}${b_wht}$xResolution${del}"
     fi
 }
@@ -703,7 +715,7 @@ get_disk () {
 		diskusage_verbose=$(sed 's/%/%%/' <<< "$diskusage")
 	fi
 	verbose "Finding current disk usage...found as '$diskusage_verbose'"
-    if [ ! -z "$diskusage" ]; then
+    if [ -n "$diskusage" ]; then
         printf -v disk "%b %b" "${b_mag}${bld}Disk » \t" "${del}${b_wht}$diskusage${del}"
     fi
 }
@@ -725,11 +737,13 @@ get_pinfo () {
 get_keyboard () {
     DataOut=
 	keyboard="Unknown"
-    while IFS= read -r Line; do
-        if [[ $Line == *"Keyboard"* ]]; then
-            keyboard="${Line%,*}"
-        fi
-    done <<< $( hwinfo --short )
+    if command -v hwinfo &> /dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Keyboard"* ]]; then
+                keyboard="${Line%,*}"
+            fi
+        done <<< $( hwinfo --short )
+    fi
 
     IFS=' ' read -a Arr <<< $keyboard
     for Val in "${Arr[@]}"; do
@@ -739,9 +753,11 @@ get_keyboard () {
     keyboard="${DataOut:1}"
     keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
 
-	verbose "Finding current disk usage...found as '$keyboard'"
-    if [ ! -z "$keyboard" ]; then
-        printf -v keyboard "%b %b" "${b_mag}${bld}Keyboard » \t" "${del}${b_wht}$keyboard${del}"
+	verbose "Finding current keyboard...found as '$keyboard'"
+    if [ -n "$keyboard" ]; then
+        if [ ! "$keyboard" == "Unknown" ]; then
+            printf -v keyboard "%b %b" "${b_mag}${bld}Keyboard » \t" "${del}${b_wht}$keyboard${del}"
+        fi
     fi
 }
 
@@ -753,11 +769,13 @@ get_keyboard () {
 get_mouse () {
     DataOut=
 	mouse="Unknown"
-    while IFS= read -r Line; do
-        if [[ $Line == *"Mouse"* ]]; then
-            mouse="${Line%,*}"
-        fi
-    done <<< $( hwinfo --short )
+    if command -v hwinfo &> /dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Mouse"* ]]; then
+                mouse="${Line%,*}"
+            fi
+        done <<< $( hwinfo --short )
+    fi
 
     IFS=' ' read -a Arr <<< $mouse
     for Val in "${Arr[@]}"; do
@@ -768,9 +786,11 @@ get_mouse () {
     mouse=${mouse#* }
     mouse=${mouse#"${mouse%%[![:space:]]*}"}
 
-	verbose "Finding current disk usage...found as '$mouse'"
-    if [ ! -z "$mem" ]; then
-        printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
+	verbose "Finding current mouse...found as '$mouse'"
+    if [ -n "$mem" ]; then
+        if [ ! "$mouse" == "Unknown" ]; then
+            printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
+        fi
     fi
 }
 
@@ -782,11 +802,13 @@ get_mouse () {
 get_monitor () {
     DataOut=
 	monitor="Unknown"
-    while IFS= read -r Line; do
-        if [[ ! $Line == "monitor"* ]]; then
-            monitor="${Line%,*}"
-        fi
-    done <<< $( hwinfo --short --monitor )
+    if command -v hwinfo &> /dev/null; then
+        while IFS= read -r Line; do
+            if [[ ! $Line == "monitor"* ]]; then
+                monitor="${Line%,*}"
+            fi
+        done <<< $( hwinfo --short --monitor )
+    fi
 
     IFS=' ' read -a Arr <<< $monitor
     for Val in "${Arr[@]}"; do
@@ -796,9 +818,11 @@ get_monitor () {
     monitor="${DataOut:1}"
     monitor=${monitor#"${monitor%%[![:space:]]*}"}
 
-	verbose "Finding current disk usage...found as '$monitor'"
-    if [ ! -z "$monitor" ]; then
-        printf -v monitor "%b %b" "${b_mag}${bld}Monitor » \t" "${del}${b_wht}$monitor${del}"
+	verbose "Finding current monitor...found as '$monitor'"
+    if [ -n "$monitor" ]; then
+        if [ ! "$monitor" == "Unknown" ]; then
+            printf -v monitor "%b %b" "${b_mag}${bld}Monitor » \t" "${del}${b_wht}$monitor${del}"
+        fi
     fi
 }
 
@@ -810,12 +834,14 @@ get_monitor () {
 get_audio () {
     DataOut=
 	audio="Unknown"
-    while IFS= read -r Line; do
-        if [[ $Line == *"Server Name"* ]]; then
-            IFS=':' read Type Server <<< "$Line";
-            audio="${Server%,*}"
-        fi
-    done <<< $( pactl info )
+    if command -v pactl &> /dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Server Name"* ]]; then
+                IFS=':' read Type Server <<< "$Line";
+                audio="${Server%,*}"
+            fi
+        done <<< $( pactl info )
+    fi
 
     IFS=' ' read -a Arr <<< $audio
     for Val in "${Arr[@]}"; do
@@ -825,9 +851,11 @@ get_audio () {
     audio="${DataOut:1}"
     audio=${audio#"${audio%%[![:space:]]*}"}
 
-	verbose "Finding current disk usage...found as '$audio'"
-    if [ ! -z "$audio" ]; then
-        printf -v audio "%b %b" "${b_mag}${bld}Audio » \t" "${del}${b_wht}$audio${del}"
+	verbose "Finding current usage...found as '$audio'"
+    if [ -n "$audio" ]; then
+        if [ ! "$audio" == "Unknown" ]; then
+            printf -v audio "%b %b" "${b_mag}${bld}Audio » \t" "${del}${b_wht}$audio${del}"
+        fi
     fi
 }
 
@@ -969,7 +997,7 @@ get_distro () {
     esac
 
     verbose "Finding distro...found as '${distro} ${distro_release}'"
-    if [ ! -z "$distro" ]; then
+    if [ -n "$distro" ]; then
         printf -v distro "%b %b" "${b_mag}${bld}Distro » \t" "${del}${b_wht}$distro${del}"
     fi
 }
@@ -985,7 +1013,7 @@ get_init () {
 	init=${init%%-*}
 
 	verbose "Finding init...found as '${init}'"
-    if [ ! -z "$init" ]; then
+    if [ -n "$init" ]; then
         printf -v init "%b %b" "${b_mag}${bld}Init » \t" "${del}${b_wht}$init${del}"
     fi
 }
@@ -999,7 +1027,7 @@ get_kernel () {
 	kernel=$(uname -srm)
 	kernel=${kernel% *}
 	verbose "Finding kernel version...found as '${kernel}'"
-    if [ ! -z "$kernel" ]; then
+    if [ -n "$kernel" ]; then
         printf -v kernel "%b %b" "${b_mag}${bld}Kernel » \t" "${del}${b_wht}$kernel${del}"
     fi
 }
@@ -1045,7 +1073,7 @@ get_pkgs () {
 	esac
 
 	verbose "Finding current package count...found as '$pkgs'"
-    if [ ! -z "$pkgs" ]; then
+    if [ -n "$pkgs" ]; then
         printf -v pkgs "%b %b" "${b_mag}${bld}Packages » \t" "${del}${b_wht}$pkgs${del}"
     fi
 }
@@ -1123,7 +1151,7 @@ get_shell () {
 
 	myShell=${shell_type}
 	verbose "Finding current shell...found as '$myShell'"
-    if [ ! -z "$myShell" ]; then
+    if [ -n "$myShell" ]; then
         printf -v shell "%b %b" "${b_mag}${bld}Shell » \t" "${del}${b_wht}$myShell${del}"
     fi
 }
@@ -1173,7 +1201,7 @@ get_term () {
         done
     fi
     verbose "Finding current terminal...found as '$term'"
-    if [ ! -z "$term" ]; then
+    if [ -n "$term" ]; then
         printf -v term "%b %b" "${b_mag}${bld}Terminal » \t" "${del}${b_wht}$term${del}"
     fi
 }
@@ -1472,7 +1500,7 @@ get_de () {
 		fi
 	fi
 	verbose "Finding desktop environment...found as '$DE'"
-    if [ ! -z "$DE" ]; then
+    if [ -n "$DE" ]; then
         if [ ! "$DE" == "Not_Found" ] && [ ! "$DE" == "Not_Applicable" ]; then
             printf -v de "%b %b" "${b_mag}${bld}DE » \t\t" "${del}${b_wht}$DE${del}"
         fi
@@ -1644,7 +1672,7 @@ get_wm () {
 		esac
 	fi
 	verbose "Finding window manager...found as '$WM'"
-    if [ ! -z "$WM" ]; then
+    if [ -n "$WM" ]; then
         if [ ! "$WM" == "Not_Found" ] && [ ! "$WM" == "Not_Applicable" ]; then
             printf -v wm "%b %b" "${b_mag}${bld}WM » \t\t" "${del}${b_wht}$WM${del}"
         fi
@@ -1771,7 +1799,7 @@ get_wmtheme () {
     esac
 
 	verbose "Finding window manager theme...found as '$Win_theme'"
-    if [ ! -z "$Win_theme" ]; then
+    if [ -n "$Win_theme" ]; then
         if [ ! "$Win_theme" == "Not_Found" ] && [ ! "$Win_theme" == "Not_Applicable" ]; then
             printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem » \t" "${del}${b_wht}$Win_theme${del}"
         fi
@@ -2007,7 +2035,7 @@ get_gtk () {
     verbose "Finding GTK Icons...found as '$gtkIcons'"
     verbose "Finding GTK Font...found as '$gtkFont'"
 
-    if [ ! -z "$gtk2Theme" ] || [ ! -z "$gtk3Theme" ] || [ ! -z "$gtkIcons" ] || [ ! -z "$gtkFont" ]; then
+    if [ -n "$gtk2Theme" ] || [ -n "$gtk3Theme" ] || [ -n "$gtkIcons" ] || [ -n "$gtkFont" ]; then
         if [ "$gtk2Theme" == "$gtk3Theme" ];then
             printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2/3)${del}"
             printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons (GTK2/3)${del}"
@@ -2061,7 +2089,7 @@ get_qt() {
 
     get_qt5Theme() {
         qt5Theme=$(get_qt5ct_output "style=")
-        if [ ! -z "$qt6Theme" ]; then
+        if [ -n "$qt6Theme" ]; then
             # Handle Qt theme engines that load external themes
             case "$qt5Theme" in
                 'Kvantum')
@@ -2089,14 +2117,14 @@ get_qt() {
 
     get_qt5Icons() {
         qt5Icons=$(get_qt5ct_output "icon_theme=")
-        if [ ! -z "$qt6Theme" ]; then
+        if [ -n "$qt6Theme" ]; then
             qt5Icons="$(trim "$qt5Icons")"
         fi
     }
 
     get_qt5Font() {
         qt5Font=$(get_qt5ct_output "general=")
-        if [ ! -z "$qt6Theme" ]; then
+        if [ -n "$qt6Theme" ]; then
             # Trim quotes and parentheses
             qt5Font="${qt5Font#'"'}"
             qt5Font="${qt5Font%'"'}"
@@ -2130,7 +2158,7 @@ get_qt() {
 
     get_qt6Theme() {
         qt6Theme=$(get_qt6ct_output "style=")
-        if [ ! -z "$qt6Theme" ]; then
+        if [ -n "$qt6Theme" ]; then
             # Handle Qt theme engines that load external themes
             case "$qt6Theme" in
                 'Kvantum')
@@ -2158,14 +2186,14 @@ get_qt() {
 
     get_qt6Icons() {
         qt6Icons=$(get_qt6ct_output "icon_theme=")
-        if [ ! -z "$qt6Icons" ]; then
+        if [ -n "$qt6Icons" ]; then
             qt6Icons="$(trim "$qt6Icons")"
         fi
     }
 
     get_qt6Font() {
         qt6Font=$(get_qt6ct_output "general=")
-        if [ ! -z "$qt6Font" ]; then
+        if [ -n "$qt6Font" ]; then
 
             # Trim quotes and parentheses
             qt6Font="${qt6Font#'"'}"
@@ -2202,7 +2230,7 @@ get_qt() {
     get_qt6Theme
     verbose "Finding QT5 theme...found as '$qt5Theme'"
     verbose "Finding QT6 theme...found as '$qt6Theme'"
-    if [ ! -z "$qt5Theme" ] || [ ! -z "$qt6Theme" ]; then
+    if [ -n "$qt5Theme" ] || [ -n "$qt6Theme" ]; then
         if [ "$qt5Theme" == "$qt6Theme" ]; then
             printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qt5Theme (QT5/QT6)${del}"
         else
@@ -2221,7 +2249,7 @@ get_qt() {
     get_qt6Icons
     verbose "Finding QT5 Icons...found as '$qt5Icons'"
     verbose "Finding QT6 Icons...found as '$qt6Icons'"
-    if [ ! -z "$qt5Icons" ] || [ ! -z "$qt6Icons" ]; then
+    if [ -n "$qt5Icons" ] || [ -n "$qt6Icons" ]; then
         if [ "$qt5Icons" == "$qt6Icons" ]; then
             printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qt5Icons (QT5/QT6)${del}"
         else
@@ -2240,7 +2268,7 @@ get_qt() {
     get_qt6Font
     verbose "Finding QT5 Font...found as '$qt5Font'"
     verbose "Finding QT6 Font...found as '$qt6Font'"
-    if [ ! -z "$qt5Font" ] || [ ! -z "$qt6Font" ]; then
+    if [ -n "$qt5Font" ] || [ -n "$qt6Font" ]; then
         if [ "$qt5Font" == "$qt6Font" ]; then
             printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qt5Font (QT5/QT6)${del}"
         else
@@ -2333,16 +2361,18 @@ main() {
     get_blank
     get_colors
 
-    count=0
-    while IFS= read -r Line; do
-        if [ -n "${!display[$count]}" ]; then
-            printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
-        fi
-        count=$(( count + 1 ))
-    done <<< "$ascii_art"
+    if [[ ! "$verbosity" -eq "1" ]]; then
+        count=0
+        while IFS= read -r Line; do
+            if [ -n "${!display[$count]}" ]; then
+                printf "%b\t%b\n" "$Line" "  ${!display[$count]}"
+            fi
+            count=$(( count + 1 ))
+        done <<< "$ascii_art"
 
-    userbday_content="$(< "$log_dir"/userbday.log)"
-    [ "$userbday_content" = "00/00" ] && printf "Please input your birthday (dd/mm) for better experience. Example 12 June: %b --birthday 12/06" "$SCRIPTNAME"
+        userbday_content="$(< "$log_dir"/userbday.log)"
+        [ "$userbday_content" = "00/00" ] && printf "Please input your birthday (dd/mm) for better experience. Example 12 June: %b --birthday 12/06" "$SCRIPTNAME"
+    fi
 }
 
 while true; do
