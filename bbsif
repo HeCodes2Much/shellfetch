@@ -421,7 +421,9 @@ get_uptime () {
     uptime=${uptime:-$s seconds}
 
 	verbose "Finding current uptime...found as '${uptime}'"
-    printf -v uptime "%b %b" "${b_mag}${bld}Uptime » \t" "${del}${b_wht}$uptime${del}"
+    if [ ! -z "$uptime" ]; then
+        printf -v uptime "%b %b" "${b_mag}${bld}Uptime » \t" "${del}${b_wht}$uptime${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -483,7 +485,9 @@ get_host() {
     esac
 
 	verbose "Finding hostname and user...found as '${host}'"
-    printf -v host "%b %b" "${b_mag}${bld}Host » \t" "${del}${b_wht}$host${del}"
+    if [ ! -z "$host" ]; then
+        printf -v host "%b %b" "${b_mag}${bld}Host » \t" "${del}${b_wht}$host${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -502,7 +506,9 @@ get_cpu () {
         esac
     done < /proc/cpuinfo
 	verbose "Finding current CPU...found as '$CPU'"
-    printf -v cpu "%b %b" "${b_mag}${bld}CPU » \t" "${del}${b_wht}$CPU${del}"
+    if [ ! -z "$CPU" ]; then
+        printf -v cpu "%b %b" "${b_mag}${bld}CPU » \t" "${del}${b_wht}$CPU${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -542,7 +548,9 @@ get_gpu () {
 	fi
 
 	verbose "Finding current GPU...found as '$GPU'"
-    printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+    if [ ! -z "$GPU" ]; then
+        printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -605,8 +613,10 @@ get_intel_gpu() {
 		esac
 	fi
     verbose "Finding intel GPU ...found as '$GPU'"
-    if [ ! "$gpu" == "Not_Found" ] && [ ! "$gpu" == "Not_Applicable" ]; then
-        printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+    if [ ! -z "$GPU" ]; then
+        if [ ! "$gpu" == "Not_Found" ] && [ ! "$gpu" == "Not_Applicable" ]; then
+            printf -v gpu "%b %b" "${b_mag}${bld}GPU » \t" "${del}${b_wht}$GPU${del}"
+        fi
     fi
 }
 
@@ -646,7 +656,9 @@ get_memory () {
 
 	mem="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
 	verbose "Finding current RAM usage...found as '$mem'"
-    printf -v mem "%b %b" "${b_mag}${bld}Memory » \t" "${del}${b_wht}$mem${del}"
+    if [ ! -z "$mem" ]; then
+        printf -v mem "%b %b" "${b_mag}${bld}Memory » \t" "${del}${b_wht}$mem${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -670,7 +682,9 @@ get_res () {
     xResolution="${xResolution%%,}"
     xResolution="${xResolution%%, }"
 	verbose "Finding current resolution(s)...found as '$xResolution'"
-    printf -v res "%b %b" "${b_mag}${bld}Resolution » \t" "${del}${b_wht}$xResolution${del}"
+    if [ ! -z "$xResolution" ]; then
+        printf -v res "%b %b" "${b_mag}${bld}Resolution » \t" "${del}${b_wht}$xResolution${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -689,7 +703,9 @@ get_disk () {
 		diskusage_verbose=$(sed 's/%/%%/' <<< "$diskusage")
 	fi
 	verbose "Finding current disk usage...found as '$diskusage_verbose'"
-    printf -v disk "%b %b" "${b_mag}${bld}Disk » \t" "${del}${b_wht}$diskusage${del}"
+    if [ ! -z "$diskusage" ]; then
+        printf -v disk "%b %b" "${b_mag}${bld}Disk » \t" "${del}${b_wht}$diskusage${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -724,7 +740,9 @@ get_keyboard () {
     keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
 
 	verbose "Finding current disk usage...found as '$keyboard'"
-    printf -v keyboard "%b %b" "${b_mag}${bld}Keyboard » \t" "${del}${b_wht}$keyboard${del}"
+    if [ ! -z "$keyboard" ]; then
+        printf -v keyboard "%b %b" "${b_mag}${bld}Keyboard » \t" "${del}${b_wht}$keyboard${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -751,7 +769,9 @@ get_mouse () {
     mouse=${mouse#"${mouse%%[![:space:]]*}"}
 
 	verbose "Finding current disk usage...found as '$mouse'"
-    printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
+    if [ ! -z "$mem" ]; then
+        printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -777,7 +797,9 @@ get_monitor () {
     monitor=${monitor#"${monitor%%[![:space:]]*}"}
 
 	verbose "Finding current disk usage...found as '$monitor'"
-    printf -v monitor "%b %b" "${b_mag}${bld}Monitor » \t" "${del}${b_wht}$monitor${del}"
+    if [ ! -z "$monitor" ]; then
+        printf -v monitor "%b %b" "${b_mag}${bld}Monitor » \t" "${del}${b_wht}$monitor${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -804,7 +826,9 @@ get_audio () {
     audio=${audio#"${audio%%[![:space:]]*}"}
 
 	verbose "Finding current disk usage...found as '$audio'"
-    printf -v audio "%b %b" "${b_mag}${bld}Audio » \t" "${del}${b_wht}$audio${del}"
+    if [ ! -z "$audio" ]; then
+        printf -v audio "%b %b" "${b_mag}${bld}Audio » \t" "${del}${b_wht}$audio${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -945,7 +969,9 @@ get_distro () {
     esac
 
     verbose "Finding distro...found as '${distro} ${distro_release}'"
-    printf -v distro "%b %b" "${b_mag}${bld}Distro » \t" "${del}${b_wht}$distro${del}"
+    if [ ! -z "$distro" ]; then
+        printf -v distro "%b %b" "${b_mag}${bld}Distro » \t" "${del}${b_wht}$distro${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -959,7 +985,9 @@ get_init () {
 	init=${init%%-*}
 
 	verbose "Finding init...found as '${init}'"
-    printf -v init "%b %b" "${b_mag}${bld}Init » \t" "${del}${b_wht}$init${del}"
+    if [ ! -z "$init" ]; then
+        printf -v init "%b %b" "${b_mag}${bld}Init » \t" "${del}${b_wht}$init${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -971,7 +999,9 @@ get_kernel () {
 	kernel=$(uname -srm)
 	kernel=${kernel% *}
 	verbose "Finding kernel version...found as '${kernel}'"
-    printf -v kernel "%b %b" "${b_mag}${bld}Kernel » \t" "${del}${b_wht}$kernel${del}"
+    if [ ! -z "$kernel" ]; then
+        printf -v kernel "%b %b" "${b_mag}${bld}Kernel » \t" "${del}${b_wht}$kernel${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -1015,7 +1045,9 @@ get_pkgs () {
 	esac
 
 	verbose "Finding current package count...found as '$pkgs'"
-    printf -v pkgs "%b %b" "${b_mag}${bld}Packages » \t" "${del}${b_wht}$pkgs${del}"
+    if [ ! -z "$pkgs" ]; then
+        printf -v pkgs "%b %b" "${b_mag}${bld}Packages » \t" "${del}${b_wht}$pkgs${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -1091,7 +1123,9 @@ get_shell () {
 
 	myShell=${shell_type}
 	verbose "Finding current shell...found as '$myShell'"
-    printf -v shell "%b %b" "${b_mag}${bld}Shell » \t" "${del}${b_wht}$myShell${del}"
+    if [ ! -z "$myShell" ]; then
+        printf -v shell "%b %b" "${b_mag}${bld}Shell » \t" "${del}${b_wht}$myShell${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -1139,7 +1173,9 @@ get_term () {
         done
     fi
     verbose "Finding current terminal...found as '$term'"
-    printf -v term "%b %b" "${b_mag}${bld}Terminal » \t" "${del}${b_wht}$term${del}"
+    if [ ! -z "$term" ]; then
+        printf -v term "%b %b" "${b_mag}${bld}Terminal » \t" "${del}${b_wht}$term${del}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -1436,8 +1472,10 @@ get_de () {
 		fi
 	fi
 	verbose "Finding desktop environment...found as '$DE'"
-    if [ ! "$DE" == "Not_Found" ] && [ ! "$DE" == "Not_Applicable" ]; then
-        printf -v de "%b %b" "${b_mag}${bld}DE » \t\t" "${del}${b_wht}$DE${del}"
+    if [ ! -z "$DE" ]; then
+        if [ ! "$DE" == "Not_Found" ] && [ ! "$DE" == "Not_Applicable" ]; then
+            printf -v de "%b %b" "${b_mag}${bld}DE » \t\t" "${del}${b_wht}$DE${del}"
+        fi
     fi
 }
 
@@ -1606,8 +1644,10 @@ get_wm () {
 		esac
 	fi
 	verbose "Finding window manager...found as '$WM'"
-    if [ ! "$WM" == "Not_Found" ] && [ ! "$WM" == "Not_Applicable" ]; then
-        printf -v wm "%b %b" "${b_mag}${bld}WM » \t\t" "${del}${b_wht}$WM${del}"
+    if [ ! -z "$WM" ]; then
+        if [ ! "$WM" == "Not_Found" ] && [ ! "$WM" == "Not_Applicable" ]; then
+            printf -v wm "%b %b" "${b_mag}${bld}WM » \t\t" "${del}${b_wht}$WM${del}"
+        fi
     fi
 }
 
@@ -1731,8 +1771,10 @@ get_wmtheme () {
     esac
 
 	verbose "Finding window manager theme...found as '$Win_theme'"
-    if [ ! "$Win_theme" == "Not_Found" ] && [ ! "$Win_theme" == "Not_Applicable" ]; then
-        printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem » \t" "${del}${b_wht}$Win_theme${del}"
+    if [ ! -z "$Win_theme" ]; then
+        if [ ! "$Win_theme" == "Not_Found" ] && [ ! "$Win_theme" == "Not_Applicable" ]; then
+            printf -v wmTheme "%b %b" "${b_mag}${bld}WM Thmem » \t" "${del}${b_wht}$Win_theme${del}"
+        fi
     fi
 }
 
@@ -1965,22 +2007,23 @@ get_gtk () {
     verbose "Finding GTK Icons...found as '$gtkIcons'"
     verbose "Finding GTK Font...found as '$gtkFont'"
 
-    if [ "$gtk2Theme" == "$gtk3Theme" ];then
-        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2/3)${del}"
-        printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons (GTK2/3)${del}"
-        printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont (GTK2/3)${del}"
-    else
-        if [ -z "$gtk2Theme" ]; then
-            gtk2Theme="$gtk2Theme (GTK2)"
+    if [ ! -z "$gtk2Theme" ] || [ ! -z "$gtk3Theme" ] || [ ! -z "$gtkIcons" ] || [ ! -z "$gtkFont" ]; then
+        if [ "$gtk2Theme" == "$gtk3Theme" ];then
+            printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtk2Theme (GTK2/3)${del}"
+            printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons (GTK2/3)${del}"
+            printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont (GTK2/3)${del}"
+        else
+            if [ -z "$gtk2Theme" ]; then
+                gtk2Theme="$gtk2Theme (GTK2)"
+            fi
+            if [ -z "$gtk3Theme" ]; then
+                gtk3Theme="$gtk3Theme (GTK3)"
+            fi
+            gtkThemes=$(clean "$gtk2Theme $gtk3Theme")
+            printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtkThemes${del}"
+            printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons${del}"
+            printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont${del}"
         fi
-        if [ -z "$gtk3Theme" ]; then
-            gtk3Theme="$gtk3Theme (GTK3)"
-
-        fi
-        gtkThemes=$(clean "$gtk2Theme $gtk3Theme")
-        printf -v gtkTheme "%b %b" "${b_mag}${bld}GTK Theme » \t" "${del}${b_wht}$gtkThemes${del}"
-        printf -v gtkIcons "%b %b" "${b_mag}${bld}GTK Icons » \t" "${del}${b_wht}$gtkIcons${del}"
-        printf -v gtkFonts "%b %b" "${b_mag}${bld}GTK Font » \t" "${del}${b_wht}$gtkFont${del}"
     fi
 }
 
@@ -2159,51 +2202,57 @@ get_qt() {
     get_qt6Theme
     verbose "Finding QT5 theme...found as '$qt5Theme'"
     verbose "Finding QT6 theme...found as '$qt6Theme'"
-    if [ "$qt5Theme" == "$qt6Theme" ]; then
-        printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qt5Theme (QT5/QT6)${del}"
-    else
-        if [ -z "$qt5Theme" ]; then
-            qt5Theme="$qt5Theme (QT5)"
+    if [ ! -z "$qt5Theme" ] || [ ! -z "$qt6Theme" ]; then
+        if [ "$qt5Theme" == "$qt6Theme" ]; then
+            printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qt5Theme (QT5/QT6)${del}"
+        else
+            if [ -z "$qt5Theme" ]; then
+                qt5Theme="$qt5Theme (QT5)"
+            fi
+            if [ -z "$qt6Theme" ]; then
+                qt6Theme="$qt6Theme (QT6)"
+            fi
+            qtThemes=$(clean "$qt5Theme $qt6Theme")
+            printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qtThemes${del}"
         fi
-        if [ -z "$qt6Theme" ]; then
-            qt6Theme="$qt6Theme (QT6)"
-        fi
-        qtThemes=$(clean "$qt5Theme $qt6Theme")
-        printf -v qtTheme "%b %b" "${b_mag}${bld}QT Theme » \t" "${del}${b_wht}$qtThemes${del}"
     fi
 
     get_qt5Icons
     get_qt6Icons
     verbose "Finding QT5 Icons...found as '$qt5Icons'"
     verbose "Finding QT6 Icons...found as '$qt6Icons'"
-    if [ "$qt5Icons" == "$qt6Icons" ]; then
-        printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qt5Icons (QT5/QT6)${del}"
-    else
-        if [ -z "$qt5Icons" ]; then
-            qt5Icons="$qt5Icons (QT5)"
+    if [ ! -z "$qt5Icons" ] || [ ! -z "$qt6Icons" ]; then
+        if [ "$qt5Icons" == "$qt6Icons" ]; then
+            printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qt5Icons (QT5/QT6)${del}"
+        else
+            if [ -z "$qt5Icons" ]; then
+                qt5Icons="$qt5Icons (QT5)"
+            fi
+            if [ -z "$qt6Icons" ]; then
+                qt6Icons="$qt6Icons (QT6)"
+            fi
+            qtIcons=$(clean "$qt5Icons $qt6Icons")
+            printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qtIcons${del}"
         fi
-        if [ -z "$qt6Icons" ]; then
-            qt6Icons="$qt6Icons (QT6)"
-        fi
-        qtIcons=$(clean "$qt5Icons $qt6Icons")
-        printf -v qtIcons "%b %b" "${b_mag}${bld}QT Icons » \t" "${del}${b_wht}$qtIcons${del}"
     fi
 
     get_qt5Font
     get_qt6Font
     verbose "Finding QT5 Font...found as '$qt5Font'"
     verbose "Finding QT6 Font...found as '$qt6Font'"
-    if [ "$qt5Font" == "$qt6Font" ]; then
-        printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qt5Font (QT5/QT6)${del}"
-    else
-        if [ -z "$qt5Font" ]; then
-            qt5Font="$qt5Font (QT5)"
+    if [ ! -z "$qt5Font" ] || [ ! -z "$qt6Font" ]; then
+        if [ "$qt5Font" == "$qt6Font" ]; then
+            printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qt5Font (QT5/QT6)${del}"
+        else
+            if [ -z "$qt5Font" ]; then
+                qt5Font="$qt5Font (QT5)"
+            fi
+            if [ -z "$qt6Font" ]; then
+                qt6Font="$qt6Font (QT6)"
+            fi
+            qtFonts=$(clean "$qt5Font $qt6Font")
+            printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qtFonts${del}"
         fi
-        if [ -z "$qt6Font" ]; then
-            qt6Font="$qt6Font (QT6)"
-        fi
-        qtFonts=$(clean "$qt5Font $qt6Font")
-        printf -v qtFonts "%b %b" "${b_mag}${bld}QT Font » \t" "${del}${b_wht}$qtFonts${del}"
     fi
 
 }
