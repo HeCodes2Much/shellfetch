@@ -789,7 +789,7 @@ get_mouse () {
     mouse=${mouse#"${mouse%%[![:space:]]*}"}
 
 	verbose "Finding current mouse...found as '$mouse'"
-    if [ -n "$mem" ]; then
+    if [ -n "$mouse" ]; then
         if [ ! "$mouse" == "Unknown" ]; then
             printf -v mouse "%b %b" "${b_mag}${bld}Mouse » \t" "${del}${b_wht}$mouse${del}"
         fi
