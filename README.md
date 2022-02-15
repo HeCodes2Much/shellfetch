@@ -5,7 +5,7 @@
      ___) |  _  | |___| |___| |___|  _| | |___  | || |___|  _  |
     |____/|_| |_|_____|_____|_____|_|   |_____| |_| \____|_| |_|
 
-        Shell System Information Fetcher - v2021.12.01
+        Shell System Information Fetcher - v2022.02.16
 
         This program may be freely redistributed
         under the terms of The GPL-TRC License.

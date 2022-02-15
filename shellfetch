@@ -12,7 +12,7 @@
 SCRIPTNAME=${0##*/}
 DESCRIPTION="Shell System Information Fetcher"
 AUTHOR="The-Repo-Club <wayne6324@gmail.com>"
-VERSION="2021.12.01"
+VERSION="2022.02.16"
 readonly SCRIPTNAME DESCRIPTION AUTHOR VERSION
 # -------------------------------------------------------------------------
 
