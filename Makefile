@@ -6,7 +6,7 @@ all:
 install:
 	@mkdir -p $(DESTDIR)$(PREFIX)/bin
 	@cp -p shellfetch $(DESTDIR)$(PREFIX)/bin/shellfetch
-	@chmod 755 $(DESTDIR)$(PREFIX)/bin/bbsif
+	@chmod 755 $(DESTDIR)$(PREFIX)/bin/shellfetch
 
 uninstall:
 	@rm -rf $(DESTDIR)$(PREFIX)/bin/shellfetch
