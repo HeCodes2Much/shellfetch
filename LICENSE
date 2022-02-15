@@ -1,21 +1,31 @@
-MIT License
+                    TRC GENERAL PUBLIC LICENSE
+                    Version 3, 31 JANUARY 2022
 
-Copyright (c) 2021 Wayne Wesley
+This license is an open source license with restrictions for commercial and corporate use.
+    Any project under this license ...
+        CANNOT be used commercially
+        CANNOT be redistributed with any sort of fee
+        CANNOT be redistributed in any proprietary form (binary, obfuscated, etc.)
+        CANNOT be patented
+        CANNOT change to any more proprietary license
+        CANNOT depend on any proprietary code/code blobs/software
+        CANNOT be used by any corporate individual, company or organisation
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+        DOESN'T have any warranty
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+        CAN be modified
+        CAN be redistributed in an open source form
+        CAN be used privately
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+    This license is non-corporate, individual use only.
+
+    The owner of this project holds NO LIABILITY if any unstable, redistributed or modified
+    versions of this project harms you in any way.
+
+    Redistributed or modified versions of this project...
+        MUST have the same license as the original project
+        MUST disclose the project's source
+
+    OWNER:          The-Repo-Club <wayne6324@gmail.com>
+    PROJECT NAME:   shellfetch
+    YEAR:           2022
