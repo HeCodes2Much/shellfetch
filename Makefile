@@ -1,12 +1,12 @@
 PREFIX ?= /usr
 
 all:
-	@echo Run \'make install\' to install bbsif.
+	@echo Run \'make install\' to install shellfetch.
 
 install:
 	@mkdir -p $(DESTDIR)$(PREFIX)/bin
-	@cp -p bbsif $(DESTDIR)$(PREFIX)/bin/bbsif
+	@cp -p shellfetch $(DESTDIR)$(PREFIX)/bin/shellfetch
 	@chmod 755 $(DESTDIR)$(PREFIX)/bin/bbsif
 
 uninstall:
-	@rm -rf $(DESTDIR)$(PREFIX)/bin/bbsif
+	@rm -rf $(DESTDIR)$(PREFIX)/bin/shellfetch
