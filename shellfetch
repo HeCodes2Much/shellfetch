@@ -1656,7 +1656,7 @@ get_qt() {
 
   get_qt5Theme() {
     qt5Theme=$(get_qt5ct_output "style=")
-    if [[ -n "$qt6Theme" ]]; then
+    if [[ -n "$qt5Theme" ]]; then
       # Handle Qt theme engines that load external themes
       case "$qt5Theme" in
       'Kvantum')
@@ -1691,7 +1691,8 @@ get_qt() {
 
   get_qt5Font() {
     qt5Font=$(get_qt5ct_output "general=")
-    if [[ -n "$qt6Theme" ]]; then
+    if [[ -n "$qt5Font" ]]; then
+
       # Trim quotes and parentheses
       qt5Font="${qt5Font#'"'}"
       qt5Font="${qt5Font%'"'}"
@@ -1712,12 +1713,11 @@ get_qt() {
       local pre_size="${pre_size#*@}"
       # Need to declare array and manually handle the second byte
       # (workaround for `od` without --endian)
-      # IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
+      IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
       # Split the upper 4 bits (exponent) the lower 12.
-      # local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
-      # local upper4=$((raw_size[0]>>4 ))
-      # qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
-
+      local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
+      local upper4=$((raw_size[0]>>4 ))
+      qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
       qt5Font="$qt5ct_font_name $qt5ct_font_size"
       qt5Font="$(echo "$qt5Font")"
     fi
