@@ -65,7 +65,7 @@ read -rd '' config <<'EOF'
 # Add your own bash code above this line to have custom functions that can be called later
 #
 # This is the shellfetch config uncomment to display
-# File=${XDG_CONFIG_HOME}/shellfetch/ascii.art
+# File=${XDG_CONFIG_HOME}/shellfetch/ascii/terminal
 #
 # Verbose Setting - Set to 0 to hide verbose output.
 verbosity=1

@@ -60,3 +60,5 @@ You can check the config at the top after first run for an example that will be 
 
 ![screenshot1](screenshots/1.png)
 ![screenshot2](screenshots/2.png)
+![screenshot3](screenshots/3.png)
+![screenshot4](screenshots/4.png)
