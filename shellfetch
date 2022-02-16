@@ -1795,7 +1795,7 @@ get_qt() {
                 qt6Icons="$qt6Icons (QT6)"
             fi
             qtIcons=$(echo "$qt5Icons $qt6Icons")
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qtIcons}"
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qtIcons}"
         fi
     fi
 
@@ -1805,7 +1805,7 @@ get_qt() {
     verbose "Finding QT6 Font...found as '$qt6Font'"
     if [ -n "$qt5Font" ] || [ -n "$qt6Font" ]; then
         if [ "$qt5Font" == "$qt6Font" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qt5Font} (QT5/QT6)"
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qt5Font} (QT5/QT6)"
         else
             if [ -z "$qt5Font" ]; then
                 qt5Font="$qt5Font (QT5)"
@@ -1814,7 +1814,7 @@ get_qt() {
                 qt6Font="$qt6Font (QT6)"
             fi
             qtFonts=$(echo "$qt5Font $qt6Font")
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qtFonts}"
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qtFonts}"
         fi
     fi
 
@@ -1871,10 +1871,8 @@ get_blank() {
 #==============================================================================
 
 get_colors() {
-    color1="${blk} ⬤ ${red} ⬤ ${grn} ⬤ ${yel} ⬤ ${blu} ⬤ ${mag} ⬤ ${cyn} ⬤ ${wht} ⬤ ${del}"
-    PrintLine "$Alignment" "%b" "$color1"
-    color2="${b_blk} ⬤ ${b_red} ⬤ ${b_grn} ⬤ ${b_yel} ⬤ ${b_blu} ⬤ ${b_mag} ⬤ ${b_cyn} ⬤ ${b_wht} ⬤ ${del}"
-    PrintLine "$Alignment" "%b" "$color2"
+    PrintLine "$Alignment" "${blk} %s ${red} %s ${grn} %s ${yel} %s ${blu} %s ${mag} %s ${cyn} %s ${wht} %s ${del}" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤"
+    PrintLine "$Alignment" "${b_blk} %s ${b_red} %s ${b_grn} %s ${b_yel} %s ${b_blu} %s ${b_mag} %s ${b_cyn} %s ${b_wht} %s ${del}" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤"
 }
 
 while [ "$1" ]; do
