@@ -97,6 +97,11 @@ verbosity=1
 # get_qt
 # get_diskinfo
 # get_disks
+# get_pinfo
+# get_monitor
+# get_audio
+# get_mouse
+# get_keyboard
 # get_end
 # get_blank
 # get_colors
@@ -1845,6 +1850,145 @@ get_disks() {
         verbose "Finding current disk usage...found as '$disk'"
         PrintLine "$Alignment" "${boldText}${headPageColor}%s: ${resetColor}${sysPageColor}%b${resetColor}" "Partition $disk Usage" "${disk_used}/${disk_size}"
     done <<<"$disks"
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_pinfo
+# Description: Prints peripherals info to main.
+#==============================================================================
+
+get_pinfo() {
+    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═════════════════════' ' Peripherals Information ' '═════════════════════╣'
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_audio
+# Description: Prints audio info to main.
+#==============================================================================
+
+get_audio() {
+    declare -A AArr
+    DataOut=
+    audio="Unknown"
+    if command -v pactl &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Server Name"* ]]; then
+                IFS=':' read Type Server <<<"$Line"
+                audio="${Server%,*}"
+            fi
+        done <<<$(pactl info)
+    fi
+
+    IFS=' ' read -a Arr <<<$audio
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    audio="${DataOut:1}"
+    audio=${audio#"${audio%%[![:space:]]*}"}
+
+    if [ -n "$audio" ]; then
+        if [ ! "$audio" == "Unknown" ]; then
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Audio $sep " "${audio}"
+        fi
+    fi
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_monitor
+# Description: Prints monitor info to bfetch.
+#==============================================================================
+
+get_monitor() {
+    declare -A AArr
+    DataOut=
+    monitor="Unknown"
+    if command -v hwinfo &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ ! $Line == "monitor"* ]]; then
+                monitor="${Line%,*}"
+            fi
+        done <<<$(hwinfo --short --monitor)
+    fi
+
+    IFS=' ' read -a Arr <<<$monitor
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    monitor="${DataOut:1}"
+    monitor=${monitor#"${monitor%%[![:space:]]*}"}
+
+    if [ -n "$monitor" ]; then
+        if [ ! "$monitor" == "Unknown" ]; then
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Monitor $sep " "${monitor}"
+        fi
+    fi
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_mouse
+# Description: Prints mouse info to bfetch.
+#==============================================================================
+
+get_mouse() {
+    declare -A AArr
+    DataOut=
+    mouse="Unknown"
+    if command -v hwinfo &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Mouse"* ]]; then
+                mouse="${Line%,*}"
+            fi
+        done <<<$(hwinfo --short)
+    fi
+
+    IFS=' ' read -a Arr <<<$mouse
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    mouse="${DataOut:1}"
+    mouse=${mouse#* }
+    mouse=${mouse#"${mouse%%[![:space:]]*}"}
+
+    if [ -n "$mouse" ]; then
+        if [ ! "$mouse" == "Unknown" ]; then
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Mouse $sep " "${mouse}"
+        fi
+    fi
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_keyboard
+# Description: Prints keyboard info to bfetch.
+#==============================================================================
+
+get_keyboard() {
+    declare -A AArr
+    DataOut=
+    keyboard="Unknown"
+    if command -v hwinfo &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Keyboard"* ]]; then
+                keyboard="${Line%,*}"
+            fi
+        done <<<$(hwinfo --short)
+    fi
+
+    IFS=' ' read -a Arr <<<$keyboard
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [ -z "${AArr[$LCase]}" ] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    keyboard="${DataOut:1}"
+    keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
+
+    if [ -n "$keyboard" ]; then
+        if [ ! "$keyboard" == "Unknown" ]; then
+            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Keyboard $sep " "${keyboard}"
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
