@@ -92,6 +92,7 @@ verbosity=1
 # get_cpu
 # get_gpu
 # get_memory
+# get_battery
 # get_res
 # get_swinfo
 # get_distro
@@ -605,6 +606,13 @@ get_memory() {
 
   memory="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
   printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Ram Usage $sep " "$memory"
+}
+
+get_battery() {
+  if [[ -f /sys/class/power_supply/BAT0/capacity ]]; then
+    battery=$(cat /sys/class/power_supply/BAT0/capacity)
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Battery $sep " "$battery%"
+  fi
 }
 
 #=== FUNCTION =================================================================
