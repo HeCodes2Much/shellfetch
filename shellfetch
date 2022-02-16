@@ -57,8 +57,8 @@ read -rd '' config <<'EOF'
 # This is the shellfetch config uncomment to display
 # File=${XDG_CONFIG_HOME}/shellfetch/ascii.art
 #
-# Verbose Setting - Set to 1 for verbose output.
-# verbosity=0
+# Verbose Setting - Set to 0 to hide verbose output.
+verbosity=1
 #
 # memory_unit="gib"
 # centered=false
@@ -114,11 +114,15 @@ get_user_config() {
         source "${XDG_CONFIG_HOME}/shellfetch/config.conf"
         # We will need these assignments later to calculate the alignment offset
         config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
+        verbose "Config: Sourced user config.    (${config_file})"
     elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config" ]]; then
         source "${XDG_CONFIG_HOME}/shellfetch/config"
         config_file="${XDG_CONFIG_HOME}/shellfetch/config"
+        verbose "Config: Sourced user config.    (${config_file})"
     else
+        verbosity=1
         config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
+        verbose "Config: Sourced user config.    (${config_file})"
 
         # The config file doesn't exist, create it.
         mkdir -p "${XDG_CONFIG_HOME}/shellfetch/"
