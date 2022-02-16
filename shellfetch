@@ -1915,6 +1915,11 @@ battery="$(cat /sys/class/power_supply/BAT0/capacity)"
 init() {
     # Load default config.
     eval "$config"
+    if [ "$Center" == "true" ] || [ "$centered" == "true" ]; then
+        Alignment='Center'
+    else
+        Alignment='Left'
+    fi
     get_user_config
 }
 init "$@"
