@@ -1876,14 +1876,15 @@ get_diskinfo() {
 
 get_disks() {
   diskcmd=$(mount | grep '^/')
-  disks=$(while read -r line; do df -h "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
+  disks=$(while read -r line; do df -Th "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
 
   while read -r line; do
-    disk_used=$(echo "$line" | awk '{print $3}')
-    disk_size=$(echo "$line" | awk '{print $2}')
-    disk=$(echo "$line" | awk '{print $6}')
+    disk_used=$(echo "$line" | awk '{print $4}')
+    disk_size=$(echo "$line" | awk '{print $3}')
+    disk_type=$(echo "$line" | awk '{print $2}')
+    disk=$(echo "$line" | awk '{print $7}')
     verbose "Finding current disk usage...found as '$disk'"
-    printLine "$alignment" "${boldText}${headPageColor}%s: ${resetColor}${sysPageColor}%b${resetColor}" "Partition $disk Usage" "${disk_used}/${disk_size}"
+    printLine "$alignment" "${boldText}${headPageColor}%s${resetColor}${sysPageColor}%b${resetColor}" "${disk_type^^} on $disk $sep " "${disk_used}/${disk_size}"
   done <<<"$disks"
 }
 
