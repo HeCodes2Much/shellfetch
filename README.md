@@ -49,6 +49,19 @@ cd ~/.shellfetch
 sudo make install
 ```
 
+# Usage
+
+Flags:
+
+```
+-s  | --source     )   specify config file path
+-f  | --file       )   specify ascii art
+-c  | --center     )   print on center
+-v | --version    )   get version info
+-ac |--ascii_colors
+-h | --help       )   get help
+```
+
 # Configuration
 
 You can edit the ~/.config/shellfetch/config.conf file to reorder segments, add your own functions, or remove some.
@@ -63,6 +76,7 @@ get_test() {
     PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
 }
 ```
+
 2. Call the function within the segments section of the config.
 
 # Man Screenshots
