@@ -2041,7 +2041,7 @@ get_colors() {
 
 while [ "$1" ]; do
     case $1 in
-    --art | -a)
+    --file | -f)
         File=$2
         [ ! "$File" ] || [ ! -f "$File" ] && error 'File does not exists'
         shift

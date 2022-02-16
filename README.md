@@ -56,10 +56,19 @@ You can also set ascii art, color and to be centered or not.
 
 You can check the config at the top after first run for an example that will be commented out
 
+# Man page Screenshots
+
+<details>
+    <summary>Click to view!</summary>
+
+<img src="screenshots/man.png" alt="man" style="max-width: 100%;">
+
+</details>
+
 # Screenshots
 
 <details>
-    <summary>Click to expand!</summary>
+    <summary>Click to view!</summary>
 
 <img src="screenshots/1.png" alt="screenshot1" style="max-width: 100%;">
 <img src="screenshots/2.png" alt="screenshot2" style="max-width: 100%;">
