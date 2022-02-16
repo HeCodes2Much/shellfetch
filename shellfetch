@@ -426,51 +426,61 @@ get_user() {
 #==============================================================================
 
 get_host() {
+    clearHost() {
+        host="$1"
+        # Remove dummy OEM info.
+        host=${host//To be filled by O.E.M./}
+        host=${host//To Be Filled*/}
+        host=${host//OEM*/}
+        host=${host//Not Applicable/}
+        host=${host//System Product Name/}
+        host=${host//System Version/}
+        host=${host//Undefined/}
+        host=${host//Default string/}
+        host=${host//Not Specified/}
+        host=${host//Type1ProductConfigId/}
+        host=${host//INVALID/}
+        host=${host//All Series/}
+
+        printf "%s" "$host"
+    }
+
     if [[ -d /system/app/ && -d /system/priv-app ]]; then
         host="$(getprop ro.product.brand) $(getprop ro.product.model)"
-    fi
-
-    if [[ -f /sys/devices/virtual/dmi/id/board_vendor ||
-        -f /sys/devices/virtual/dmi/id/board_name ]]; then
-        host=$(</sys/devices/virtual/dmi/id/board_vendor)
-        host+=" $(</sys/devices/virtual/dmi/id/board_name)"
+        host="$(clearHost "$host")"
     fi
 
     if [[ -f /sys/devices/virtual/dmi/id/product_name ||
-        -f /sys/devices/virtual/dmi/id/product_version ]]; then
+        -f /sys/devices/virtual/dmi/id/product_version ]] && [[ -z "$host" || "$host" == " " ]]; then
         host=$(</sys/devices/virtual/dmi/id/product_name)
         host+=" $(</sys/devices/virtual/dmi/id/product_version)"
+        host="$(clearHost "$host")"
     fi
 
-    if [[ -f /sys/firmware/devicetree/base/model ]]; then
+    if [[ -f /sys/devices/virtual/dmi/id/board_vendor ||
+        -f /sys/devices/virtual/dmi/id/board_name ]] && [[ -z "$host" || "$host" == " " ]]; then
+        host=$(</sys/devices/virtual/dmi/id/board_vendor)
+        host+=" $(</sys/devices/virtual/dmi/id/board_name)"
+        host="$(clearHost "$host")"
+    fi
+
+    if [[ -f /sys/firmware/devicetree/base/model ]] && [[ -z "$host" || "$host" == " " ]]; then
         host=$(</sys/firmware/devicetree/base/model)
+        host="$(clearHost "$host")"
     fi
 
-    if [[ -f /tmp/sysinfo/model ]]; then
+    if [[ -f /tmp/sysinfo/model ]] && [[ -z "$host" || "$host" == " " ]]; then
         host=$(</tmp/sysinfo/model)
+        host="$(clearHost "$host")"
     fi
 
-    # Remove dummy OEM info.
-    host=${host//To be filled by O.E.M./}
-    host=${host//To Be Filled*/}
-    host=${host//OEM*/}
-    host=${host//Not Applicable/}
-    host=${host//System Product Name/}
-    host=${host//System Version/}
-    host=${host//Undefined/}
-    host=${host//Default string/}
-    host=${host//Not Specified/}
-    host=${host//Type1ProductConfigId/}
-    host=${host//INVALID/}
-    host=${host//All Series/}
-
-    case $model in
+    case "$model" in
     "Standard PC"*) host="KVM/QEMU (${model})" ;;
     OpenBSD*) host="vmm ($model)" ;;
     esac
 
-    verbose "Finding hostname and user...found as '${host}'"
-    if [ -n "$host" ]; then
+    verbose "Finding hardware model infomation...found as '${host}'"
+    if [[ -n "$host" || ! "$host" == " " ]]; then
         PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Host $sep " "$host"
     fi
 }
@@ -2058,8 +2068,6 @@ while [ "$1" ]; do
     esac
     shift
 done
-
-battery="$(cat /sys/class/power_supply/BAT0/capacity)"
 
 #=== FUNCTION =================================================================
 #        Name: init
