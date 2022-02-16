@@ -7,7 +7,7 @@
 # GitHub        - https://github.com/The-Repo-Club/
 # Author        - The-Repo-Club [wayne6324@gmail.com]
 # Start On      - Tue 28 December 2021, 03:52:43 pm (GMT)
-# Modified On   - Wed 16 February 2022, 01:34:49 pm (GMT)
+# Modified On   - Wed 16 February 2022, 08:01:47 pm (GMT) 
 # -------------------------------------------------------------------------
 SCRIPTNAME=${0##*/}
 DESCRIPTION="Shell System Information Fetcher"
@@ -2048,7 +2048,7 @@ get_colors() {
 
 while [[ "$1" ]]; do
   case $1 in
-  --ascii_colors | -ac)
+  --setcolors | -sc)
     count=0
     for num in "$*"; do
       ((count++))
