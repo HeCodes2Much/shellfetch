@@ -6,8 +6,8 @@
 # Path          - /home/repo/.local/bin/shellfetch
 # GitHub        - https://github.com/The-Repo-Club/
 # Author        - The-Repo-Club [wayne6324@gmail.com]
-# Start On      - Tue 15 February 2022, 03:52:43 pm (GMT)
-# Modified On   - Wed 16 February 2022, 02:27:18 am (GMT) 
+# Start On      - Tue 28 December 2021, 03:52:43 pm (GMT)
+# Modified On   - Wed 16 February 2022, 01:34:49 pm (GMT) 
 # -------------------------------------------------------------------------
 SCRIPTNAME=${0##*/}
 DESCRIPTION="Shell System Information Fetcher"
@@ -46,7 +46,7 @@ readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag
 
 setterm -linewrap off
 source /etc/os-release
-Columns=$(tput cols)
+COLUMNS=$(tput cols)
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
 
 #==============================================================================
@@ -59,7 +59,7 @@ read -rd '' config <<'EOF'
 # Example below
 #
 # get_test() {
-#     PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
+#     printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
 # }
 #
 # Add your own bash code above this line to have custom functions that can be called later
@@ -125,7 +125,12 @@ EOF
 #==============================================================================
 
 get_user_config() {
-    if [[ -f "${XDG_CONFIG_HOME}/shellfetch/config.conf" ]]; then
+    if [[ -f "${source}" ]]; then
+        source "${source}"
+        # We will need these assignments later to calculate the alignment offset
+        config_file="${source}"
+        verbose "Config: Sourced user config.    (${config_file})"
+    elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config.conf" ]]; then
         source "${XDG_CONFIG_HOME}/shellfetch/config.conf"
         # We will need these assignments later to calculate the alignment offset
         config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
@@ -218,12 +223,12 @@ verbose() {
 }
 
 #=== FUNCTION =================================================================
-#        Name: PrintLine
+#        Name: printLine
 # Description: Print message to the init
 # Parameter 1: Message to print
 #==============================================================================
 
-PrintLine() {
+printLine() {
     Type=$1
     shift
     Main=$1
@@ -235,7 +240,7 @@ PrintLine() {
         Len=$((${#ArgStr} - $# + 1))
 
         # Generate Padding
-        printf -v Padding "%$(((Columns - Len - 1) / 2))s"
+        printf -v Padding "%$(((COLUMNS - Len - 1) / 2))s"
 
         # Print Line
         printf "%b$Main\n" "$Padding" "$@"
@@ -294,8 +299,8 @@ get_process_name() {
 
 get_ascii() {
     # Print everything
-    if [ "$Center" == "true" ] || [ "$centered" == "true" ]; then
-        Alignment='Center'
+    if [ "$center" == "true" ] || [ "$centered" == "true" ]; then
+        alignment='Center'
         if [ -n "$1" ]; then
             figlet=$(cat "$1")
             # Colors.
@@ -306,14 +311,14 @@ get_ascii() {
             figlet="${figlet//\$\{c5\}/$c5}"
             figlet="${figlet//\$\{c6\}/$c6}"
             while read -r line; do
-                PrintLine "$Alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
+                printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
             done <<<"$figlet"
         else
-            figlet=$(figlet -w $Columns -c "${NAME^}")
+            figlet=$(figlet -w $COLUMNS -c "${NAME^}")
             echo -e "${bannerTextColor}${boldText}${figlet}"
         fi
     else
-        Alignment='Left'
+        alignment='Left'
         if [ -n "$1" ]; then
             figlet=$(cat "$1")
             # Colors.
@@ -324,7 +329,7 @@ get_ascii() {
             figlet="${figlet//\$\{c5\}/$c5}"
             figlet="${figlet//\$\{c6\}/$c6}"
             while read -r line; do
-                PrintLine "$Alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
+                printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
             done <<<"$figlet"
         else
             figlet=$(figlet "${NAME^}")
@@ -350,7 +355,7 @@ get_title() {
         { [ "$hour" -eq 12 ] || [ "$hour" -lt 5 ]; } && good="Good afternoon, "
     fi
 
-    PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}" "${good}${user}"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}" "${good}${user}"
 }
 
 #=== FUNCTION =================================================================
@@ -359,7 +364,7 @@ get_title() {
 #==============================================================================
 
 get_sep() {
-    PrintLine "$Alignment" "${boldText}${b_wht}%b${resetColor}" "$(repeat "═")"
+    printLine "$alignment" "${boldText}${b_wht}%b${resetColor}" "$(repeat "═")"
 }
 
 #=== FUNCTION =================================================================
@@ -397,7 +402,7 @@ get_uptime() {
 
     verbose "Finding current uptime...found as '${uptime}'"
     if [ -n "$uptime" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Uptime $sep " "$uptime"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Uptime $sep " "$uptime"
     fi
 }
 
@@ -407,7 +412,7 @@ get_uptime() {
 #==============================================================================
 
 get_hwinfo() {
-    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╔══════════════════════' ' Hardware Information ' '═══════════════════════╗'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╔══════════════════════' ' Hardware Information ' '═══════════════════════╗'
 }
 
 #=== FUNCTION =================================================================
@@ -417,7 +422,7 @@ get_hwinfo() {
 
 get_user() {
     user_hostname="$(whoami) on $HOSTNAME"
-    PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "User $sep " "$user_hostname"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "User $sep " "$user_hostname"
 }
 
 #=== FUNCTION =================================================================
@@ -481,7 +486,7 @@ get_host() {
 
     verbose "Finding hardware model infomation...found as '${host}'"
     if [[ -n "$host" || ! "$host" == " " ]]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Host $sep " "$host"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Host $sep " "$host"
     fi
 }
 
@@ -502,7 +507,7 @@ get_cpu() {
     done </proc/cpuinfo
     verbose "Finding current CPU...found as '$CPU'"
     if [ -n "$CPU" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "CPU $sep " "$CPU"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "CPU $sep " "$CPU"
     fi
 }
 
@@ -565,7 +570,7 @@ get_gpu() {
             ;;
         esac
 
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GPU $sep " "$gpu"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GPU $sep " "$gpu"
     done
 }
 #=== FUNCTION =================================================================
@@ -597,7 +602,7 @@ get_memory() {
     esac
 
     memory="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
-    PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Ram Usage $sep " "$memory"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Ram Usage $sep " "$memory"
 }
 
 #=== FUNCTION =================================================================
@@ -622,7 +627,7 @@ get_res() {
     xResolution="${xResolution%%, }"
     verbose "Finding current resolution(s)...found as '$xResolution'"
     if [ -n "$xResolution" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Resolution $sep " "$xResolution"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Resolution $sep " "$xResolution"
     fi
 }
 
@@ -632,7 +637,7 @@ get_res() {
 #==============================================================================
 
 get_swinfo() {
-    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Software Information ' '═══════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Software Information ' '═══════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -640,7 +645,7 @@ get_swinfo() {
 # Description: Prints distro info to main.
 #==============================================================================
 get_distro() {
-    PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Distro $sep " "${PRETTY_NAME}"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Distro $sep " "${PRETTY_NAME}"
 }
 
 #=== FUNCTION =================================================================
@@ -653,7 +658,7 @@ get_arch() {
 
     verbose "Finding init...found as '${arch}'"
     if [ -n "$arch" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Arch $sep " "${arch}"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Arch $sep " "${arch}"
     fi
 }
 
@@ -691,7 +696,7 @@ get_pkgs() {
 
     verbose "Finding current package count...found as '$packages'"
     if [ -n "$packages" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Packages $sep " "${packages}"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Packages $sep " "${packages}"
     fi
 }
 
@@ -705,7 +710,7 @@ get_kernel() {
 
     verbose "Finding init...found as '${kernel}'"
     if [ -n "$kernel" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Kernel $sep " "${kernel}"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Kernel $sep " "${kernel}"
     fi
 }
 
@@ -722,7 +727,7 @@ get_init() {
 
     verbose "Finding init...found as '${init}'"
     if [ -n "$init" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Init $sep " "${init}"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Init $sep " "${init}"
     fi
 }
 
@@ -736,7 +741,7 @@ get_shell() {
 
     verbose "Finding init...found as '${shell}'"
     if [ -n "$shell" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Shell $sep " "${shell}"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Shell $sep " "${shell}"
     fi
 }
 
@@ -750,7 +755,7 @@ get_terminal() {
 
     verbose "Finding init...found as '${terminal}'"
     if [ -n "$terminal" ]; then
-        PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Terminal $sep " "${terminal}"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Terminal $sep " "${terminal}"
     fi
 }
 
@@ -760,7 +765,7 @@ get_terminal() {
 #==============================================================================
 
 get_deinfo() {
-    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═══════════════════════' ' Desktop Information ' '═══════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═══════════════════════' ' Desktop Information ' '═══════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -1059,7 +1064,7 @@ get_de() {
     verbose "Finding desktop environment...found as '$DE'"
     if [ -n "$DE" ]; then
         if [ ! "$DE" == "Not_Found" ] && [ ! "$DE" == "Not_Applicable" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "DE $sep " "${DE}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "DE $sep " "${DE}"
         fi
     fi
 }
@@ -1234,7 +1239,7 @@ get_wm() {
     verbose "Finding window manager...found as '$WM'"
     if [ -n "$WM" ]; then
         if [ ! "$WM" == "Not_Found" ] && [ ! "$WM" == "Not_Applicable" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM $sep " "${WM}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM $sep " "${WM}"
         fi
     fi
 }
@@ -1361,7 +1366,7 @@ get_wmtheme() {
     verbose "Finding window manager theme...found as '$Win_theme'"
     if [ -n "$Win_theme" ]; then
         if [ ! "$Win_theme" == "Not_Found" ] && [ ! "$Win_theme" == "Not_Applicable" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM Theme $sep " "${Win_theme}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM Theme $sep " "${Win_theme}"
         fi
     fi
 }
@@ -1597,9 +1602,9 @@ get_gtk() {
 
     if [ -n "$gtk2Theme" ] || [ -n "$gtk3Theme" ] || [ -n "$gtkIcons" ] || [ -n "$gtkFont" ]; then
         if [ "$gtk2Theme" == "$gtk3Theme" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme} (GTK2/3)"
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons} (GTK2/3)"
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont} (GTK2/3)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme} (GTK2/3)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons} (GTK2/3)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont} (GTK2/3)"
         else
             if [ -z "$gtk2Theme" ]; then
                 gtk2Theme="$gtk2Theme (GTK2)"
@@ -1608,9 +1613,9 @@ get_gtk() {
                 gtk3Theme="$gtk3Theme (GTK3)"
             fi
             gtkThemes=$(echo "$gtk2Theme $gtk3Theme")
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme}"
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons}"
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont}"
         fi
     fi
 }
@@ -1792,7 +1797,7 @@ get_qt() {
     verbose "Finding QT6 theme...found as '$qt6Theme'"
     if [ -n "$qt5Theme" ] || [ -n "$qt6Theme" ]; then
         if [ "$qt5Theme" == "$qt6Theme" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qt5Theme} (QT5/QT6)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qt5Theme} (QT5/QT6)"
         else
             if [ -z "$qt5Theme" ]; then
                 qt5Theme="$qt5Theme (QT5)"
@@ -1801,7 +1806,7 @@ get_qt() {
                 qt6Theme="$qt6Theme (QT6)"
             fi
             qtThemes=$(echo "$qt5Theme $qt6Theme")
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qtThemes}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qtThemes}"
         fi
     fi
 
@@ -1811,7 +1816,7 @@ get_qt() {
     verbose "Finding QT6 Icons...found as '$qt6Icons'"
     if [ -n "$qt5Icons" ] || [ -n "$qt6Icons" ]; then
         if [ "$qt5Icons" == "$qt6Icons" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qt5Icons} (QT5/QT6)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qt5Icons} (QT5/QT6)"
         else
             if [ -z "$qt5Icons" ]; then
                 qt5Icons="$qt5Icons (QT5)"
@@ -1820,7 +1825,7 @@ get_qt() {
                 qt6Icons="$qt6Icons (QT6)"
             fi
             qtIcons=$(echo "$qt5Icons $qt6Icons")
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qtIcons}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qtIcons}"
         fi
     fi
 
@@ -1830,7 +1835,7 @@ get_qt() {
     verbose "Finding QT6 Font...found as '$qt6Font'"
     if [ -n "$qt5Font" ] || [ -n "$qt6Font" ]; then
         if [ "$qt5Font" == "$qt6Font" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qt5Font} (QT5/QT6)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qt5Font} (QT5/QT6)"
         else
             if [ -z "$qt5Font" ]; then
                 qt5Font="$qt5Font (QT5)"
@@ -1839,7 +1844,7 @@ get_qt() {
                 qt6Font="$qt6Font (QT6)"
             fi
             qtFonts=$(echo "$qt5Font $qt6Font")
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qtFonts}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qtFonts}"
         fi
     fi
 
@@ -1851,7 +1856,7 @@ get_qt() {
 #==============================================================================
 
 get_diskinfo() {
-    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Partition Information ' '══════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Partition Information ' '══════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -1868,7 +1873,7 @@ get_disks() {
         disk_size=$(echo "$line" | awk '{print $2}')
         disk=$(echo "$line" | awk '{print $6}')
         verbose "Finding current disk usage...found as '$disk'"
-        PrintLine "$Alignment" "${boldText}${headPageColor}%s: ${resetColor}${sysPageColor}%b${resetColor}" "Partition $disk Usage" "${disk_used}/${disk_size}"
+        printLine "$alignment" "${boldText}${headPageColor}%s: ${resetColor}${sysPageColor}%b${resetColor}" "Partition $disk Usage" "${disk_used}/${disk_size}"
     done <<<"$disks"
 }
 
@@ -1878,7 +1883,7 @@ get_disks() {
 #==============================================================================
 
 get_pinfo() {
-    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═════════════════════' ' Peripherals Information ' '═════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═════════════════════' ' Peripherals Information ' '═════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -1909,7 +1914,7 @@ get_audio() {
 
     if [ -n "$audio" ]; then
         if [ ! "$audio" == "Unknown" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Audio $sep " "${audio}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Audio $sep " "${audio}"
         fi
     fi
 }
@@ -1941,7 +1946,7 @@ get_monitor() {
 
     if [ -n "$monitor" ]; then
         if [ ! "$monitor" == "Unknown" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Monitor $sep " "${monitor}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Monitor $sep " "${monitor}"
         fi
     fi
 }
@@ -1974,7 +1979,7 @@ get_mouse() {
 
     if [ -n "$mouse" ]; then
         if [ ! "$mouse" == "Unknown" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Mouse $sep " "${mouse}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Mouse $sep " "${mouse}"
         fi
     fi
 }
@@ -2006,7 +2011,7 @@ get_keyboard() {
 
     if [ -n "$keyboard" ]; then
         if [ ! "$keyboard" == "Unknown" ]; then
-            PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Keyboard $sep " "${keyboard}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Keyboard $sep " "${keyboard}"
         fi
     fi
 }
@@ -2017,7 +2022,7 @@ get_keyboard() {
 #==============================================================================
 
 get_end() {
-    PrintLine "$Alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╚═════════════════════════════' ' The End ' '═════════════════════════════╝'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╚═════════════════════════════' ' The End ' '═════════════════════════════╝'
 }
 
 #=== FUNCTION =================================================================
@@ -2026,7 +2031,7 @@ get_end() {
 #==============================================================================
 
 get_blank() {
-    PrintLine "$Alignment" "%b" "\n"
+    printLine "$alignment" "%b" "\n"
 }
 
 #=== FUNCTION =================================================================
@@ -2035,19 +2040,24 @@ get_blank() {
 #==============================================================================
 
 get_colors() {
-    PrintLine "$Alignment" "${blk} %s ${red} %s ${grn} %s ${yel} %s ${blu} %s ${mag} %s ${cyn} %s ${wht} %s ${del}" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤"
-    PrintLine "$Alignment" "${b_blk} %s ${b_red} %s ${b_grn} %s ${b_yel} %s ${b_blu} %s ${b_mag} %s ${b_cyn} %s ${b_wht} %s ${del}" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤"
+    printLine "$alignment" "${blk} %s ${red} %s ${grn} %s ${yel} %s ${blu} %s ${mag} %s ${cyn} %s ${wht} %s ${del}" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤"
+    printLine "$alignment" "${b_blk} %s ${b_red} %s ${b_grn} %s ${b_yel} %s ${b_blu} %s ${b_mag} %s ${b_cyn} %s ${b_wht} %s ${del}" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤" "⬤"
 }
 
 while [ "$1" ]; do
     case $1 in
     --file | -f)
-        File=$2
-        [ ! "$File" ] || [ ! -f "$File" ] && error 'File does not exists'
+        file=$2
+        [ ! "$file" ] || [ ! -f "$file" ] && error 'ascii file does not exist'
+        shift
+        ;;
+    --source | -s)
+        source=$2
+        [ ! "$source" ] || [ ! -f "$source" ] && error 'config file does not exist'
         shift
         ;;
     --center | -c)
-        Center=true
+        center=true
         shift
         ;;
     --ascii_colors | -ac)
@@ -2077,10 +2087,10 @@ done
 init() {
     # Load default config.
     eval "$config"
-    if [ "$Center" == "true" ] || [ "$centered" == "true" ]; then
-        Alignment='Center'
+    if [ "$center" == "true" ] || [ "$centered" == "true" ]; then
+        alignment='Center'
     else
-        Alignment='Left'
+        alignment='Left'
     fi
     get_user_config
 }
