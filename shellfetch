@@ -313,7 +313,7 @@ get_ascii() {
       figlet="${figlet//\$\{c4\}/$c4}"
       figlet="${figlet//\$\{c5\}/$c5}"
       figlet="${figlet//\$\{c6\}/$c6}"
-      while read -r line; do
+      while IFS= read -r line; do
         printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
       done <<<"$figlet"
     else
@@ -331,7 +331,7 @@ get_ascii() {
       figlet="${figlet//\$\{c4\}/$c4}"
       figlet="${figlet//\$\{c5\}/$c5}"
       figlet="${figlet//\$\{c6\}/$c6}"
-      while read -r line; do
+      while IFS= read -r line; do
         printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
       done <<<"$figlet"
     else
@@ -1876,9 +1876,9 @@ get_diskinfo() {
 
 get_disks() {
   diskcmd=$(mount | grep '^/')
-  disks=$(while read -r line; do df -Th "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
+  disks=$(while IFS= read -r line; do df -Th "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
 
-  while read -r line; do
+  while IFS= read -r line; do
     disk_used=$(echo "$line" | awk '{print $4}')
     disk_size=$(echo "$line" | awk '{print $3}')
     disk_type=$(echo "$line" | awk '{print $2}')
