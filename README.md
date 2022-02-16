@@ -30,11 +30,13 @@
 
 ### on Arch BTW?
 
-Follow one of the 2 simple steps below.
+Follow one of the 3 simple ways to install below.
 
 Download: [PKGBUILD](https://github.com/The-Repo-Club/ArchAUR/raw/main/shellfetch/PKGBUILD) and make with `makepkg -sfi`
 
 Install: [Custom Repo](https://arch.therepo.club/) then just use `pacman -S shellfetch`
+
+AUR: [YAY](https://aur.archlinux.org/packages/shellfetch) just use `yay -S shellfetch`
 
 ### Anything other then Arch base.
 
