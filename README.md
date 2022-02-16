@@ -1,27 +1,27 @@
 ```
-     ____  _   _ _____ _     _     _____ _____ _____ ____ _   _
-    / ___|| | | | ____| |   | |   |  ___| ____|_   _/ ___| | | |
-    \___ \| |_| |  _| | |   | |   | |_  |  _|   | || |   | |_| |
-     ___) |  _  | |___| |___| |___|  _| | |___  | || |___|  _  |
-    |____/|_| |_|_____|_____|_____|_|   |_____| |_| \____|_| |_|
+	 ____  _   _ _____ _	 _	   _____ _____ _____ ____ _   _
+	/ ___|| | | | ____| |	| |   |  ___| ____|_   _/ ___| | | |
+	\___ \| |_| |  _| | |	| |   | |_	|  _|	| || |	 | |_| |
+	 ___) |  _	| |___| |___| |___|  _| | |___	| || |___|	_  |
+	|____/|_| |_|_____|_____|_____|_|	|_____| |_| \____|_| |_|
 
-        Shell System Information Fetcher - v2022.02.16
-        A modular, hackable, fetch script written in Bash
+		Shell System Information Fetcher - v2022.02.16
+		A modular, hackable, fetch script written in Bash
 
-        This program may be freely redistributed
-        under the terms of The GPL-TRC License.
+		This program may be freely redistributed
+		under the terms of The GPL-TRC License.
 
-        The-Repo-Club <wayne6324@gmail.com>
+		The-Repo-Club <wayne6324@gmail.com>
 ```
 
 <p align='center'>
-    <img src='https://img.shields.io/badge/Maintained-Yes-green?colorA=434c5e&colorB=ff59f9&style=flat-square'>
-    <img src='https://img.shields.io/github/last-commit/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
-    <img src='https://img.shields.io/github/repo-size/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
-    <img src='https://img.shields.io/github/issues/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
-    <img src='https://img.shields.io/github/stars/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
-    <img src='https://img.shields.io/github/forks/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
-    <img src='https://img.shields.io/github/commit-activity/m/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/badge/Maintained-Yes-green?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/github/last-commit/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/github/repo-size/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/github/issues/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/github/stars/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/github/forks/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src='https://img.shields.io/github/commit-activity/m/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
 </p>
 
 # How do I install shellfetch?
@@ -54,12 +54,12 @@ sudo make install
 Flags:
 
 ```
--s  | --source     )   specify config file path
--f  | --file       )   specify ascii art
--c  | --center     )   print on center
--v | --version    )   get version info
--ac |--ascii_colors
--h | --help       )   get help
+-s	|	--source	)	specify config file path
+-f	|	--file		)	specify ascii art
+-c	|	--center	)	print on center
+-v	|	--version	)	get version info
+-sc	|	--setcolors	)	change the colors of the output
+-h	|	--help		)	get help
 ```
 
 # Configuration
@@ -73,7 +73,7 @@ You can also set ascii art, color and to be centered or not.
 
 ```
 get_test() {
-    PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
+	PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
 }
 ```
 
@@ -82,7 +82,7 @@ get_test() {
 # Man Screenshots
 
 <details>
-    <summary>Click to view!</summary>
+	<summary>Click to view!</summary>
 
 <img src="screenshots/man.png" alt="man" style="max-width: 100%;">
 
@@ -91,7 +91,7 @@ get_test() {
 # Screenshots
 
 <details>
-    <summary>Click to view!</summary>
+	<summary>Click to view!</summary>
 
 <img src="screenshots/1.png" alt="screenshot1" style="max-width: 100%;">
 <img src="screenshots/2.png" alt="screenshot2" style="max-width: 100%;">
