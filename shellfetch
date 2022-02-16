@@ -7,7 +7,7 @@
 # GitHub        - https://github.com/The-Repo-Club/
 # Author        - The-Repo-Club [wayne6324@gmail.com]
 # Start On      - Tue 15 February 2022, 03:52:43 pm (GMT)
-# Modified On   - Tue 15 February 2022, 03:54:05 pm (GMT)
+# Modified On   - Wed 16 February 2022, 02:27:18 am (GMT) 
 # -------------------------------------------------------------------------
 SCRIPTNAME=${0##*/}
 DESCRIPTION="Shell System Information Fetcher"
@@ -54,6 +54,16 @@ XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
 #=== DEFAULT CONFIG ===========================================================
 
 read -rd '' config <<'EOF'
+# Add your own bash code below this line to have custom functions that can be called later
+#
+# Example below
+#
+# get_test() {
+#     PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
+# }
+#
+# Add your own bash code above this line to have custom functions that can be called later
+#
 # This is the shellfetch config uncomment to display
 # File=${XDG_CONFIG_HOME}/shellfetch/ascii.art
 #
@@ -2066,4 +2076,4 @@ init() {
     fi
     get_user_config
 }
-init "$@"
+init
