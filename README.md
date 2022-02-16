@@ -56,7 +56,7 @@ You can also set ascii art, color and to be centered or not.
 
 You can check the config at the top after first run for an example that will be commented out
 
-# Man page Screenshots
+# Man Screenshots
 
 <details>
     <summary>Click to view!</summary>
