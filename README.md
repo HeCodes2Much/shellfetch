@@ -58,4 +58,5 @@ You can check the config at the top after first run for an example that will be 
 
 # Screenshots
 
-![screenshot](screenshot.png)
+![screenshot1](screenshots/1.png)
+![screenshot2](screenshots/2.png)
