@@ -278,29 +278,43 @@ get_process_name() {
 #==============================================================================
 
 get_ascii() {
-    figlet=$(figlet "${NAME^}")
-
-    if [ "$1" ]; then
-        figlet=$(cat "$1")
-        # Colors.
-        figlet="${figlet//\$\{c1\}/$c1}"
-        figlet="${figlet//\$\{c2\}/$c2}"
-        figlet="${figlet//\$\{c3\}/$c3}"
-        figlet="${figlet//\$\{c4\}/$c4}"
-        figlet="${figlet//\$\{c5\}/$c5}"
-        figlet="${figlet//\$\{c6\}/$c6}"
-    fi
     # Print everything
     if [ "$Center" == "true" ] || [ "$centered" == "true" ]; then
         Alignment='Center'
-        while read -r line; do
-            PrintLine "$Alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
-        done <<<"$figlet"
+        if [ -n "$1" ]; then
+            figlet=$(cat "$1")
+            # Colors.
+            figlet="${figlet//\$\{c1\}/$c1}"
+            figlet="${figlet//\$\{c2\}/$c2}"
+            figlet="${figlet//\$\{c3\}/$c3}"
+            figlet="${figlet//\$\{c4\}/$c4}"
+            figlet="${figlet//\$\{c5\}/$c5}"
+            figlet="${figlet//\$\{c6\}/$c6}"
+            while read -r line; do
+                PrintLine "$Alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
+            done <<<"$figlet"
+        else
+            figlet=$(figlet -w $Columns -c "${NAME^}")
+            echo -e "${bannerTextColor}${boldText}${figlet}"
+        fi
     else
         Alignment='Left'
-        while read -r line; do
-            PrintLine "$Alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
-        done <<<"$figlet"
+        if [ -n "$1" ]; then
+            figlet=$(cat "$1")
+            # Colors.
+            figlet="${figlet//\$\{c1\}/$c1}"
+            figlet="${figlet//\$\{c2\}/$c2}"
+            figlet="${figlet//\$\{c3\}/$c3}"
+            figlet="${figlet//\$\{c4\}/$c4}"
+            figlet="${figlet//\$\{c5\}/$c5}"
+            figlet="${figlet//\$\{c6\}/$c6}"
+            while read -r line; do
+                PrintLine "$Alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
+            done <<<"$figlet"
+        else
+            figlet=$(figlet "${NAME^}")
+            echo -e "${bannerTextColor}${boldText}${figlet}"
+        fi
     fi
 }
 
