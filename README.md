@@ -51,12 +51,19 @@ sudo make install
 
 # Configuration
 
-You can edit the ~/.config/shellfetch/config.conf file to reorder functions, add your own functions, or remove some.
+You can edit the ~/.config/shellfetch/config.conf file to reorder segments, add your own functions, or remove some.
 You can also set ascii art, color and to be centered or not.
 
 ## Add a new function
 
-You can check the config at the top after first run for an example that will be commented out
+1. Create a function at the top of the config like below.
+
+```
+get_test() {
+    PrintLine "$Alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Header $sep " "Body of the text to display can also include ${var}'s"
+}
+```
+2. Call the function within the segments section of the config.
 
 # Man Screenshots
 
