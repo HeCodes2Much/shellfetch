@@ -7,7 +7,7 @@
 # GitHub        - https://github.com/The-Repo-Club/
 # Author        - The-Repo-Club [wayne6324@gmail.com]
 # Start On      - Tue 28 December 2021, 03:52:43 pm (GMT)
-# Modified On   - Thu 17 February 2022, 06:42:39 pm (GMT)
+# Modified On   - Thu 17 February 2022, 09:59:51 pm (GMT) 
 # -------------------------------------------------------------------------
 SCRIPTNAME=${0##*/}
 DESCRIPTION="Shell System Information Fetcher"
@@ -116,6 +116,7 @@ verbosity=1
 # get_mouse
 # get_keyboard
 # get_end
+# get_nice_message
 # get_blank
 # get_colors
 EOF
@@ -364,11 +365,11 @@ get_ascii() {
 
 get_title() {
   user=${USER}
-  daynight="$(date +"%p")"
+  daynight="$(date +'%p')"
   hour=$(date +"%l")
   good="Good evening, "
 
-  if [[ $daynight = "AM" ]]; then
+  if [[ ${timern^^} == "AM" ]]; then
     [[ "$hour" -ge 5 ]] && [[ "$hour" -lt 12 ]] && good="Good morning, "
   else
     { [[ "$hour" -eq 12 ]] || [[ "$hour" -lt 5 ]]; } && good="Good afternoon, "
@@ -466,7 +467,7 @@ get_host() {
     host=${host//INVALID/}
     host=${host//All Series/}
 
-    printf "%s" "$host"
+    printf "%b" "$host"
   }
 
   if [[ -d /system/app/ && -d /system/priv-app ]]; then
@@ -541,7 +542,7 @@ get_gpu() {
     if [[ "${name}" == *"Display"* ]] || [[ "${name}" == *"3D"* ]] || [[ "${name}" == *"VGA"* ]]; then
       IFS='"'
       arr=($name)
-      gpu_cmd+=("${arr[3]} ${arr[5]}\n")
+      gpu_cmd+=("${arr[3]} ${arr[5]}")
     fi
   done <<<"$(lspci -mm)"
   for gpu in "${gpu_cmd[@]}"; do
@@ -1898,7 +1899,7 @@ get_disks() {
     disk_type=$(echo "$line" | awk '{print $2}')
     disk=$(echo "$line" | awk '{print $7}')
     verbose "Finding current disk usage...found as '$disk'"
-    printLine "$alignment" "${boldText}${headPageColor}%s${resetColor}${sysPageColor}%b${resetColor}" "${disk_type^^} on $disk $sep " "${disk_used}/${disk_size}"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "${disk_type^^} on $disk $sep " "${disk_used}/${disk_size}"
   done <<<"$disks"
 }
 
@@ -2048,6 +2049,24 @@ get_keyboard() {
 
 get_end() {
   printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╚═════════════════════════════' ' The End ' '═════════════════════════════╝'
+}
+
+#=== FUNCTION =================================================================
+#        Name: get_nice_message
+# Description: Prints nice message info to init.
+#==============================================================================
+
+get_nice_message() {
+  pram=$(date +'%p')
+  if [[ "${pram^^}" == "AM" ]]; then
+    morning=('gib coffe' 'good mernink >_<' 'oooo sunrise' 'i wonder if it is night or day' 'im just a script dont mind me' 'haha ai will take over world' 'sudo rm -rf /*' 'honk' 'honkhonk' 'very stoopid msg' 'u drink tea? >_<')
+    echo ""
+    printLine "$alignment" "${boldText}${bannerTextColor}%b${resetColor}" "${morning[RANDOM%${#morning[@]}]}"
+  else
+    evening=('get some sleep' 'how do i exit vim help' '>_<' 'haha zsh go brrr' 'honkkkkkkkkkkkkkk' 'goos' 'haha evening >_<' 'emacs is an os' 'sudo rm -rf /*' 'wher coffe' 'oooo sunset' 'i want some tea' 'please put some cake in the cd drive' 'm4st3r h4xx0r' 'Rep0 is 3lit3' 'honkhonk' 'good evening >_<' 'dont mind me im just a script hehe >_<' 'please gib cake >_<')
+    echo ""
+    printLine "$alignment" "${boldText}${bannerTextColor}%b${resetColor}" "${evening[RANDOM%${#evening[@]}]}"
+  fi
 }
 
 #=== FUNCTION =================================================================
