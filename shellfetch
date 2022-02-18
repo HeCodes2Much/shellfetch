@@ -150,7 +150,7 @@ get_user_config() {
 
     # The config file doesn't exist, create it.
     mkdir -p "${XDG_CONFIG_HOME}/shellfetch/"
-    printf '%b\n' "$config" >"$config_file"
+    printf '%b\n' "${config//# }" >"$config_file"
   fi
 }
 
@@ -212,8 +212,8 @@ error() {
 }
 
 #=== FUNCTION =================================================================
-#        Name: error
-# Description: Print message with a red pretag an ERROR
+#        Name: verbose
+# Description: Print message with a red pretag an VERBOSE
 # Parameter 1: Message to print
 #==============================================================================
 
@@ -323,14 +323,20 @@ get_ascii() {
     alignment='Center'
     if [[ -n "$1" ]]; then
       figlet=$(cat "$1")
-      # Colors.
-      figlet="${figlet//\$\{c1\}/$c1}"
-      figlet="${figlet//\$\{c2\}/$c2}"
-      figlet="${figlet//\$\{c3\}/$c3}"
-      figlet="${figlet//\$\{c4\}/$c4}"
-      figlet="${figlet//\$\{c5\}/$c5}"
-      figlet="${figlet//\$\{c6\}/$c6}"
       while IFS= read -r line; do
+        res="${line//[^c]}"
+        res=$(( ${#res} - 2 ))
+        while [[ "$res" -gt "0" ]];do
+          line="     $line"
+          res=$(( $res - 1 ))
+        done
+        # Colors.
+        line="${line//\$\{c1\}/$c1}"
+        line="${line//\$\{c2\}/$c2}"
+        line="${line//\$\{c3\}/$c3}"
+        line="${line//\$\{c4\}/$c4}"
+        line="${line//\$\{c5\}/$c5}"
+        line="${line//\$\{c6\}/$c6}"
         printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
       done <<<"$figlet"
     else
@@ -341,14 +347,14 @@ get_ascii() {
     alignment='Left'
     if [[ -n "$1" ]]; then
       figlet=$(cat "$1")
-      # Colors.
-      figlet="${figlet//\$\{c1\}/$c1}"
-      figlet="${figlet//\$\{c2\}/$c2}"
-      figlet="${figlet//\$\{c3\}/$c3}"
-      figlet="${figlet//\$\{c4\}/$c4}"
-      figlet="${figlet//\$\{c5\}/$c5}"
-      figlet="${figlet//\$\{c6\}/$c6}"
       while IFS= read -r line; do
+        # Colors.
+        line="${line//\$\{c1\}/$c1}"
+        line="${line//\$\{c2\}/$c2}"
+        line="${line//\$\{c3\}/$c3}"
+        line="${line//\$\{c4\}/$c4}"
+        line="${line//\$\{c5\}/$c5}"
+        line="${line//\$\{c6\}/$c6}"
         printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
       done <<<"$figlet"
     else
@@ -2114,11 +2120,11 @@ while [[ "$1" ]]; do
     ;;
   --version | -v)
     version
-	exit
+	  exit
     ;;
   --help | -h)
     help
-	exit
+	  exit
     ;;
   -*)
     error 'Incorrect option(s) specified.'
