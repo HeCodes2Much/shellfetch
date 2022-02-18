@@ -21,6 +21,7 @@
 	<img src='https://img.shields.io/github/issues/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
 	<img src='https://img.shields.io/github/stars/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
 	<img src='https://img.shields.io/github/forks/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
+	<img src="https://badges.pufler.dev/visits/The-Repo-Club/shellfetch?color=ff59f9&labelColor=434c5e&style=flat-square"/>
 	<img src='https://img.shields.io/github/commit-activity/m/The-Repo-Club/shellfetch?colorA=434c5e&colorB=ff59f9&style=flat-square'>
 </p>
 
