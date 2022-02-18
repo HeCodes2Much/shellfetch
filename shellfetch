@@ -339,6 +339,14 @@ get_ascii() {
     alignment='Center'
     if [[ -n "$1" ]]; then
       figlet=$(cat "$1")
+      if [[ "$COLUMNS" -lt "121" ]]; then
+          figlet="${figlet//\$\{c1\}/}"
+          figlet="${figlet//\$\{c2\}/}"
+          figlet="${figlet//\$\{c3\}/}"
+          figlet="${figlet//\$\{c4\}/}"
+          figlet="${figlet//\$\{c5\}/}"
+          figlet="${figlet//\$\{c6\}/}"
+      fi
       while IFS= read -r line; do
         res="${line//[^c]}"
         res=$(( ${#res} - 2 ))
@@ -2094,8 +2102,8 @@ get_blank() {
 #==============================================================================
 
 get_colors() {
-  printLine "$alignment" "${blk} %s ${red} %s ${grn} %s ${yel} %s ${blu} %s ${mag} %s ${cyn} %s ${wht} %s ${del}" "" "" "" "" "" "" "" ""
-  printLine "$alignment" "${b_blk} %s ${b_red} %s ${b_grn} %s ${b_yel} %s ${b_blu} %s ${b_mag} %s ${b_cyn} %s ${b_wht} %s ${del}" "" "" "" "" "" "" "" ""
+  printLine "$alignment" "${blk} %b ${red} %b ${grn} %b ${yel} %b ${blu} %b ${mag} %b ${cyn} %b ${wht} %b ${del}" "" "" "" "" "" "" "" ""
+  printLine "$alignment" "${b_blk} %b ${b_red} %b ${b_grn} %b ${b_yel} %b ${b_blu} %b ${b_mag} %b ${b_cyn} %b ${b_wht} %b ${del}" "" "" "" "" "" "" "" ""
 }
 
 while [[ "$1" ]]; do
