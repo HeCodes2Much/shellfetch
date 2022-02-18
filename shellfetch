@@ -313,6 +313,22 @@ get_process_name() {
 }
 
 #=== FUNCTION =================================================================
+#        Name: replace_ascii_colors
+# Description: Prints ascii_colors to get_ascii.
+#==============================================================================
+
+replace_ascii_colors() {
+  # Colors.
+  line="$@"
+  line="${line//\$\{c1\}/$c1}"
+  line="${line//\$\{c2\}/$c2}"
+  line="${line//\$\{c3\}/$c3}"
+  line="${line//\$\{c4\}/$c4}"
+  line="${line//\$\{c5\}/$c5}"
+  line="${line//\$\{c6\}/$c6}"
+}
+
+#=== FUNCTION =================================================================
 #        Name: get_ascii
 # Description: Prints ascii_art to init.
 #==============================================================================
@@ -330,13 +346,7 @@ get_ascii() {
           line="     $line"
           res=$(( $res - 1 ))
         done
-        # Colors.
-        line="${line//\$\{c1\}/$c1}"
-        line="${line//\$\{c2\}/$c2}"
-        line="${line//\$\{c3\}/$c3}"
-        line="${line//\$\{c4\}/$c4}"
-        line="${line//\$\{c5\}/$c5}"
-        line="${line//\$\{c6\}/$c6}"
+        replace_ascii_colors "$line"
         printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
       done <<<"$figlet"
     else
@@ -348,13 +358,7 @@ get_ascii() {
     if [[ -n "$1" ]]; then
       figlet=$(cat "$1")
       while IFS= read -r line; do
-        # Colors.
-        line="${line//\$\{c1\}/$c1}"
-        line="${line//\$\{c2\}/$c2}"
-        line="${line//\$\{c3\}/$c3}"
-        line="${line//\$\{c4\}/$c4}"
-        line="${line//\$\{c5\}/$c5}"
-        line="${line//\$\{c6\}/$c6}"
+        replace_ascii_colors "$line"
         printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
       done <<<"$figlet"
     else
