@@ -45,7 +45,7 @@ readonly b_blk b_red b_grn b_yel b_blu b_mag b_cyn b_wht blk red grn yel blu mag
 #=== DEFAULTS =================================================================
 
 setterm -linewrap off
-source /etc/os-release
+. /etc/os-release
 COLUMNS=$(tput cols)
 XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-${HOME}/.config}
 
@@ -130,17 +130,17 @@ EOF
 
 get_user_config() {
   if [[ -f "${source}" ]]; then
-    source "${source}"
+    . "${source}"
     # We will need these assignments later to calculate the alignment offset
     config_file="${source}"
     verbose "Config: Sourced user config.    (${config_file})"
   elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config.conf" ]]; then
-    source "${XDG_CONFIG_HOME}/shellfetch/config.conf"
+    . "${XDG_CONFIG_HOME}/shellfetch/config.conf"
     # We will need these assignments later to calculate the alignment offset
     config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
     verbose "Config: Sourced user config.    (${config_file})"
   elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config" ]]; then
-    source "${XDG_CONFIG_HOME}/shellfetch/config"
+    . "${XDG_CONFIG_HOME}/shellfetch/config"
     config_file="${XDG_CONFIG_HOME}/shellfetch/config"
     verbose "Config: Sourced user config.    (${config_file})"
   else
