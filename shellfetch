@@ -7,7 +7,7 @@
 # GitHub        - https://github.com/The-Repo-Club/
 # Author        - The-Repo-Club [wayne6324@gmail.com]
 # Start On      - Tue 28 December 2021, 03:52:43 pm (GMT)
-# Modified On   - Thu 17 February 2022, 09:59:51 pm (GMT) 
+# Modified On   - Mon 21 February 2022, 09:26:33 pm (GMT) 
 # -------------------------------------------------------------------------
 SCRIPTNAME=${0##*/}
 DESCRIPTION="Shell System Information Fetcher"
@@ -534,6 +534,17 @@ get_host() {
 #==============================================================================
 
 get_cpu() {
+  cpu_count=()
+  while IFS=":" read -r line; do
+    if [[ "${line}" == "Thread(s)"* ]] || [[ "${line}" == "Core(s)"* ]]; then
+      arr=($line)
+      cpu_count+=("${arr[3]}")
+    fi
+  done <<< $(lscpu)
+
+  THREDS=$(( ${cpu_count[0]} * ${cpu_count[1]} ))
+  CORES=${cpu_count[1]}
+
   while IFS=":" read -r type name; do
     case $type in
     "model name"*)
@@ -546,6 +557,8 @@ get_cpu() {
   verbose "Finding current CPU...found as '$CPU'"
   if [[ -n "$CPU" ]]; then
     printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "CPU $sep " "$CPU"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Thread(s) $sep " "$THREDS"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Core(s) $sep " "$CORES"
   fi
 }
 
@@ -971,6 +984,9 @@ get_de() {
         'trinity')
           DE="Trinity"
           ;;
+        'repowm')
+          DE="Repowm"
+          ;;
         esac
       fi
 
@@ -1157,6 +1173,7 @@ get_wm() {
         'dminiwm') WM="dminiwm" ;;
         'dtwm') WM="dtwm" ;;
         'dwm') WM="dwm" ;;
+        'repowm') WM="repowm" ;;
         'e16') WM="E16" ;;
         'emerald') WM="Emerald" ;;
         'enlightenment') WM="E17" ;;
@@ -1241,6 +1258,7 @@ get_wm() {
     'deepin-wm') WM="Deepin WM" ;;
     'dminiwm') WM="dminiwm" ;;
     'dwm') WM="dwm" ;;
+    'repowm') WM="repowm" ;;
     'e16') WM="E16" ;;
     'echinus') WM="echinus" ;;
     'emerald') WM="Emerald" ;;
@@ -1295,7 +1313,7 @@ get_wm() {
 get_wmtheme() {
   Win_theme="Not_Found"
   case $WM in
-  '2bwm' | '9wm' | 'Beryl' | 'bspwm' | 'dminiwm' | 'dwm' | 'echinus' | 'FVWM' | 'howm' | 'i3' | 'monsterwm' | 'Musca' | \
+  '2bwm' | '9wm' | 'Beryl' | 'bspwm' | 'dminiwm' | 'dwm' | 'repowm' | 'echinus' | 'FVWM' | 'howm' | 'i3' | 'monsterwm' | 'Musca' | \
     'Notion' | 'Ratpoison' | 'ScrotWM' | 'SpectrWM' | 'swm' | 'subtle' | 'WindowMaker' | 'WMFS' | 'wmii' | 'XMonad')
     Win_theme="Not_Applicable"
     ;;
