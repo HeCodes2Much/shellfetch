@@ -12,7 +12,7 @@
 SCRIPTNAME=${0##*/}
 SCRIPTDESCRIPTION="Shell System Information Fetcher"
 SCRIPTAUTHOR="The-Repo-Club <wayne6324@gmail.com>"
-SCRIPTVERSION="2022.02.16"
+SCRIPTVERSION="2022.07.26"
 readonly SCRIPTNAME SCRIPTDESCRIPTION SCRIPTAUTHOR SCRIPTVERSION
 # -------------------------------------------------------------------------
 
@@ -266,7 +266,7 @@ version() {
     %b - v%b
 
     This program may be freely redistributed
-    under the terms of The GPL-TRC License.
+    under the terms of The MIT License.
 
     %b
     \n" "$SCRIPTSNAME" "$SCRIPTDESCRIPTION" "$SCRIPTVERSION" "$SCRIPTAUTHOR"
