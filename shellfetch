@@ -10,10 +10,10 @@
 # Modified On   - Mon 21 February 2022, 09:26:33 pm (GMT) 
 # -------------------------------------------------------------------------
 SCRIPTNAME=${0##*/}
-DESCRIPTION="Shell System Information Fetcher"
-AUTHOR="The-Repo-Club <wayne6324@gmail.com>"
-VERSION="2022.02.16"
-readonly SCRIPTNAME DESCRIPTION AUTHOR VERSION
+SCRIPTDESCRIPTION="Shell System Information Fetcher"
+SCRIPTAUTHOR="The-Repo-Club <wayne6324@gmail.com>"
+SCRIPTVERSION="2022.02.16"
+readonly SCRIPTNAME SCRIPTDESCRIPTION SCRIPTAUTHOR SCRIPTVERSION
 # -------------------------------------------------------------------------
 
 #=== COLORS ===================================================================
@@ -269,7 +269,7 @@ version() {
     under the terms of The GPL-TRC License.
 
     %b
-    \n" "$SCRIPTSNAME" "$DESCRIPTION" "$VERSION" "$AUTHOR"
+    \n" "$SCRIPTSNAME" "$SCRIPTDESCRIPTION" "$SCRIPTVERSION" "$SCRIPTAUTHOR"
 }
 
 #=== FUNCTION =================================================================
