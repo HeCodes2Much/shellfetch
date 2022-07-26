@@ -150,7 +150,7 @@ get_user_config() {
 
     # The config file doesn't exist, create it.
     mkdir -p "${XDG_CONFIG_HOME}/shellfetch/"
-    printf '%b\n' "${config//# }" >"$config_file"
+    printf '%b\n' "${config}" >"$config_file"
   fi
 }
 
@@ -1926,7 +1926,7 @@ get_diskinfo() {
 #==============================================================================
 
 get_disks() {
-  diskcmd=$(mount | grep '^/')
+  diskcmd=$(mount | grep '^/' | grep -v 'docker')
   disks=$(while IFS= read -r line; do df -Th "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
 
   while IFS= read -r line; do
