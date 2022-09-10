@@ -9,7 +9,7 @@
 		A modular, hackable, fetch script written in Bash
 
 		This program may be freely redistributed
-		under the terms of The GPL-TRC License.
+		under the terms of The MIT License.
 
 		The-Repo-Club <wayne6324@gmail.com>
 ```
