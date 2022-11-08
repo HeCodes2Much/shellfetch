@@ -740,7 +740,7 @@ get_pkgs() {
   elif [[ -x "$(command -v zypper)" ]]; then
     ((packages = $(zypper search -i | wc -l)))
   elif [[ -x "$(command -v emerge)" ]]; then
-    ((packages = $(find /var/db/pkg/* | wc -l)))
+    ((packages = $(ls -d /var/db/pkg/*/* | cut -f5- -d/ | wc -l)))
   elif [[ -x "$(command -v nix-store)" ]]; then
     ((packages = $(nix-store -q --references /var/run/current-system/sw | cut -d'-' -f2- | wc -l)))
   elif [[ -x "$(command -v xbps-query)" ]]; then
