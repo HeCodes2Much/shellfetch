@@ -1,18 +1,31 @@
 #!/usr/bin/env bash
-# -*-coding:utf-8 -*-
-# Set the variables to get distro name, distro id, etc
+#-*-coding:utf-8 -*-
+#Auto updated?
+#   Yes
+#File:
+#   shellfetch
+#Author:
+#   The-Repo-Club [wayne6324@gmail.com]
+#Github:
+#   https://github.com/The-Repo-Club/
+#
+#Created:
+#   Tue 28 December 2021, 03:52:43 PM [GMT+1]
+#Modified:
+#   Sat 29 July 2023, 03:48:51 PM [GMT+1]
+#
+#Description:
+#   Set the variables to get distro name, distro id, etc
+#
+#Dependencies:
+#   bash
+#
 # shellcheck disable=all
-# -------------------------------------------------------------------------
-# Path          - /home/repo/.local/bin/shellfetch
-# GitHub        - https://github.com/The-Repo-Club/
-# Author        - The-Repo-Club [wayne6324@gmail.com]
-# Start On      - Tue 28 December 2021, 03:52:43 pm (GMT)
-# Modified On   - Mon 21 February 2022, 09:26:33 pm (GMT) 
-# -------------------------------------------------------------------------
+
 SCRIPTNAME=${0##*/}
 SCRIPTDESCRIPTION="Shell System Information Fetcher"
 SCRIPTAUTHOR="The-Repo-Club <wayne6324@gmail.com>"
-SCRIPTVERSION="2022.07.26"
+SCRIPTVERSION="2023.07.29"
 readonly SCRIPTNAME SCRIPTDESCRIPTION SCRIPTAUTHOR SCRIPTVERSION
 # -------------------------------------------------------------------------
 
@@ -2120,8 +2133,8 @@ get_blank() {
 #==============================================================================
 
 get_colors() {
-  printLine "$alignment" "${blk} %b ${red} %b ${grn} %b ${yel} %b ${blu} %b ${mag} %b ${cyn} %b ${wht} %b ${del}" "" "" "" "" "" "" "" ""
-  printLine "$alignment" "${b_blk} %b ${b_red} %b ${b_grn} %b ${b_yel} %b ${b_blu} %b ${b_mag} %b ${b_cyn} %b ${b_wht} %b ${del}" "" "" "" "" "" "" "" ""
+  printLine "$alignment" "${blk} %b ${red} %b ${grn} %b ${yel} %b ${blu} %b ${mag} %b ${cyn} %b ${wht} %b ${del}" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛"
+  printLine "$alignment" "${b_blk} %b ${b_red} %b ${b_grn} %b ${b_yel} %b ${b_blu} %b ${b_mag} %b ${b_cyn} %b ${b_wht} %b ${del}" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛"
 }
 
 while [[ "$1" ]]; do
