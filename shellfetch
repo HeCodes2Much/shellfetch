@@ -12,7 +12,7 @@
 #Created:
 #   Tue 28 December 2021, 03:52:43 PM [GMT+1]
 #Modified:
-#   Sat 29 July 2023, 03:48:51 PM [GMT+1]
+#   Tue 15 August 2023, 07:48:59 PM [GMT+1]
 #
 #Description:
 #   Set the variables to get distro name, distro id, etc
@@ -1134,7 +1134,7 @@ get_de() {
     fi
   fi
   verbose "Finding desktop environment...found as '$DE'"
-  if [[ -n "$DE" ]]; then
+  if [[ -n "$DE" ]] && [[ ! "$DE" == "$WM" ]]; then
     if [[ ! "$DE" == "Not_Found" ]] && [[ ! "$DE" == "Not_Applicable" ]]; then
       printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "DE $sep " "${DE}"
     fi
@@ -1186,11 +1186,12 @@ get_wm() {
         'dminiwm') WM="dminiwm" ;;
         'dtwm') WM="dtwm" ;;
         'dwm') WM="dwm" ;;
-        'repowm') WM="repowm" ;;
+        'rep') WM="Repowm" ;;
         'e16') WM="E16" ;;
         'emerald') WM="Emerald" ;;
         'enlightenment') WM="E17" ;;
         'fluxbox') WM="FluxBox" ;;
+        'flexiflow') WM="FlexiFlow" ;;
         'flwm' | 'flwm_topside') WM="FLWM" ;;
         'fvwm') WM="FVWM" ;;
         'herbstluftwm') WM="herbstluftwm" ;;
@@ -1271,12 +1272,13 @@ get_wm() {
     'deepin-wm') WM="Deepin WM" ;;
     'dminiwm') WM="dminiwm" ;;
     'dwm') WM="dwm" ;;
-    'repowm') WM="repowm" ;;
+    'rep') WM="Repowm" ;;
     'e16') WM="E16" ;;
     'echinus') WM="echinus" ;;
     'emerald') WM="Emerald" ;;
     'enlightenment') WM="E17" ;;
     'fluxbox') WM="FluxBox" ;;
+    'flexiflow') WM="FlexiFlow" ;;
     'flwm' | 'flwm_topside') WM="FLWM" ;;
     'fvwm') WM="FVWM" ;;
     'gnome shell'*) WM="Mutter" ;;
@@ -1311,7 +1313,7 @@ get_wm() {
     esac
   fi
   verbose "Finding window manager...found as '$WM'"
-  if [[ -n "$WM" ]]; then
+  if [[ -n "$WM" ]] && [[ ! "$WM" == "$DE" ]]; then
     if [[ ! "$WM" == "Not_Found" ]] && [[ ! "$WM" == "Not_Applicable" ]]; then
       printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM $sep " "${WM}"
     fi
@@ -1326,7 +1328,7 @@ get_wm() {
 get_wmtheme() {
   Win_theme="Not_Found"
   case $WM in
-  '2bwm' | '9wm' | 'Beryl' | 'bspwm' | 'dminiwm' | 'dwm' | 'repowm' | 'echinus' | 'FVWM' | 'howm' | 'i3' | 'monsterwm' | 'Musca' | \
+  '2bwm' | '9wm' | 'Beryl' | 'bspwm' | 'dminiwm' | 'dwm' | 'Repowm' | 'echinus' | 'FVWM' | 'howm' | 'i3' | 'monsterwm' | 'Musca' | \
     'Notion' | 'Ratpoison' | 'ScrotWM' | 'SpectrWM' | 'swm' | 'subtle' | 'WindowMaker' | 'WMFS' | 'wmii' | 'XMonad')
     Win_theme="Not_Applicable"
     ;;
