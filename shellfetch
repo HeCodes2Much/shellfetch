@@ -12,7 +12,7 @@
 #Created:
 #   Tue 28 December 2021, 03:52:43 PM [GMT+1]
 #Modified:
-#   Tue 15 August 2023, 07:48:59 PM [GMT+1]
+#   Mon 11 March 2024, 07:03:32 PM [UTC]
 #
 #Description:
 #   Set the variables to get distro name, distro id, etc
@@ -134,6 +134,13 @@ verbosity=1
 # get_colors
 EOF
 
+clean() {
+    # Usage: trim_string " example string "
+    : "${1#"${1%%[![:space:]]*}"}"
+    : "${_%"${_##*[![:space:]]}"}"
+    printf '%s\n' "$_"
+}
+
 #==============================================================================
 
 #=== FUNCTION =================================================================
@@ -142,29 +149,29 @@ EOF
 #==============================================================================
 
 get_user_config() {
-  if [[ -f "${source}" ]]; then
-    . "${source}"
-    # We will need these assignments later to calculate the alignment offset
-    config_file="${source}"
-    verbose "Config: Sourced user config.    (${config_file})"
-  elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config.conf" ]]; then
-    . "${XDG_CONFIG_HOME}/shellfetch/config.conf"
-    # We will need these assignments later to calculate the alignment offset
-    config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
-    verbose "Config: Sourced user config.    (${config_file})"
-  elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config" ]]; then
-    . "${XDG_CONFIG_HOME}/shellfetch/config"
-    config_file="${XDG_CONFIG_HOME}/shellfetch/config"
-    verbose "Config: Sourced user config.    (${config_file})"
-  else
-    verbosity=1
-    config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
-    verbose "Config: Sourced user config.    (${config_file})"
+    if [[ -f "${source}" ]]; then
+        . "${source}"
+        # We will need these assignments later to calculate the alignment offset
+        config_file="${source}"
+        verbose "Config: Sourced user config.    (${config_file})"
+    elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config.conf" ]]; then
+        . "${XDG_CONFIG_HOME}/shellfetch/config.conf"
+        # We will need these assignments later to calculate the alignment offset
+        config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
+        verbose "Config: Sourced user config.    (${config_file})"
+    elif [[ -f "${XDG_CONFIG_HOME}/shellfetch/config" ]]; then
+        . "${XDG_CONFIG_HOME}/shellfetch/config"
+        config_file="${XDG_CONFIG_HOME}/shellfetch/config"
+        verbose "Config: Sourced user config.    (${config_file})"
+    else
+        verbosity=1
+        config_file="${XDG_CONFIG_HOME}/shellfetch/config.conf"
+        verbose "Config: Sourced user config.    (${config_file})"
 
-    # The config file doesn't exist, create it.
-    mkdir -p "${XDG_CONFIG_HOME}/shellfetch/"
-    printf '%b\n' "${config}" >"$config_file"
-  fi
+        # The config file doesn't exist, create it.
+        mkdir -p "${XDG_CONFIG_HOME}/shellfetch/"
+        printf '%b\n' "${config}" >"$config_file"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -173,19 +180,19 @@ get_user_config() {
 #==============================================================================
 
 set_colors() {
-  c1="$(tput setaf "$1")"
-  c2="$(tput setaf "$2")"
-  c3="$(tput setaf "$3")"
-  c4="$(tput setaf "$4")"
-  c5="$(tput setaf "$5")"
-  c6="$(tput setaf "$6")"
+    c1="$(tput setaf "$1")"
+    c2="$(tput setaf "$2")"
+    c3="$(tput setaf "$3")"
+    c4="$(tput setaf "$4")"
+    c5="$(tput setaf "$5")"
+    c6="$(tput setaf "$6")"
 
-  # Color of text
-  sysPageColor="$(tput setaf "$7")"
-  headPageColor="$(tput setaf "$8")"
+    # Color of text
+    sysPageColor="$(tput setaf "$7")"
+    headPageColor="$(tput setaf "$8")"
 
-  # banner color
-  bannerTextColor="$(tput setaf "$9")"
+    # banner color
+    bannerTextColor="$(tput setaf "$9")"
 }
 
 #=== FUNCTION =================================================================
@@ -194,7 +201,7 @@ set_colors() {
 # Parameter 1: Message to repeat
 #==============================================================================
 repeat() {
-  printf "$1"'%.s' {1..23}
+    printf "$1"'%.s' {1..23}
 }
 
 #=== FUNCTION =================================================================
@@ -206,9 +213,9 @@ repeat() {
 # copied from makepkg and modified
 msg() {
 
-  local mesg=$1
-  printf "${grn}${bld}==>${del}${wht} %b${del}\n" "$mesg"
-  exit 0
+    local mesg=$1
+    printf "${grn}${bld}==>${del}${wht} %b${del}\n" "$mesg"
+    exit 0
 }
 
 #=== FUNCTION =================================================================
@@ -219,9 +226,9 @@ msg() {
 
 # copied from makepkg
 error() {
-  local mesg=$1
-  printf "${red}${bld}==> ERROR:${wht} %b${del}\n" "$mesg"
-  exit 0
+    local mesg=$1
+    printf "${red}${bld}==> ERROR:${wht} %b${del}\n" "$mesg"
+    exit 0
 }
 
 #=== FUNCTION =================================================================
@@ -232,11 +239,11 @@ error() {
 
 # copied from makepkg
 verbose() {
-  if [[ "$verbosity" -eq "1" ]]; then
-    local mesg=$1
-    shift
-    printf "${red}${bld}==> VERBOSE:${wht} %b${del}\n" "$mesg" "$@" >&2
-  fi
+    if [[ "$verbosity" -eq "1" ]]; then
+        local mesg=$1
+        shift
+        printf "${red}${bld}==> VERBOSE:${wht} %b${del}\n" "$mesg" "$@" >&2
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -246,25 +253,25 @@ verbose() {
 #==============================================================================
 
 printLine() {
-  Type=$1
-  shift
-  Main=$1
-  shift
-  if [[ $Type == 'Center' ]]; then
+    Type=$1
+    shift
+    Main=$1
+    shift
+    if [[ $Type == 'Center' ]]; then
 
-    # Get length of plain text characters
-    ArgStr=$*
-    Len=$((${#ArgStr} - $# + 1))
+        # Get length of plain text characters
+        ArgStr=$*
+        Len=$((${#ArgStr} - $# + 1))
 
-    # Generate Padding
-    printf -v Padding "%$(((COLUMNS - Len - 1) / 2))s"
+        # Generate Padding
+        printf -v Padding "%$(((COLUMNS - Len - 1) / 2))s"
 
-    # Print Line
-    printf "%b$Main\n" "$Padding" "$@"
+        # Print Line
+        printf "%b$Main\n" "$Padding" "$@"
 
-  elif [[ $Type == 'Left' ]]; then
-    printf "$Main\n" "$@"
-  fi
+    elif [[ $Type == 'Left' ]]; then
+        printf "$Main\n" "$@"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -273,8 +280,8 @@ printLine() {
 #==============================================================================
 
 version() {
-  SCRIPTSNAME=$(figlet "${SCRIPTNAME^^}")
-  printf "%b
+    SCRIPTSNAME=$(figlet "${SCRIPTNAME^^}")
+    printf "%b
 
     %b - v%b
 
@@ -291,8 +298,8 @@ version() {
 #==============================================================================
 
 help() {
-  version
-  printf " Usage
+    version
+    printf " Usage
 	-h  | --help:		Display this Message
 	-v  | --version:	Display a friendly version message.
 	-c  | --center:		Display the information in the center of the terminal.
@@ -308,10 +315,10 @@ help() {
 #==============================================================================
 
 get_ppid() {
-  # Get parent process ID of PID.
-  ppid="$(grep -i -F "PPid:" "/proc/${1:-$PPID}/status")"
-  ppid="$(clean "${ppid/PPid:/}")"
-  printf "%b" "$ppid"
+    # Get parent process ID of PID.
+    ppid="$(grep -i -F "PPid:" "/proc/${1:-$PPID}/status")"
+    ppid="$(clean "${ppid/PPid:/}")"
+    printf "%b" "$ppid"
 }
 
 #=== FUNCTION =================================================================
@@ -320,9 +327,9 @@ get_ppid() {
 #==============================================================================
 
 get_process_name() {
-  # Get PID name.
-  name="$(<"/proc/${1:-$PPID}/comm")"
-  printf "%b" "$name"
+    # Get PID name.
+    name="$(<"/proc/${1:-$PPID}/comm")"
+    printf "%b" "$name"
 }
 
 #=== FUNCTION =================================================================
@@ -331,14 +338,14 @@ get_process_name() {
 #==============================================================================
 
 replace_ascii_colors() {
-  # Colors.
-  line="$@"
-  line="${line//\$\{c1\}/$c1}"
-  line="${line//\$\{c2\}/$c2}"
-  line="${line//\$\{c3\}/$c3}"
-  line="${line//\$\{c4\}/$c4}"
-  line="${line//\$\{c5\}/$c5}"
-  line="${line//\$\{c6\}/$c6}"
+    # Colors.
+    line="$@"
+    line="${line//\$\{c1\}/$c1}"
+    line="${line//\$\{c2\}/$c2}"
+    line="${line//\$\{c3\}/$c3}"
+    line="${line//\$\{c4\}/$c4}"
+    line="${line//\$\{c5\}/$c5}"
+    line="${line//\$\{c6\}/$c6}"
 }
 
 #=== FUNCTION =================================================================
@@ -347,46 +354,46 @@ replace_ascii_colors() {
 #==============================================================================
 
 get_ascii() {
-  # Print everything
-  if [[ "$center" == "true" ]] || [[ "$centered" == "true" ]]; then
-    alignment='Center'
-    if [[ -n "$1" ]]; then
-      figlet=$(cat "$1")
-      if [[ "$COLUMNS" -lt "121" ]]; then
-          figlet="${figlet//\$\{c1\}/}"
-          figlet="${figlet//\$\{c2\}/}"
-          figlet="${figlet//\$\{c3\}/}"
-          figlet="${figlet//\$\{c4\}/}"
-          figlet="${figlet//\$\{c5\}/}"
-          figlet="${figlet//\$\{c6\}/}"
-      fi
-      while IFS= read -r line; do
-        res="${line//[^c]}"
-        res=$(( ${#res} - 2 ))
-        while [[ "$res" -gt "0" ]];do
-          line="     $line"
-          res=$(( $res - 1 ))
-        done
-        replace_ascii_colors "$line"
-        printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
-      done <<<"$figlet"
+    # Print everything
+    if [[ "$center" == "true" ]] || [[ "$centered" == "true" ]]; then
+        alignment='Center'
+        if [[ -n "$1" ]]; then
+            figlet=$(cat "$1")
+            if [[ "$COLUMNS" -lt "121" ]]; then
+                figlet="${figlet//\$\{c1\}/}"
+                figlet="${figlet//\$\{c2\}/}"
+                figlet="${figlet//\$\{c3\}/}"
+                figlet="${figlet//\$\{c4\}/}"
+                figlet="${figlet//\$\{c5\}/}"
+                figlet="${figlet//\$\{c6\}/}"
+            fi
+            while IFS= read -r line; do
+                res="${line//[^c]/}"
+                res=$((${#res} - 2))
+                while [[ "$res" -gt "0" ]]; do
+                    line="     $line"
+                    res=$(($res - 1))
+                done
+                replace_ascii_colors "$line"
+                printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
+            done <<<"$figlet"
+        else
+            figlet=$(figlet -w $COLUMNS -c "${NAME^}")
+            echo -e "${bannerTextColor}${boldText}${figlet}"
+        fi
     else
-      figlet=$(figlet -w $COLUMNS -c "${NAME^}")
-      echo -e "${bannerTextColor}${boldText}${figlet}"
+        alignment='Left'
+        if [[ -n "$1" ]]; then
+            figlet=$(cat "$1")
+            while IFS= read -r line; do
+                replace_ascii_colors "$line"
+                printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
+            done <<<"$figlet"
+        else
+            figlet=$(figlet "${NAME^}")
+            echo -e "${bannerTextColor}${boldText}${figlet}"
+        fi
     fi
-  else
-    alignment='Left'
-    if [[ -n "$1" ]]; then
-      figlet=$(cat "$1")
-      while IFS= read -r line; do
-        replace_ascii_colors "$line"
-        printLine "$alignment" "${bannerTextColor}${boldText}%b${resetColor}" "${line}"
-      done <<<"$figlet"
-    else
-      figlet=$(figlet "${NAME^}")
-      echo -e "${bannerTextColor}${boldText}${figlet}"
-    fi
-  fi
 }
 
 #=== FUNCTION =================================================================
@@ -395,18 +402,18 @@ get_ascii() {
 #==============================================================================
 
 get_title() {
-  user=${USER}
-  daynight="$(date +'%p')"
-  hour=$(date +"%l")
-  good="Good evening, "
+    user=${USER}
+    daynight="$(date +'%p')"
+    hour=$(date +"%l")
+    good="Good evening, "
 
-  if [[ ${timern^^} == "AM" ]]; then
-    [[ "$hour" -ge 5 ]] && [[ "$hour" -lt 12 ]] && good="Good morning, "
-  else
-    { [[ "$hour" -eq 12 ]] || [[ "$hour" -lt 5 ]]; } && good="Good afternoon, "
-  fi
+    if [[ ${timern^^} == "AM" ]]; then
+        [[ "$hour" -ge 5 ]] && [[ "$hour" -lt 12 ]] && good="Good morning, "
+    else
+        { [[ "$hour" -eq 12 ]] || [[ "$hour" -lt 5 ]]; } && good="Good afternoon, "
+    fi
 
-  printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}" "${good}${user}"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}" "${good}${user}"
 }
 
 #=== FUNCTION =================================================================
@@ -415,7 +422,7 @@ get_title() {
 #==============================================================================
 
 get_sep() {
-  printLine "$alignment" "${boldText}${b_wht}%b${resetColor}" "$(repeat "═")"
+    printLine "$alignment" "${boldText}${b_wht}%b${resetColor}" "$(repeat "═")"
 }
 
 #=== FUNCTION =================================================================
@@ -424,37 +431,37 @@ get_sep() {
 #==============================================================================
 
 get_uptime() {
-  unset uptime
-  if [[ -r /proc/uptime ]]; then
-    s=$(</proc/uptime)
-    s=${s/.*/}
-  else
-    boot=$(date -d"$(uptime -s)" +%s)
-    now=$(date +%s)
-    s=$((now - boot))
-  fi
+    unset uptime
+    if [[ -r /proc/uptime ]]; then
+        s=$(</proc/uptime)
+        s=${s/.*/}
+    else
+        boot=$(date -d"$(uptime -s)" +%s)
+        now=$(date +%s)
+        s=$((now - boot))
+    fi
 
-  d="$((s / 60 / 60 / 24)) days"
-  h="$((s / 60 / 60 % 24)) hours"
-  m="$((s / 60 % 60)) minutes"
-  # Remove plural if < 2.
-  ((${d/ */} == 1)) && d=${d/s/}
-  ((${h/ */} == 1)) && h=${h/s/}
-  ((${m/ */} == 1)) && m=${m/s/}
+    d="$((s / 60 / 60 / 24)) days"
+    h="$((s / 60 / 60 % 24)) hours"
+    m="$((s / 60 % 60)) minutes"
+    # Remove plural if < 2.
+    ((${d/ */} == 1)) && d=${d/s/}
+    ((${h/ */} == 1)) && h=${h/s/}
+    ((${m/ */} == 1)) && m=${m/s/}
 
-  # Hide empty fields.
-  ((${d/ */} == 0)) && unset d
-  ((${h/ */} == 0)) && unset h
-  ((${m/ */} == 0)) && unset m
+    # Hide empty fields.
+    ((${d/ */} == 0)) && unset d
+    ((${h/ */} == 0)) && unset h
+    ((${m/ */} == 0)) && unset m
 
-  uptime=${d:+$d, }${h:+$h, }$m
-  uptime=${uptime%', '}
-  uptime=${uptime:-$s seconds}
+    uptime=${d:+$d, }${h:+$h, }$m
+    uptime=${uptime%', '}
+    uptime=${uptime:-$s seconds}
 
-  verbose "Finding current uptime...found as '${uptime}'"
-  if [[ -n "$uptime" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Uptime $sep " "$uptime"
-  fi
+    verbose "Finding current uptime...found as '${uptime}'"
+    if [[ -n "$uptime" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Uptime $sep " "$uptime"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -463,7 +470,7 @@ get_uptime() {
 #==============================================================================
 
 get_hwinfo() {
-  printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╔══════════════════════' ' Hardware Information ' '═══════════════════════╗'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╔══════════════════════' ' Hardware Information ' '═══════════════════════╗'
 }
 
 #=== FUNCTION =================================================================
@@ -472,8 +479,8 @@ get_hwinfo() {
 #==============================================================================
 
 get_user() {
-  user_hostname="$(whoami) on $HOSTNAME"
-  printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "User $sep " "$user_hostname"
+    user_hostname="$(whoami) on $HOSTNAME"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "User $sep " "$user_hostname"
 }
 
 #=== FUNCTION =================================================================
@@ -482,63 +489,63 @@ get_user() {
 #==============================================================================
 
 get_host() {
-  clearHost() {
-    host="$1"
-    # Remove dummy OEM info.
-    host=${host//To be filled by O.E.M./}
-    host=${host//To Be Filled*/}
-    host=${host//OEM*/}
-    host=${host//Not Applicable/}
-    host=${host//System Product Name/}
-    host=${host//System Version/}
-    host=${host//Undefined/}
-    host=${host//Default string/}
-    host=${host//Not Specified/}
-    host=${host//Type1ProductConfigId/}
-    host=${host//INVALID/}
-    host=${host//All Series/}
+    clearHost() {
+        host="$1"
+        # Remove dummy OEM info.
+        host=${host//To be filled by O.E.M./}
+        host=${host//To Be Filled*/}
+        host=${host//OEM*/}
+        host=${host//Not Applicable/}
+        host=${host//System Product Name/}
+        host=${host//System Version/}
+        host=${host//Undefined/}
+        host=${host//Default string/}
+        host=${host//Not Specified/}
+        host=${host//Type1ProductConfigId/}
+        host=${host//INVALID/}
+        host=${host//All Series/}
 
-    printf "%b" "$host"
-  }
+        printf "%b" "$host"
+    }
 
-  if [[ -d /system/app/ && -d /system/priv-app ]]; then
-    host="$(getprop ro.product.brand) $(getprop ro.product.model)"
-    host="$(clearHost "$host")"
-  fi
+    if [[ -d /system/app/ && -d /system/priv-app ]]; then
+        host="$(getprop ro.product.brand) $(getprop ro.product.model)"
+        host="$(clearHost "$host")"
+    fi
 
-  if [[ -f /sys/devices/virtual/dmi/id/product_name ||
-    -f /sys/devices/virtual/dmi/id/product_version ]] && [[ -z "$host" || "$host" == " " ]]; then
-    host=$(</sys/devices/virtual/dmi/id/product_name)
-    host+=" $(</sys/devices/virtual/dmi/id/product_version)"
-    host="$(clearHost "$host")"
-  fi
+    if [[ -f /sys/devices/virtual/dmi/id/product_name ||
+        -f /sys/devices/virtual/dmi/id/product_version ]] && [[ -z "$host" || "$host" == " " ]]; then
+        host=$(</sys/devices/virtual/dmi/id/product_name)
+        host+=" $(</sys/devices/virtual/dmi/id/product_version)"
+        host="$(clearHost "$host")"
+    fi
 
-  if [[ -f /sys/devices/virtual/dmi/id/board_vendor ||
-    -f /sys/devices/virtual/dmi/id/board_name ]] && [[ -z "$host" || "$host" == " " ]]; then
-    host=$(</sys/devices/virtual/dmi/id/board_vendor)
-    host+=" $(</sys/devices/virtual/dmi/id/board_name)"
-    host="$(clearHost "$host")"
-  fi
+    if [[ -f /sys/devices/virtual/dmi/id/board_vendor ||
+        -f /sys/devices/virtual/dmi/id/board_name ]] && [[ -z "$host" || "$host" == " " ]]; then
+        host=$(</sys/devices/virtual/dmi/id/board_vendor)
+        host+=" $(</sys/devices/virtual/dmi/id/board_name)"
+        host="$(clearHost "$host")"
+    fi
 
-  if [[ -f /sys/firmware/devicetree/base/model ]] && [[ -z "$host" || "$host" == " " ]]; then
-    host=$(</sys/firmware/devicetree/base/model)
-    host="$(clearHost "$host")"
-  fi
+    if [[ -f /sys/firmware/devicetree/base/model ]] && [[ -z "$host" || "$host" == " " ]]; then
+        host=$(</sys/firmware/devicetree/base/model)
+        host="$(clearHost "$host")"
+    fi
 
-  if [[ -f /tmp/sysinfo/model ]] && [[ -z "$host" || "$host" == " " ]]; then
-    host=$(</tmp/sysinfo/model)
-    host="$(clearHost "$host")"
-  fi
+    if [[ -f /tmp/sysinfo/model ]] && [[ -z "$host" || "$host" == " " ]]; then
+        host=$(</tmp/sysinfo/model)
+        host="$(clearHost "$host")"
+    fi
 
-  case "$model" in
-  "Standard PC"*) host="KVM/QEMU (${model})" ;;
-  OpenBSD*) host="vmm ($model)" ;;
-  esac
+    case "$model" in
+    "Standard PC"*) host="KVM/QEMU (${model})" ;;
+    OpenBSD*) host="vmm ($model)" ;;
+    esac
 
-  verbose "Finding hardware model infomation...found as '${host}'"
-  if [[ -n "$host" || ! "$host" == " " ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Host $sep " "$host"
-  fi
+    verbose "Finding hardware model infomation...found as '${host}'"
+    if [[ -n "$host" || ! "$host" == " " ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Host $sep " "$host"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -547,32 +554,32 @@ get_host() {
 #==============================================================================
 
 get_cpu() {
-  cpu_count=()
-  while IFS=":" read -r line; do
-    if [[ "${line}" == "Thread(s)"* ]] || [[ "${line}" == "Core(s)"* ]]; then
-      arr=($line)
-      cpu_count+=("${arr[3]}")
+    cpu_count=()
+    while IFS=":" read -r line; do
+        if [[ "${line}" == "Thread(s)"* ]] || [[ "${line}" == "Core(s)"* ]]; then
+            arr=($line)
+            cpu_count+=("${arr[3]}")
+        fi
+    done <<<$(lscpu)
+
+    THREDS=$((${cpu_count[0]} * ${cpu_count[1]}))
+    CORES=${cpu_count[1]}
+
+    while IFS=":" read -r type name; do
+        case $type in
+        "model name"*)
+            IFS='@ ' read -r -a array <<<"$name"
+            CPU="$name"
+            CPU=${CPU#"${CPU%%[![:space:]]*}"}
+            ;;
+        esac
+    done </proc/cpuinfo
+    verbose "Finding current CPU...found as '$CPU'"
+    if [[ -n "$CPU" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "CPU $sep " "$CPU"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Thread(s) $sep " "$THREDS"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Core(s) $sep " "$CORES"
     fi
-  done <<< $(lscpu)
-
-  THREDS=$(( ${cpu_count[0]} * ${cpu_count[1]} ))
-  CORES=${cpu_count[1]}
-
-  while IFS=":" read -r type name; do
-    case $type in
-    "model name"*)
-      IFS='@ ' read -r -a array <<<"$name"
-      CPU="$name"
-      CPU=${CPU#"${CPU%%[![:space:]]*}"}
-      ;;
-    esac
-  done </proc/cpuinfo
-  verbose "Finding current CPU...found as '$CPU'"
-  if [[ -n "$CPU" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "CPU $sep " "$CPU"
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Thread(s) $sep " "$THREDS"
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Core(s) $sep " "$CORES"
-  fi
 }
 
 #=== FUNCTION =================================================================
@@ -581,58 +588,58 @@ get_cpu() {
 #==============================================================================
 
 get_gpu() {
-  gpu_cmd=()
-  while IFS=":" read -r name; do
-    if [[ "${name}" == *"Display"* ]] || [[ "${name}" == *"3D"* ]] || [[ "${name}" == *"VGA"* ]]; then
-      IFS='"'
-      arr=($name)
-      gpu_cmd+=("${arr[3]} ${arr[5]}")
-    fi
-  done <<<"$(lspci -mm)"
-  for gpu in "${gpu_cmd[@]}"; do
-    # GPU shorthand tests.
-    [[ "$gpu_type" == "dedicated" && "$gpu" == *Intel* ]] || [[ "$gpu_type" == "integrated" && ! "$gpu" == *Intel* ]] && {
-      unset -v gpu
-      continue
-    }
-    case $gpu in
-    *"Advanced"*)
-      brand="${gpu/*AMD*ATI*/AMD ATI}"
-      brand="${brand:-${gpu/*AMD*/AMD}}"
-      brand="${brand:-${gpu/*ATI*/ATi}}"
+    gpu_cmd=()
+    while IFS=":" read -r name; do
+        if [[ "${name}" == *"Display"* ]] || [[ "${name}" == *"3D"* ]] || [[ "${name}" == *"VGA"* ]]; then
+            IFS='"'
+            arr=($name)
+            gpu_cmd+=("${arr[3]} ${arr[5]}")
+        fi
+    done <<<"$(lspci -mm)"
+    for gpu in "${gpu_cmd[@]}"; do
+        # GPU shorthand tests.
+        [[ "$gpu_type" == "dedicated" && "$gpu" == *Intel* ]] || [[ "$gpu_type" == "integrated" && ! "$gpu" == *Intel* ]] && {
+            unset -v gpu
+            continue
+        }
+        case $gpu in
+        *"Advanced"*)
+            brand="${gpu/*AMD*ATI*/AMD ATI}"
+            brand="${brand:-${gpu/*AMD*/AMD}}"
+            brand="${brand:-${gpu/*ATI*/ATi}}"
 
-      gpu="${gpu/\[AMD\/ATI\] /}"
-      gpu="${gpu/\[AMD\] /}"
-      gpu="${gpu/OEM /}"
-      gpu="${gpu/Advanced Micro Devices, Inc./}"
-      gpu="${gpu/*\[/}"
-      gpu="${gpu/\]*/}"
-      gpu="$brand $gpu"
-      ;;
+            gpu="${gpu/\[AMD\/ATI\] /}"
+            gpu="${gpu/\[AMD\] /}"
+            gpu="${gpu/OEM /}"
+            gpu="${gpu/Advanced Micro Devices, Inc./}"
+            gpu="${gpu/*\[/}"
+            gpu="${gpu/\]*/}"
+            gpu="$brand $gpu"
+            ;;
 
-    *"NVIDIA"*)
-      gpu="${gpu/*\[/}"
-      gpu="${gpu/\]*/}"
-      gpu="NVIDIA $gpu"
-      ;;
+        *"NVIDIA"*)
+            gpu="${gpu/*\[/}"
+            gpu="${gpu/\]*/}"
+            gpu="NVIDIA $gpu"
+            ;;
 
-    *"Intel"*)
-      gpu="${gpu/*Intel/Intel}"
-      gpu="${gpu/\(R\)/}"
-      gpu="${gpu/Corporation/}"
-      gpu="${gpu/ \(*/}"
-      gpu="${gpu/Integrated Graphics Controller/}"
-      gpu="${gpu/*Xeon*/Intel HD Graphics}"
-      gpu="${gpu/*CometLake*/Intel HD Graphics}"
-      ;;
+        *"Intel"*)
+            gpu="${gpu/*Intel/Intel}"
+            gpu="${gpu/\(R\)/}"
+            gpu="${gpu/Corporation/}"
+            gpu="${gpu/ \(*/}"
+            gpu="${gpu/Integrated Graphics Controller/}"
+            gpu="${gpu/*Xeon*/Intel HD Graphics}"
+            gpu="${gpu/*CometLake*/Intel HD Graphics}"
+            ;;
 
-    *)
-      continue
-      ;;
-    esac
+        *)
+            continue
+            ;;
+        esac
 
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GPU $sep " "$gpu"
-  done
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GPU $sep " "$gpu"
+    done
 }
 
 #=== FUNCTION =================================================================
@@ -641,37 +648,37 @@ get_gpu() {
 #==============================================================================
 
 get_memory() {
-  while IFS=":" read -r line; do
-    mem_used="$(echo "$line" | awk '{print $3}')"
-    mem_total="$(echo "$line" | awk '{print $2}')"
-  done <<<"$(free -k | grep Mem)"
+    while IFS=":" read -r line; do
+        mem_used="$(echo "$line" | awk '{print $3}')"
+        mem_total="$(echo "$line" | awk '{print $2}')"
+    done <<<"$(free -k | grep Mem)"
 
-  mem_used="$((mem_used / 1024))"
-  mem_total="$((mem_total / 1024))"
+    mem_used="$((mem_used / 1024))"
+    mem_total="$((mem_total / 1024))"
 
-  case $memory_unit in
-  gib)
-    mem_used=$(awk '{printf "%.2f", $1 / $2}' <<<"$mem_used 1024")
-    mem_total=$(awk '{printf "%.2f", $1 / $2}' <<<"$mem_total 1024")
-    mem_label=GiB
-    ;;
+    case $memory_unit in
+    gib)
+        mem_used=$(awk '{printf "%.2f", $1 / $2}' <<<"$mem_used 1024")
+        mem_total=$(awk '{printf "%.2f", $1 / $2}' <<<"$mem_total 1024")
+        mem_label=GiB
+        ;;
 
-  kib)
-    mem_used=$((mem_used * 1024))
-    mem_total=$((mem_total * 1024))
-    mem_label=KiB
-    ;;
-  esac
+    kib)
+        mem_used=$((mem_used * 1024))
+        mem_total=$((mem_total * 1024))
+        mem_label=KiB
+        ;;
+    esac
 
-  memory="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
-  printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Ram Usage $sep " "$memory"
+    memory="${mem_used}${mem_label:-MiB} / ${mem_total}${mem_label:-MiB} ${mem_perc:+(${mem_perc}%)}"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Ram Usage $sep " "$memory"
 }
 
 get_battery() {
-  if [[ -f /sys/class/power_supply/BAT0/capacity ]]; then
-    battery=$(cat /sys/class/power_supply/BAT0/capacity)
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Battery $sep " "$battery%"
-  fi
+    if [[ -f /sys/class/power_supply/BAT0/capacity ]]; then
+        battery=$(cat /sys/class/power_supply/BAT0/capacity)
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Battery $sep " "$battery%"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -680,24 +687,24 @@ get_battery() {
 #==============================================================================
 
 get_res() {
-  xResolution="No X Server"
-  if [[ -n ${DISPLAY} ]]; then
-    if type -p xdpyinfo >/dev/null 2>&1; then
-      xResolution=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
+    xResolution="No X Server"
+    if [[ -n ${DISPLAY} ]]; then
+        if type -p xdpyinfo >/dev/null 2>&1; then
+            xResolution=$(xdpyinfo | awk '/^ +dimensions/ {print $2}')
+        fi
     fi
-  fi
-  if type -p xrandr >/dev/null && [[ $DISPLAY && -z $WAYLAND_DISPLAY ]]; then
-    xResolution="$(xrandr --nograb --current |
-      awk 'match($0,/[0-9]*\.[0-9]*\*/) {
+    if type -p xrandr >/dev/null && [[ $DISPLAY && -z $WAYLAND_DISPLAY ]]; then
+        xResolution="$(xrandr --nograb --current |
+            awk 'match($0,/[0-9]*\.[0-9]*\*/) {
             printf $1 " @ " substr($0,RSTART,RLENGTH) "Hz, "}')"
-  fi
-  xResolution="${xResolution//\*/}"
-  xResolution="${xResolution%%,}"
-  xResolution="${xResolution%%, }"
-  verbose "Finding current resolution(s)...found as '$xResolution'"
-  if [[ -n "$xResolution" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Resolution $sep " "$xResolution"
-  fi
+    fi
+    xResolution="${xResolution//\*/}"
+    xResolution="${xResolution%%,}"
+    xResolution="${xResolution%%, }"
+    verbose "Finding current resolution(s)...found as '$xResolution'"
+    if [[ -n "$xResolution" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Resolution $sep " "$xResolution"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -706,7 +713,7 @@ get_res() {
 #==============================================================================
 
 get_swinfo() {
-  printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Software Information ' '═══════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Software Information ' '═══════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -714,7 +721,7 @@ get_swinfo() {
 # Description: Prints distro info to main.
 #==============================================================================
 get_distro() {
-  printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Distro $sep " "${PRETTY_NAME}"
+    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Distro $sep " "${PRETTY_NAME}"
 }
 
 #=== FUNCTION =================================================================
@@ -723,12 +730,12 @@ get_distro() {
 #==============================================================================
 
 get_arch() {
-  arch=$(uname -m)
+    arch=$(uname -m)
 
-  verbose "Finding init...found as '${arch}'"
-  if [[ -n "$arch" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Arch $sep " "${arch}"
-  fi
+    verbose "Finding init...found as '${arch}'"
+    if [[ -n "$arch" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Arch $sep " "${arch}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -737,36 +744,36 @@ get_arch() {
 #==============================================================================
 
 get_pkgs() {
-  # Use the package manager to get amount of installed packages
-  if [[ -x "$(command -v apk)" ]]; then
-    ((packages = $(apk list --installed | wc -l)))
-  elif [[ -x "$(command -v apt)" ]]; then
-    ((packages = $(apt list --installed | wc -l)))
-  elif [[ -x "$(command -v dnf)" ]]; then
-    ((packages = $(dnf list --installed | grep -c -v '^Installed Packages$')))
-  elif [[ -x "$(command -v pacman)" ]]; then
-    if [[ "$(pacman -Qqm | wc -l)" -gt "0" ]]; then
-      ((packages = $(pacman -Q | wc -l)))
+    # Use the package manager to get amount of installed packages
+    if [[ -x "$(command -v apk)" ]]; then
+        ((packages = $(apk list --installed | wc -l)))
+    elif [[ -x "$(command -v apt)" ]]; then
+        ((packages = $(apt list --installed | wc -l)))
+    elif [[ -x "$(command -v dnf)" ]]; then
+        ((packages = $(dnf list --installed | grep -c -v '^Installed Packages$')))
+    elif [[ -x "$(command -v pacman)" ]]; then
+        if [[ "$(pacman -Qqm | wc -l)" -gt "0" ]]; then
+            ((packages = $(pacman -Q | wc -l)))
+        else
+            ((packages = $(pacman -Q | wc -l)))
+        fi
+    elif [[ -x "$(command -v zypper)" ]]; then
+        ((packages = $(zypper search -i | wc -l)))
+    elif [[ -x "$(command -v emerge)" ]]; then
+        ((packages = $(ls -d /var/db/pkg/*/* | cut -f5- -d/ | wc -l)))
+    elif [[ -x "$(command -v nix-store)" ]]; then
+        ((packages = $(nix-store -q --references /var/run/current-system/sw | cut -d'-' -f2- | wc -l)))
+    elif [[ -x "$(command -v xbps-query)" ]]; then
+        ((packages = $(xbps-query -l | awk '{ print $2 }' | xargs -n1 xbps-uhelper getpkgname | wc -l)))
     else
-      ((packages = $(pacman -Q | wc -l)))
+        echo "wtf no package manager?!"
+        exit 1
     fi
-  elif [[ -x "$(command -v zypper)" ]]; then
-    ((packages = $(zypper search -i | wc -l)))
-  elif [[ -x "$(command -v emerge)" ]]; then
-    ((packages = $(ls -d /var/db/pkg/*/* | cut -f5- -d/ | wc -l)))
-  elif [[ -x "$(command -v nix-store)" ]]; then
-    ((packages = $(nix-store -q --references /var/run/current-system/sw | cut -d'-' -f2- | wc -l)))
-  elif [[ -x "$(command -v xbps-query)" ]]; then
-    ((packages = $(xbps-query -l | awk '{ print $2 }' | xargs -n1 xbps-uhelper getpkgname | wc -l)))
-  else
-    echo "wtf no package manager?!"
-    exit 1
-  fi
 
-  verbose "Finding current package count...found as '$packages'"
-  if [[ -n "$packages" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Packages $sep " "${packages}"
-  fi
+    verbose "Finding current package count...found as '$packages'"
+    if [[ -n "$packages" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Packages $sep " "${packages}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -775,12 +782,12 @@ get_pkgs() {
 #==============================================================================
 
 get_kernel() {
-  kernel=$(uname -r)
+    kernel=$(uname -r)
 
-  verbose "Finding init...found as '${kernel}'"
-  if [[ -n "$kernel" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Kernel $sep " "${kernel}"
-  fi
+    verbose "Finding init...found as '${kernel}'"
+    if [[ -n "$kernel" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Kernel $sep " "${kernel}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -789,15 +796,15 @@ get_kernel() {
 #==============================================================================
 
 get_init() {
-  init=$(readlink /sbin/init)
-  init=${init##*/}
-  init=${init%%-*}
-  [[ $init == "sysinit" ]] && init="openrc"
+    init=$(readlink /sbin/init)
+    init=${init##*/}
+    init=${init%%-*}
+    [[ $init == "sysinit" ]] && init="openrc"
 
-  verbose "Finding init...found as '${init}'"
-  if [[ -n "$init" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Init $sep " "${init}"
-  fi
+    verbose "Finding init...found as '${init}'"
+    if [[ -n "$init" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Init $sep " "${init}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -806,12 +813,12 @@ get_init() {
 #==============================================================================
 
 get_shell() {
-  shell=$SHELL
+    shell=$SHELL
 
-  verbose "Finding init...found as '${shell}'"
-  if [[ -n "$shell" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Shell $sep " "${shell}"
-  fi
+    verbose "Finding init...found as '${shell}'"
+    if [[ -n "$shell" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Shell $sep " "${shell}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -820,12 +827,16 @@ get_shell() {
 #==============================================================================
 
 get_terminal() {
-  terminal=${TERM//xterm-/}
+    terminal=${TERM//xterm-/}
 
-  verbose "Finding init...found as '${terminal}'"
-  if [[ -n "$terminal" ]]; then
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Terminal $sep " "${terminal}"
-  fi
+    parent="$(get_ppid "$parent")"
+    name="$(get_process_name "$parent")"
+    term="${name##*/}"
+
+    verbose "Finding init...found as '${term^}'"
+    if [[ -n "$term" ]]; then
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Terminal $sep " "${term^}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -834,490 +845,267 @@ get_terminal() {
 #==============================================================================
 
 get_deinfo() {
-  printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═══════════════════════' ' Desktop Information ' '═══════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═══════════════════════' ' Desktop Information ' '═══════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
 #        Name: get_de
-# Description: Prints de info to main.
+# Description: Prints DE info to main.
 #==============================================================================
 
 get_de() {
-  DE="Not_Found"
-  if [[ "${distro}" == "Mac OS X" || "${distro}" == "macOS" ]]; then
-    if ps -U "${USER}" | grep -q -i 'finder'; then
-      DE="Aqua"
-    fi
-  elif [[ "${distro}" == "Cygwin" || "${distro}" == "Msys" ]]; then
-    # https://msdn.microsoft.com/en-us/library/ms724832%28VS.85%29.aspx
-    if wmic os get version | grep -q '^\(6\.[01]\)'; then
-      DE="Aero"
-    elif wmic os get version | grep -q '^\(6\.[23]\|10\)'; then
-      DE="Modern UI/Metro"
-    else
-      DE="Luna"
-    fi
-  elif [[ -n ${DISPLAY} ]]; then
-    if type -p xprop >/dev/null 2>&1; then
-      xprop_root="$(xprop -root 2>/dev/null)"
-      if [[ -n ${xprop_root} ]]; then
-        DE=$(echo "${xprop_root}" | awk 'BEGIN {
-					de = "Not_Applicable"
-				}
-				{
-					if ($1 ~ /^_DT_SAVE_MODE/) {
-						de = $NF
-						gsub(/"/,"",de)
-						de = toupper(de)
-						exit
-					}
-					else if ($1 ~/^KDE_SESSION_VERSION/) {
-						de = "KDE"$NF
-						exit
-					}
-					else if ($1 ~ /^_MUFFIN/) {
-						de = "Cinnamon"
-						exit
-					}
-					else if ($1 ~ /^TDE_FULL_SESSION/) {
-						de = "Trinity"
-						exit
-					}
-					else if ($0 ~ /"xfce4"/) {
-						de = "Xfce4"
-						exit
-					}
-					else if ($0 ~ /"xfce5"/) {
-						de = "Xfce5"
-						exit
-					}
-				} END {
-					print de
-				}')
-      fi
-    fi
+    DE="Not_Found"
+    case $os in
+    "Mac OS X" | "macOS") DE=Aqua ;;
 
-    if [[ ${DE} == "Not_Applicable" ]]; then
-      # Let's use xdg-open code for GNOME/Enlightment/KDE/LXDE/MATE/Xfce detection
-      # http://bazaar.launchpad.net/~vcs-imports/xdg-utils/master/view/head:/scripts/xdg-utils-common.in#L251
-      if [[ -n "${XDG_CURRENT_DESKTOP}" ]]; then
-        case "${XDG_CURRENT_DESKTOP,,}" in
-        'enlightenment')
-          DE="Enlightenment"
-          ;;
-        'gnome')
-          DE="GNOME"
-          ;;
-        'kde')
-          DE="KDE"
-          ;;
-        'lumina')
-          DE="Lumina"
-          ;;
-        'lxde')
-          DE="LXDE"
-          ;;
-        'mate')
-          DE="MATE"
-          ;;
-        'xfce')
-          DE="Xfce"
-          ;;
-        'x-cinnamon')
-          DE="Cinnamon"
-          ;;
-        'unity')
-          DE="Unity"
-          ;;
-        'lxqt')
-          DE="LXQt"
-          ;;
+    Windows)
+        case $distro in
+        *"Windows 10"*)
+            DE=Fluent
+            ;;
+
+        *"Windows 8"*)
+            DE=Metro
+            ;;
+
+        *)
+            DE=Aero
+            ;;
         esac
-      fi
+        ;;
 
-      if [[ -n "$DE" ]]; then
-        # classic fallbacks
-        if [[ -n "$KDE_FULL_SESSION" ]]; then
-          DE="KDE"
-        elif [[ -n "$TDE_FULL_SESSION" ]]; then
-          DE="Trinity"
-        elif [[ -n "$GNOME_DESKTOP_SESSION_ID" ]]; then
-          DE="GNOME"
-        elif [[ -n "$MATE_DESKTOP_SESSION_ID" ]]; then
-          DE="MATE"
-        elif dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
-          org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager >/dev/null 2>&1; then
-          DE="GNOME"
-        elif xprop -root _DT_SAVE_MODE 2>/dev/null | grep -q -i ' = "xfce4"$'; then
-          DE="Xfce"
-        elif xprop -root 2>/dev/null | grep -q -i '^xfce_desktop_window'; then
-          DE="Xfce"
-        elif echo "$DESKTOP" | grep -q -i '^Enlightenment'; then
-          DE="Enlightenment"
-        fi
-      fi
+    FreeMiNT)
+        freemint_wm=(/proc/*)
 
-      if [[ -z "$DE" || "$DE" = "Not_Applicable" ]]; then
-        # fallback to checking $DESKTOP_SESSION
-        local _DESKTOP_SESSION=
-        if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
-          if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
-            _DESKTOP_SESSION=${DESKTOP_SESSION,,}
-          else
-            _DESKTOP_SESSION="$(tr '[:upper:]' '[:lower:]' <<<"${DESKTOP_SESSION}")"
-          fi
-        else
-          _DESKTOP_SESSION="$(tr '[:upper:]' '[:lower:]' <<<"${DESKTOP_SESSION}")"
-        fi
-        case "${_DESKTOP_SESSION}" in
-        'gnome'*)
-          DE="GNOME"
-          ;;
-        'deepin')
-          DE="Deepin"
-          ;;
-        'lumina')
-          DE="Lumina"
-          ;;
-        'lxde' | 'lubuntu')
-          DE="LXDE"
-          ;;
-        'mate')
-          DE="MATE"
-          ;;
-        'xfce'*)
-          DE="Xfce"
-          ;;
-        'budgie-desktop')
-          DE="Budgie"
-          ;;
-        'cinnamon')
-          DE="Cinnamon"
-          ;;
-        'trinity')
-          DE="Trinity"
-          ;;
-        'repowm')
-          DE="Repowm"
-          ;;
+        case ${freemint_wm[*]} in
+        *thing*) DE=Thing ;;
+        *jinnee*) DE=Jinnee ;;
+        *tera*) DE=Teradesk ;;
+        *neod*) DE=NeoDesk ;;
+        *zdesk*) DE=zDesk ;;
+        *mdesk*) DE=mDesk ;;
         esac
-      fi
+        ;;
 
-      if [[ -n "$DE" ]]; then
-        # fallback to checking $GDMSESSION
-        case "${GDMSESSION,,}" in
-        'lumina'*)
-          DE="Lumina"
-          ;;
-        'mate')
-          DE="MATE"
-          ;;
+    *)
+        # Temporary support for Regolith Linux
+        if [[ $DESKTOP_SESSION == *regolith ]]; then
+            DE=Regolith
+
+        elif [[ $XDG_CURRENT_DESKTOP ]]; then
+            DE=${XDG_CURRENT_DESKTOP/X\-/}
+            DE=${DE/Budgie:GNOME/Budgie}
+            DE=${DE/:Unity7:ubuntu/}
+
+        elif [[ $DESKTOP_SESSION ]]; then
+            DE=${DESKTOP_SESSION##*/}
+
+        elif [[ $GNOME_DESKTOP_SESSION_ID ]]; then
+            DE=GNOME
+
+        elif [[ $MATE_DESKTOP_SESSION_ID ]]; then
+            DE=MATE
+
+        elif [[ $TDE_FULL_SESSION ]]; then
+            DE=Trinity
+        fi
+
+        # When a window manager is started from a display manager
+        # the desktop variables are sometimes also set to the
+        # window manager name. This checks to see if WM == DE
+        # and discards the DE value.
+        [[ $DE == "$WM" ]] && {
+            unset -v DE
+            return
+        }
+        ;;
+    esac
+
+    # Fallback to using xprop.
+    [[ $DISPLAY && -z $DE ]] && type -p xprop &>/dev/null &&
+        DE=$(xprop -root | awk '/KDE_SESSION_VERSION|^_MUFFIN|xfce4|xfce5/')
+
+    # Format strings.
+    case $DE in
+    KDE_SESSION_VERSION*) DE=KDE${DE/* = /} ;;
+    *xfce4*) DE=Xfce4 ;;
+    *xfce5*) DE=Xfce5 ;;
+    *xfce*) DE=Xfce ;;
+    *mate*) DE=MATE ;;
+    *GNOME*) DE=GNOME ;;
+    *MUFFIN*) DE=Cinnamon ;;
+    esac
+
+    ((${KDE_SESSION_VERSION:-0} >= 4)) && DE=${DE/KDE/Plasma}
+
+    if [[ $de_version == on && $DE ]]; then
+        case $DE in
+        Plasma*) de_ver=$(plasmashell --version) ;;
+        MATE*) de_ver=$(mate-session --version) ;;
+        Xfce*) de_ver=$(xfce4-session --version) ;;
+        GNOME*) de_ver=$(gnome-shell --version) ;;
+        Cinnamon*) de_ver=$(cinnamon --version) ;;
+        Deepin*) de_ver=$(awk -F'=' '/MajorVersion/ {print $2}' /etc/os-version) ;;
+        Budgie*) de_ver=$(budgie-desktop --version) ;;
+        LXQt*) de_ver=$(lxqt-session --version) ;;
+        Lumina*) de_ver=$(lumina-desktop --version 2>&1) ;;
+        Trinity*) de_ver=$(tde-config --version) ;;
+        Unity*) de_ver=$(unity --version) ;;
         esac
-      fi
 
-      if [[ ${DE} == "GNOME" ]]; then
-        if type -p xprop >/dev/null 2>&1; then
-          if xprop -name "unity-launcher" >/dev/null 2>&1; then
-            DE="Unity"
-          elif xprop -name "launcher" >/dev/null 2>&1 &&
-            xprop -name "panel" >/dev/null 2>&1; then
-            DE="Unity"
-          fi
-        fi
-      fi
+        de_ver=${de_ver/*TDE:/}
+        de_ver=${de_ver/tde-config*/}
+        de_ver=${de_ver/liblxqt*/}
+        de_ver=${de_ver/Copyright*/}
+        de_ver=${de_ver/)*/}
+        de_ver=${de_ver/* /}
+        de_ver=${de_ver//\"/}
 
-      if [[ ${DE} == "KDE" ]]; then
-        if [[ -n ${KDE_SESSION_VERSION} ]]; then
-          if [[ ${KDE_SESSION_VERSION} == '5' ]]; then
-            DE="KDE5"
-          elif [[ ${KDE_SESSION_VERSION} == '4' ]]; then
-            DE="KDE4"
-          fi
-        elif [[ ${KDE_FULL_SESSION} == 'true' ]]; then
-          DE="KDE"
-          DEver_data=$(kded --version 2>/dev/null)
-          DEver=$(grep -si '^KDE:' <<<"$DEver_data" | awk '{print $2}')
-        fi
-      fi
+        DE+=" $de_ver"
     fi
-
-    if [[ ${DE} != "Not_Applicable" ]]; then
-      if [[ ${DE} == "Cinnamon" ]]; then
-        if type -p >/dev/null 2>&1; then
-          DEver=$(cinnamon --version)
-          DE="${DE} ${DEver//* /}"
+    verbose "Finding desktop environment...found as '$DE'"
+    if [[ -n "$DE" ]] && [[ ! "$DE" == "$WM" ]]; then
+        if [[ ! "$DE" == "Not_Found" ]] && [[ ! "$DE" == "Not_Applicable" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "DE $sep " "${DE}"
         fi
-      elif [[ ${DE} == "GNOME" ]]; then
-        if type -p gnome-control-center >/dev/null 2>&1; then
-          DEver=$(gnome-control-center --version 2>/dev/null)
-          DE="${DE} ${DEver//* /}"
-        elif type -p gnome-session-properties >/dev/null 2>&1; then
-          DEver=$(gnome-session-properties --version 2>/dev/null)
-          DE="${DE} ${DEver//* /}"
-        elif type -p gnome-session >/dev/null 2>&1; then
-          DEver=$(gnome-session --version 2>/dev/null)
-          DE="${DE} ${DEver//* /}"
-        fi
-      elif [[ ${DE} == "KDE4" || ${DE} == "KDE5" ]]; then
-        if type -p kded${DE#KDE} >/dev/null 2>&1; then
-          DEver=$(kded${DE#KDE} --version)
-          if [[ $(($(echo "$DEver" | wc -w))) -eq 2 ]] && [[ "$(echo "$DEver" | cut -d ' ' -f1)" == "kded${DE#KDE}" ]]; then
-            DEver=$(echo "$DEver" | cut -d ' ' -f2)
-            DE="KDE ${DEver}"
-          else
-            for l in $(echo "${DEver// /_}"); do
-              if [[ ${l//:*/} == "KDE_Development_Platform" ]]; then
-                DEver=${l//*:_/}
-                DE="KDE ${DEver//_*/}"
-              fi
-            done
-          fi
-          if pgrep -U ${UID} plasmashell >/dev/null 2>&1; then
-            DEver=$(plasmashell --version | cut -d ' ' -f2)
-            DE="$DE / Plasma $DEver"
-          fi
-        fi
-      elif [[ ${DE} == "Lumina" ]]; then
-        if type -p Lumina-DE.real >/dev/null 2>&1; then
-          lumina="$(type -p Lumina-DE.real)"
-        elif type -p Lumina-DE >/dev/null 2>&1; then
-          lumina="$(type -p Lumina-DE)"
-        fi
-        if [[ -n "$lumina" ]]; then
-          if grep -q '--version' "$lumina"; then
-            DEver=$("$lumina" --version 2>&1 | tr -d \")
-            DE="${DE} ${DEver}"
-          fi
-        fi
-      elif [[ ${DE} == "LXQt" ]]; then
-        if type -p lxqt-about >/dev/null 2>&1; then
-          DEver=$(lxqt-about --version | awk '/^liblxqt/ {print $2}')
-          DE="${DE} ${DEver}"
-        fi
-      elif [[ ${DE} == "MATE" ]]; then
-        if type -p mate-session >/dev/null 2>&1; then
-          DEver=$(mate-session --version)
-          DE="${DE} ${DEver//* /}"
-        fi
-      elif [[ ${DE} == "Unity" ]]; then
-        if type -p unity >/dev/null 2>&1; then
-          DEver=$(unity --version)
-          DE="${DE} ${DEver//* /}"
-        fi
-      elif [[ ${DE} == "Deepin" ]]; then
-        if [[ -f /etc/deepin-version ]]; then
-          DEver="$(awk -F '=' '/Version/ {print $2}' /etc/deepin-version)"
-          DE="${DE} ${DEver//* /}"
-        fi
-      elif [[ ${DE} == "Trinity" ]]; then
-        if type -p tde-config >/dev/null 2>&1; then
-          DEver="$(tde-config --version | awk -F ' ' '/TDE:/ {print $2}')"
-          DE="${DE} ${DEver//* /}"
-        fi
-      fi
     fi
-
-    if [[ "${DE}" == "Not_Applicable" ]]; then
-      if pgrep -U ${UID} lxsession >/dev/null 2>&1; then
-        DE="LXDE"
-        if type -p lxpanel >/dev/null 2>&1; then
-          DEver=$(lxpanel -v)
-          DE="${DE} $DEver"
-        fi
-      elif pgrep -U ${UID} lxqt-session >/dev/null 2>&1; then
-        DE="LXQt"
-      elif pgrep -U ${UID} razor-session >/dev/null 2>&1; then
-        DE="RazorQt"
-      elif pgrep -U ${UID} dtsession >/dev/null 2>&1; then
-        DE="CDE"
-      fi
-    fi
-  fi
-  verbose "Finding desktop environment...found as '$DE'"
-  if [[ -n "$DE" ]] && [[ ! "$DE" == "$WM" ]]; then
-    if [[ ! "$DE" == "Not_Found" ]] && [[ ! "$DE" == "Not_Applicable" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "DE $sep " "${DE}"
-    fi
-  fi
 }
 
 #=== FUNCTION =================================================================
 #        Name: get_wm
-# Description: Prints wm info to main.
+# Description: Prints WM info to main.
 #==============================================================================
 
 get_wm() {
-  WM="Not_Found"
-  if [[ ${distro} == "Mac OS X" || ${distro} == "macOS" ]]; then
-    if ps -U "${USER}" | grep -q -i 'finder'; then
-      WM="Quartz Compositor"
-    fi
-  elif [[ "${distro}" == "Cygwin" || "${distro}" == "Msys" ]]; then
-    if [[ "$(tasklist | grep -o 'bugn' | tr -d '\r \n')" = "bugn" ]]; then
-      WM="bug.n"
-    elif [[ "$(tasklist | grep -o 'Windawesome' | tr -d '\r \n')" = "Windawesome" ]]; then
-      WM="Windawesome"
-    elif [[ "$(tasklist | grep -o 'blackbox' | tr -d '\r \n')" = "blackbox" ]]; then
-      WM="Blackbox"
-    else
-      WM="DWM/Explorer"
-    fi
-  elif [[ -n ${DISPLAY} ]]; then
-    if [[ "${distro}" == "FreeBSD" ]]; then
-      pgrep_flags="-aU"
-    else
-      pgrep_flags="-U"
-    fi
-    for each in "${wmnames[@]}"; do
-      PID="$(pgrep ${pgrep_flags} ${UID} "^$each$")"
-      if [[ "$PID" ]]; then
-        case $each in
-        '2bwm') WM="2bwm" ;;
-        '9wm') WM="9wm" ;;
-        'awesome') WM="Awesome" ;;
-        'beryl') WM="Beryl" ;;
-        'blackbox') WM="BlackBox" ;;
-        'bspwm') WM="bspwm" ;;
-        'budgie-wm') WM="BudgieWM" ;;
-        'chromeos-wm') WM="chromeos-wm" ;;
-        'cinnamon') WM="Muffin" ;;
-        'compiz') WM="Compiz" ;;
-        'deepin-wm') WM="deepin-wm" ;;
-        'dminiwm') WM="dminiwm" ;;
-        'dtwm') WM="dtwm" ;;
-        'dwm') WM="dwm" ;;
-        'rep') WM="Repowm" ;;
-        'e16') WM="E16" ;;
-        'emerald') WM="Emerald" ;;
-        'enlightenment') WM="E17" ;;
-        'fluxbox') WM="FluxBox" ;;
-        'flexiflow') WM="FlexiFlow" ;;
-        'flwm' | 'flwm_topside') WM="FLWM" ;;
-        'fvwm') WM="FVWM" ;;
-        'herbstluftwm') WM="herbstluftwm" ;;
-        'howm') WM="howm" ;;
-        'i3') WM="i3" ;;
-        'icewm') WM="IceWM" ;;
-        'kwin') WM="KWin" ;;
-        'metacity') WM="Metacity" ;;
-        'monsterwm') WM="monsterwm" ;;
-        'musca') WM="Musca" ;;
-        'mwm') WM="MWM" ;;
-        'notion') WM="Notion" ;;
-        'openbox') WM="OpenBox" ;;
-        'pekwm') WM="PekWM" ;;
-        'ratpoison') WM="Ratpoison" ;;
-        'sawfish') WM="Sawfish" ;;
-        'scrotwm') WM="ScrotWM" ;;
-        'spectrwm') WM="SpectrWM" ;;
-        'stumpwm') WM="StumpWM" ;;
-        'subtle') WM="subtle" ;;
-        'sway') WM="sway" ;;
-        'swm') WM="swm" ;;
-        'twin') WM="TWin" ;;
-        'wmaker') WM="WindowMaker" ;;
-        'wmfs') WM="WMFS" ;;
-        'wmii') WM="wmii" ;;
-        'xfwm4') WM="Xfwm4" ;;
-        'xmonad.*') WM="XMonad" ;;
-        esac
-      fi
-      if [[ ${WM} != "Not_Applicable" ]]; then
-        break 1
-      fi
-    done
-
-    if [[ ${WM} == "Not_Found" ]]; then
-      if type -p xprop >/dev/null 2>&1; then
-        WM=$(xprop -root _NET_SUPPORTING_WM_CHECK)
-        if [[ "$WM" =~ 'Not_Found' ]]; then
-          WM="Not_Applicable"
-        elif [[ "$WM" =~ 'Not_Found' ]]; then
-          WM="Not_Applicable"
-        elif [[ "$WM" =~ '[Ii]nvalid window id format' ]]; then
-          WM="Not_Applicable"
-        elif [[ "$WM" =~ "no such" ]]; then
-          WM="Not_Applicable"
-        else
-          WM=${WM//* /}
-          WM=$(xprop -id "${WM}" 8s _NET_WM_NAME)
-          WM=$(echo "$(
-            WM=${WM//*= /}
-            echo "${WM//\"/}"
-          )")
-        fi
-      fi
-    fi
-
-    # Proper format WM names that need it.
-    if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
-      if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
-        WM_lower=${WM,,}
-      else
-        WM_lower="$(tr '[:upper:]' '[:lower:]' <<<"${WM}")"
-      fi
-    else
-      WM_lower="$(tr '[:upper:]' '[:lower:]' <<<"${WM}")"
-    fi
-    case ${WM_lower} in
-    *'gala'*) WM="Gala" ;;
-    '2bwm') WM="2bwm" ;;
-    'awesome') WM="Awesome" ;;
-    'beryl') WM="Beryl" ;;
-    'blackbox') WM="BlackBox" ;;
-    'budgiewm') WM="BudgieWM" ;;
-    'chromeos-wm') WM="chromeos-wm" ;;
-    'cinnamon') WM="Cinnamon" ;;
-    'compiz') WM="Compiz" ;;
-    'deepin-wm') WM="Deepin WM" ;;
-    'dminiwm') WM="dminiwm" ;;
-    'dwm') WM="dwm" ;;
-    'rep') WM="Repowm" ;;
-    'e16') WM="E16" ;;
-    'echinus') WM="echinus" ;;
-    'emerald') WM="Emerald" ;;
-    'enlightenment') WM="E17" ;;
-    'fluxbox') WM="FluxBox" ;;
-    'flexiflow') WM="FlexiFlow" ;;
-    'flwm' | 'flwm_topside') WM="FLWM" ;;
-    'fvwm') WM="FVWM" ;;
-    'gnome shell'*) WM="Mutter" ;;
-    'herbstluftwm') WM="herbstluftwm" ;;
-    'howm') WM="howm" ;;
-    'i3') WM="i3" ;;
-    'icewm') WM="IceWM" ;;
-    'kwin') WM="KWin" ;;
-    'metacity') WM="Metacity" ;;
-    'monsterwm') WM="monsterwm" ;;
-    'muffin') WM="Muffin" ;;
-    'musca') WM="Musca" ;;
-    'mutter'*) WM="Mutter" ;;
-    'mwm') WM="MWM" ;;
-    'notion') WM="Notion" ;;
-    'openbox') WM="OpenBox" ;;
-    'pekwm') WM="PekWM" ;;
-    'ratpoison') WM="Ratpoison" ;;
-    'sawfish') WM="Sawfish" ;;
-    'scrotwm') WM="ScrotWM" ;;
-    'spectrwm') WM="SpectrWM" ;;
-    'stumpwm') WM="StumpWM" ;;
-    'subtle') WM="subtle" ;;
-    'sway') WM="sway" ;;
-    'swm') WM="swm" ;;
-    'twin') WM="TWin" ;;
-    'wmaker') WM="WindowMaker" ;;
-    'wmfs') WM="WMFS" ;;
-    'wmii') WM="wmii" ;;
-    'xfwm4') WM="Xfwm4" ;;
-    'xmonad') WM="XMonad" ;;
+    WM="Not_Found"
+    case $kernel_name in
+    *OpenBSD*) ps_flags=(x -c) ;;
+    *) ps_flags=(-e) ;;
     esac
-  fi
-  verbose "Finding window manager...found as '$WM'"
-  if [[ -n "$WM" ]] && [[ ! "$WM" == "$DE" ]]; then
-    if [[ ! "$WM" == "Not_Found" ]] && [[ ! "$WM" == "Not_Applicable" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM $sep " "${WM}"
+
+    if [[ -O "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}" ]]; then
+        if tmp_pid="$(lsof -t "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}" 2>&1)" ||
+            tmp_pid="$(fuser "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}" 2>&1)"; then
+            WM="$(ps -p "${tmp_pid}" -ho comm=)"
+        else
+            # lsof may not exist, or may need root on some systems. Similarly fuser.
+            # On those systems we search for a list of known window managers, this can mistakenly
+            # match processes for another user or session and will miss unlisted window managers.
+            WM=$(ps "${ps_flags[@]}" | grep -m 1 -o -F \
+                -e arcan \
+                -e asc \
+                -e clayland \
+                -e dwc \
+                -e fireplace \
+                -e gnome-shell \
+                -e greenfield \
+                -e grefsen \
+                -e hikari \
+                -e kwin \
+                -e lipstick \
+                -e maynard \
+                -e mazecompositor \
+                -e motorcar \
+                -e orbital \
+                -e orbment \
+                -e perceptia \
+                -e river \
+                -e rustland \
+                -e sway \
+                -e ulubis \
+                -e velox \
+                -e wavy \
+                -e way-cooler \
+                -e wayfire \
+                -e wayhouse \
+                -e westeros \
+                -e westford \
+                -e weston)
+        fi
+
+    elif [[ $DISPLAY && $os != "Mac OS X" && $os != "macOS" && $os != FreeMiNT ]]; then
+        # non-EWMH WMs.
+        WM=$(ps "${ps_flags[@]}" | grep -m 1 -o \
+            -e "[s]owm" \
+            -e "[c]atwm" \
+            -e "[f]vwm" \
+            -e "[d]wm" \
+            -e "[2]bwm" \
+            -e "[m]onsterwm" \
+            -e "[t]inywm" \
+            -e "[x]11fs" \
+            -e "[x]monad")
+
+        [[ -z $WM ]] && type -p xprop &>/dev/null && {
+            id=$(xprop -root -notype _NET_SUPPORTING_WM_CHECK)
+            id=${id##* }
+            WM=$(xprop -id "$id" -notype -len 100 -f _NET_WM_NAME 8t)
+            WM=${WM/*WM_NAME = /}
+            WM=${WM/\"/}
+            WM=${WM/\"*/}
+        }
+    else
+        case $os in
+        "Mac OS X" | "macOS")
+            ps_line=$(ps -e | grep -o \
+                -e "[S]pectacle" \
+                -e "[A]methyst" \
+                -e "[k]wm" \
+                -e "[c]hun[k]wm" \
+                -e "[y]abai" \
+                -e "[R]ectangle")
+
+            case $ps_line in
+            *chunkwm*) WM=chunkwm ;;
+            *kwm*) WM=Kwm ;;
+            *yabai*) WM=yabai ;;
+            *Amethyst*) WM=Amethyst ;;
+            *Spectacle*) WM=Spectacle ;;
+            *Rectangle*) WM=Rectangle ;;
+            *) WM="Quartz Compositor" ;;
+            esac
+            ;;
+
+        Windows)
+            WM=$(
+                tasklist |
+                    grep -Fom 1 \
+                        -e bugn \
+                        -e Windawesome \
+                        -e blackbox \
+                        -e emerge \
+                        -e litestep
+            )
+
+            [[ $WM == blackbox ]] &&
+                WM="bbLean (Blackbox)"
+
+            WM=${WM:+$WM, }DWM.exe
+            ;;
+
+        FreeMiNT)
+            freemint_WM=(/proc/*)
+
+            case ${freemint_wm[*]} in
+            *xaaes* | *xaloader*) WM=XaAES ;;
+            *myaes*) WM=MyAES ;;
+            *naes*) WM=N.AES ;;
+            geneva) WM=Geneva ;;
+            *) WM="Atari AES" ;;
+            esac
+            ;;
+        esac
     fi
-  fi
+
+    # Rename window managers to their proper values.
+    [[ $WM == *WINDOWMAKER* ]] && WM=wmaker
+    [[ $WM == *GNOME*Shell* ]] && WM=Mutter
+    verbose "Finding window manager...found as '$WM'"
+    if [[ -n "$WM" ]] && [[ ! "$WM" == "$DE" ]]; then
+        if [[ ! "$WM" == "Not_Found" ]] && [[ ! "$WM" == "Not_Applicable" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM $sep " "${WM}"
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -1326,125 +1114,125 @@ get_wm() {
 #==============================================================================
 
 get_wmtheme() {
-  Win_theme="Not_Found"
-  case $WM in
-  '2bwm' | '9wm' | 'Beryl' | 'bspwm' | 'dminiwm' | 'dwm' | 'Repowm' | 'echinus' | 'FVWM' | 'howm' | 'i3' | 'monsterwm' | 'Musca' | \
-    'Notion' | 'Ratpoison' | 'ScrotWM' | 'SpectrWM' | 'swm' | 'subtle' | 'WindowMaker' | 'WMFS' | 'wmii' | 'XMonad')
-    Win_theme="Not_Applicable"
-    ;;
-  'Awesome')
-    if [[ -f "/usr/bin/awesome-client" ]]; then
-      Win_theme="$(/usr/bin/awesome-client "return require('beautiful').theme_path" | grep -oP '[^/]*(?=/"$)')"
-    fi
-    ;;
-  'BlackBox')
-    if [[ -f "$HOME/.blackboxrc" ]]; then
-      Win_theme="$(awk -F"/" '/styleFile/ {print $NF}' "$HOME/.blackboxrc")"
-    fi
-    ;;
-  'BudgieWM')
-    Win_theme="$(gsettings get org.gnome.desktop.wm.preferences theme)"
-    Win_theme="${Win_theme//\'/}"
-    ;;
-  'Cinnamon' | 'Muffin')
-    de_theme="$(gsettings get org.cinnamon.theme name)"
-    de_theme=${de_theme//"'"/}
-    win_theme="$(gsettings get org.cinnamon.desktop.wm.preferences theme)"
-    win_theme=${win_theme//"'"/}
-    Win_theme="${de_theme} (${win_theme})"
-    ;;
-  'Compiz' | 'Mutter'* | 'GNOME Shell' | 'Gala')
-    if type -p gsettings >/dev/null 2>&1; then
-      Win_theme="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null)"
-      if [[ -z "$Win_theme" ]]; then
+    Win_theme="Not_Found"
+    case $WM in
+    '2bwm' | '9wm' | 'Beryl' | 'bspwm' | 'dminiwm' | 'dwm' | 'Repowm' | 'echinus' | 'FVWM' | 'howm' | 'i3' | 'monsterwm' | 'Musca' | \
+        'Notion' | 'Ratpoison' | 'ScrotWM' | 'SpectrWM' | 'swm' | 'subtle' | 'WindowMaker' | 'WMFS' | 'wmii' | 'XMonad')
+        Win_theme="Not_Applicable"
+        ;;
+    'Awesome')
+        if [[ -f "/usr/bin/awesome-client" ]]; then
+            Win_theme="$(/usr/bin/awesome-client "return require('beautiful').theme_path" | grep -oP '[^/]*(?=/"$)')"
+        fi
+        ;;
+    'BlackBox')
+        if [[ -f "$HOME/.blackboxrc" ]]; then
+            Win_theme="$(awk -F"/" '/styleFile/ {print $NF}' "$HOME/.blackboxrc")"
+        fi
+        ;;
+    'BudgieWM')
         Win_theme="$(gsettings get org.gnome.desktop.wm.preferences theme)"
-      fi
-      Win_theme=${Win_theme//"'"/}
-    elif type -p gconftool-2 >/dev/null 2>&1; then
-      Win_theme=$(gconftool-2 -g /apps/metacity/general/theme)
-    fi
-    ;;
-  'Deepin WM')
-    if type -p gsettings >/dev/null 2>&1; then
-      Win_theme="$(gsettings get com.deepin.wrap.gnome.desktop.wm.preferences theme)"
-      Win_theme=${Win_theme//"'"/}
-    fi
-    ;;
-  'FluxBox' | 'Fluxbox')
-    if [[ -f "$HOME/.fluxbox/init" ]]; then
-      Win_theme="$(awk -F"/" '/styleFile/ {print $NF}' "$HOME/.fluxbox/init")"
-    fi
-    ;;
-  'KWin'*)
-    if [[ -z $KDE_CONFIG_DIR ]]; then
-      if type -p kde5-config >/dev/null 2>&1; then
-        KDE_CONFIG_DIR=$(kde5-config --localprefix)
-      elif type -p kde4-config >/dev/null 2>&1; then
-        KDE_CONFIG_DIR=$(kde4-config --localprefix)
-      elif type -p kde-config >/dev/null 2>&1; then
-        KDE_CONFIG_DIR=$(kde-config --localprefix)
-      fi
-    fi
-    if [[ -n $KDE_CONFIG_DIR ]]; then
-      Win_theme="Not_Applicable"
-      KDE_CONFIG_DIR=${KDE_CONFIG_DIR%/}
-      if [[ -f $KDE_CONFIG_DIR/share/config/kwinrc ]]; then
-        Win_theme="$(awk '/PluginLib=kwin3_/{gsub(/PluginLib=kwin3_/,"",$0); print $0; exit}' "$KDE_CONFIG_DIR/share/config/kwinrc")"
-        if [[ -z "$Win_theme" ]]; then
-          Win_theme="Not_Applicable"
+        Win_theme="${Win_theme//\'/}"
+        ;;
+    'Cinnamon' | 'Muffin')
+        de_theme="$(gsettings get org.cinnamon.theme name)"
+        de_theme=${de_theme//"'"/}
+        win_theme="$(gsettings get org.cinnamon.desktop.wm.preferences theme)"
+        win_theme=${win_theme//"'"/}
+        Win_theme="${de_theme} (${win_theme})"
+        ;;
+    'Compiz' | 'Mutter'* | 'GNOME Shell' | 'Gala')
+        if type -p gsettings >/dev/null 2>&1; then
+            Win_theme="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null)"
+            if [[ -z "$Win_theme" ]]; then
+                Win_theme="$(gsettings get org.gnome.desktop.wm.preferences theme)"
+            fi
+            Win_theme=${Win_theme//"'"/}
+        elif type -p gconftool-2 >/dev/null 2>&1; then
+            Win_theme=$(gconftool-2 -g /apps/metacity/general/theme)
         fi
-      fi
-      if [[ "$Win_theme" == "Not_Applicable" ]]; then
-        if [[ -f $KDE_CONFIG_DIR/share/config/kdebugrc ]]; then
-          Win_theme="$(awk '/(decoration)/ {gsub(/\[/,"",$1); print $1; exit}' "$KDE_CONFIG_DIR/share/config/kdebugrc")"
-          if [[ -z "$Win_theme" ]]; then
+        ;;
+    'Deepin WM')
+        if type -p gsettings >/dev/null 2>&1; then
+            Win_theme="$(gsettings get com.deepin.wrap.gnome.desktop.wm.preferences theme)"
+            Win_theme=${Win_theme//"'"/}
+        fi
+        ;;
+    'FluxBox' | 'Fluxbox')
+        if [[ -f "$HOME/.fluxbox/init" ]]; then
+            Win_theme="$(awk -F"/" '/styleFile/ {print $NF}' "$HOME/.fluxbox/init")"
+        fi
+        ;;
+    'KWin'*)
+        if [[ -z $KDE_CONFIG_DIR ]]; then
+            if type -p kde5-config >/dev/null 2>&1; then
+                KDE_CONFIG_DIR=$(kde5-config --localprefix)
+            elif type -p kde4-config >/dev/null 2>&1; then
+                KDE_CONFIG_DIR=$(kde4-config --localprefix)
+            elif type -p kde-config >/dev/null 2>&1; then
+                KDE_CONFIG_DIR=$(kde-config --localprefix)
+            fi
+        fi
+        if [[ -n $KDE_CONFIG_DIR ]]; then
             Win_theme="Not_Applicable"
-          fi
+            KDE_CONFIG_DIR=${KDE_CONFIG_DIR%/}
+            if [[ -f $KDE_CONFIG_DIR/share/config/kwinrc ]]; then
+                Win_theme="$(awk '/PluginLib=kwin3_/{gsub(/PluginLib=kwin3_/,"",$0); print $0; exit}' "$KDE_CONFIG_DIR/share/config/kwinrc")"
+                if [[ -z "$Win_theme" ]]; then
+                    Win_theme="Not_Applicable"
+                fi
+            fi
+            if [[ "$Win_theme" == "Not_Applicable" ]]; then
+                if [[ -f $KDE_CONFIG_DIR/share/config/kdebugrc ]]; then
+                    Win_theme="$(awk '/(decoration)/ {gsub(/\[/,"",$1); print $1; exit}' "$KDE_CONFIG_DIR/share/config/kdebugrc")"
+                    if [[ -z "$Win_theme" ]]; then
+                        Win_theme="Not_Applicable"
+                    fi
+                fi
+            fi
+            if [[ "$Win_theme" == "Not_Applicable" ]]; then
+                if [[ -f $KDE_CONFIG_DIR/share/config/kdeglobals ]]; then
+                    Win_theme="$(awk '/\[General\]/ {flag=1;next} /^$/{flag=0} flag {print}' "$KDE_CONFIG_DIR/share/config/kdeglobals" | grep -oP 'Name=\K.*')"
+                    if [[ -z "$Win_theme" ]]; then
+                        Win_theme="Not_Applicable"
+                    fi
+                fi
+            fi
+            if [[ "$Win_theme" != "Not_Applicable" ]]; then
+                if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+                    if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
+                        Win_theme="${Win_theme^}"
+                    else
+                        Win_theme="$(tr '[:lower:]' '[:upper:]' <<<"${Win_theme:0:1}")${Win_theme:1}"
+                    fi
+                else
+                    Win_theme="$(tr '[:lower:]' '[:upper:]' <<<"${Win_theme:0:1}")${Win_theme:1}"
+                fi
+            fi
         fi
-      fi
-      if [[ "$Win_theme" == "Not_Applicable" ]]; then
-        if [[ -f $KDE_CONFIG_DIR/share/config/kdeglobals ]]; then
-          Win_theme="$(awk '/\[General\]/ {flag=1;next} /^$/{flag=0} flag {print}' "$KDE_CONFIG_DIR/share/config/kdeglobals" | grep -oP 'Name=\K.*')"
-          if [[ -z "$Win_theme" ]]; then
-            Win_theme="Not_Applicable"
-          fi
+        ;;
+    'OpenBox' | 'Openbox')
+        if [[ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/rc.xml" ]]; then
+            Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/rc.xml")"
+        elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml && "${DE}" == "LXDE" ]]; then
+            Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml")"
+        elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxqt-rc.xml && "${DE}" =~ "LXQt" ]]; then
+            Win_theme="$(awk -F'=' '/^theme/ {print $2}' "${HOME}"/.config/lxqt/lxqt.conf)"
         fi
-      fi
-      if [[ "$Win_theme" != "Not_Applicable" ]]; then
-        if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
-          if [[ ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -gt 1 ]] || [[ ${BASH_VERSINFO[0]} -gt 4 ]]; then
-            Win_theme="${Win_theme^}"
-          else
-            Win_theme="$(tr '[:lower:]' '[:upper:]' <<<"${Win_theme:0:1}")${Win_theme:1}"
-          fi
-        else
-          Win_theme="$(tr '[:lower:]' '[:upper:]' <<<"${Win_theme:0:1}")${Win_theme:1}"
+        ;;
+    'Xfwm4')
+        if [[ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml" ]]; then
+            Win_theme="$(xfconf-query -c xfwm4 -p /general/theme)"
         fi
-      fi
-    fi
-    ;;
-  'OpenBox' | 'Openbox')
-    if [[ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/rc.xml" ]]; then
-      Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/rc.xml")"
-    elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml && "${DE}" == "LXDE" ]]; then
-      Win_theme="$(awk -F"[<,>]" '/<theme/ { getline; print $3 }' "${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxde-rc.xml")"
-    elif [[ -f ${XDG_CONFIG_HOME:-${HOME}/.config}/openbox/lxqt-rc.xml && "${DE}" =~ "LXQt" ]]; then
-      Win_theme="$(awk -F'=' '/^theme/ {print $2}' "${HOME}"/.config/lxqt/lxqt.conf)"
-    fi
-    ;;
-  'Xfwm4')
-    if [[ -f "${XDG_CONFIG_HOME:-${HOME}/.config}/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml" ]]; then
-      Win_theme="$(xfconf-query -c xfwm4 -p /general/theme)"
-    fi
-    ;;
-  esac
+        ;;
+    esac
 
-  verbose "Finding window manager theme...found as '$Win_theme'"
-  if [[ -n "$Win_theme" ]]; then
-    if [[ ! "$Win_theme" == "Not_Found" ]] && [[ ! "$Win_theme" == "Not_Applicable" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM Theme $sep " "${Win_theme}"
+    verbose "Finding window manager theme...found as '$Win_theme'"
+    if [[ -n "$Win_theme" ]]; then
+        if [[ ! "$Win_theme" == "Not_Found" ]] && [[ ! "$Win_theme" == "Not_Applicable" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "WM Theme $sep " "${Win_theme}"
+        fi
     fi
-  fi
 }
 
 #=== FUNCTION =================================================================
@@ -1453,247 +1241,251 @@ get_wmtheme() {
 #==============================================================================
 
 get_gtk() {
-  gtk2Theme="Not_Found"
-  gtk3Theme="Not_Found"
-  gtkIcons="Not_Found"
-  gtkFont="Not_Found"
-  case $DE in
-  'KDE'*) # Desktop Environment found as "KDE"
-    if type - p kde4-config >/dev/null 2>&1; then
-      KDE_CONFIG_DIR=$(kde4-config --localprefix)
-      if [[ -d ${KDE_CONFIG_DIR} ]]; then
-        if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
-          KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+    gtk2Theme="Not_Found"
+    gtk3Theme="Not_Found"
+    gtkIcons="Not_Found"
+    gtkFont="Not_Found"
+    case $DE in
+    'KDE'*) # Desktop Environment found as "KDE"
+        if type - p kde4-config >/dev/null 2>&1; then
+            KDE_CONFIG_DIR=$(kde4-config --localprefix)
+            if [[ -d ${KDE_CONFIG_DIR} ]]; then
+                if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
+                    KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+                fi
+            fi
+        elif type -p kde5-config >/dev/null 2>&1; then
+            KDE_CONFIG_DIR=$(kde5-config --localprefix)
+            if [[ -d ${KDE_CONFIG_DIR} ]]; then
+                if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
+                    KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+                fi
+            fi
+        elif type -p kde-config >/dev/null 2>&1; then
+            KDE_CONFIG_DIR=$(kde-config --localprefix)
+            if [[ -d ${KDE_CONFIG_DIR} ]]; then
+                if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
+                    KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+                fi
+            fi
         fi
-      fi
-    elif type -p kde5-config >/dev/null 2>&1; then
-      KDE_CONFIG_DIR=$(kde5-config --localprefix)
-      if [[ -d ${KDE_CONFIG_DIR} ]]; then
-        if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
-          KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+
+        if [[ -n ${KDE_CONFIG_FILE} ]]; then
+            if grep -q 'widgetStyle=' "${KDE_CONFIG_FILE}"; then
+                gtk2Theme=$(awk -F"=" '/widgetStyle=/ {print $2}' "${KDE_CONFIG_FILE}")
+            elif grep -q 'colorScheme=' "${KDE_CONFIG_FILE}"; then
+                gtk2Theme=$(awk -F"=" '/colorScheme=/ {print $2}' "${KDE_CONFIG_FILE}")
+            fi
+
+            if grep -q 'Theme=' "${KDE_CONFIG_FILE}"; then
+                gtkIcons=$(awk -F"=" '/Theme=/ {print $2}' "${KDE_CONFIG_FILE}")
+            fi
+
+            if grep -q 'Font=' "${KDE_CONFIG_FILE}"; then
+                gtkFont=$(awk -F"=" '/font=/ {print $2}' "${KDE_CONFIG_FILE}")
+            fi
         fi
-      fi
-    elif type -p kde-config >/dev/null 2>&1; then
-      KDE_CONFIG_DIR=$(kde-config --localprefix)
-      if [[ -d ${KDE_CONFIG_DIR} ]]; then
-        if [[ -f "${KDE_CONFIG_DIR}/share/config/kdeglobals" ]]; then
-          KDE_CONFIG_FILE="${KDE_CONFIG_DIR}/share/config/kdeglobals"
+
+        if [[ -f $HOME/.gtkrc-2.0 ]]; then
+            gtk2Theme=$(grep '^gtk-theme-name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
+            gtk2Theme=${gtk2Theme//\"/}
+            gtkIcons=$(grep '^gtk-icon-theme-name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
+            gtkIcons=${gtkIcons//\"/}
+            gtkFont=$(grep 'font_name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
+            gtkFont=${gtkFont//\"/}
         fi
-      fi
-    fi
 
-    if [[ -n ${KDE_CONFIG_FILE} ]]; then
-      if grep -q 'widgetStyle=' "${KDE_CONFIG_FILE}"; then
-        gtk2Theme=$(awk -F"=" '/widgetStyle=/ {print $2}' "${KDE_CONFIG_FILE}")
-      elif grep -q 'colorScheme=' "${KDE_CONFIG_FILE}"; then
-        gtk2Theme=$(awk -F"=" '/colorScheme=/ {print $2}' "${KDE_CONFIG_FILE}")
-      fi
+        if [[ -f $HOME/.config/gtk-3.0/settings.ini ]]; then
+            gtk3Theme=$(grep '^gtk-theme-name=' "$HOME"/.config/gtk-3.0/settings.ini | awk -F'=' '{print $2}')
+        fi
+        ;;
+    'Cinnamon'*) # Desktop Environment found as "Cinnamon"
+        if type -p gsettings >/dev/null 2>&1; then
+            gtk3Theme=$(gsettings get org.cinnamon.desktop.interface gtk-theme)
+            gtk3Theme=${gtk3Theme//"'"/}
+            gtk2Theme=${gtk3Theme}
 
-      if grep -q 'Theme=' "${KDE_CONFIG_FILE}"; then
-        gtkIcons=$(awk -F"=" '/Theme=/ {print $2}' "${KDE_CONFIG_FILE}")
-      fi
+            gtkIcons=$(gsettings get org.cinnamon.desktop.interface icon-theme)
+            gtkIcons=${gtkIcons//"'"/}
+            gtkFont=$(gsettings get org.cinnamon.desktop.interface font-name)
+            gtkFont=${gtkFont//"'"/}
+        fi
+        ;;
+    'GNOME'* | 'Unity'* | 'Budgie') # Desktop Environment found as "GNOME"
+        if type -p gsettings >/dev/null 2>&1; then
+            gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+            gtk3Theme=${gtk3Theme//"'"/}
+            gtk2Theme=${gtk3Theme}
+            gtkIcons=$(gsettings get org.gnome.desktop.interface icon-theme)
+            gtkIcons=${gtkIcons//"'"/}
+            gtkFont=$(gsettings get org.gnome.desktop.interface font-name)
+            gtkFont=${gtkFont//"'"/}
+        elif type -p gconftool-2 >/dev/null 2>&1; then
+            gtk2Theme=$(gconftool-2 -g /desktop/gnome/interface/gtk_theme)
+            gtkIcons=$(gconftool-2 -g /desktop/gnome/interface/icon_theme)
+            gtkFont=$(gconftool-2 -g /desktop/gnome/interface/font_name)
+        fi
+        ;;
+    'MATE'*) # MATE desktop environment
+        if type -p gsettings >/dev/null 2>&1; then
+            gtk3Theme=$(gsettings get org.mate.interface gtk-theme)
+            gtk3Theme=${gtk3Theme//"'"/}
+            gtk2Theme=${gtk3Theme}
+            gtkIcons=$(gsettings get org.mate.interface icon-theme)
+            gtkIcons=${gtkIcons//"'"/}
+            gtkFont=$(gsettings get org.mate.interface font-name)
+            gtkFont=${gtkFont//"'"/}
+        fi
+        ;;
+    'Xfce'*) # Desktop Environment found as "Xfce"
+        if [[ "$distro" == "BunsenLabs" ]]; then
+            gtk2Theme=$(awk -F'"' '/^gtk-theme/ {print $2}' "$HOME"/.gtkrc-2.0)
+            gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME"/.config/gtk-3.0/settings.ini)
+            gtkIcons=$(awk -F'"' '/^gtk-icon-theme/ {print $2}' "$HOME"/.gtkrc-2.0)
+            gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' "$HOME"/.gtkrc-2.0)
+        else
+            if type -p xfconf-query >/dev/null 2>&1; then
+                gtk2Theme=$(xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)
+                [[ -z "$gtk2Theme" ]] && gtk2Theme="Not_Found"
+            fi
 
-      if grep -q 'Font=' "${KDE_CONFIG_FILE}"; then
-        gtkFont=$(awk -F"=" '/font=/ {print $2}' "${KDE_CONFIG_FILE}")
-      fi
-    fi
+            if type -p xfconf-query >/dev/null 2>&1; then
+                gtkIcons=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null)
+                [[ -z "$gtkIcons" ]] && gtkIcons="Not_Found"
+            fi
 
-    if [[ -f $HOME/.gtkrc-2.0 ]]; then
-      gtk2Theme=$(grep '^gtk-theme-name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
-      gtk2Theme=${gtk2Theme//\"/}
-      gtkIcons=$(grep '^gtk-icon-theme-name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
-      gtkIcons=${gtkIcons//\"/}
-      gtkFont=$(grep 'font_name' "$HOME"/.gtkrc-2.0 | awk -F'=' '{print $2}')
-      gtkFont=${gtkFont//\"/}
-    fi
+            if type -p xfconf-query >/dev/null 2>&1; then
+                gtkFont=$(xfconf-query -c xsettings -p /Gtk/FontName 2>/dev/null)
+                [[ -z "$gtkFont" ]] && gtkFont="Not Identified"
+            fi
+        fi
+        ;;
+    'LXDE'*)
+        config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
+        if [[ -f "$config_home/lxde/config" ]]; then
+            lxdeconf="/lxde/config"
+        elif [[ "$distro" == "Trisquel" ]] || [[ "$distro" == "FreeBSD" ]]; then
+            lxdeconf=""
+        elif [[ -f "$config_home/lxsession/Lubuntu/desktop.conf" ]]; then
+            lxdeconf="/lxsession/Lubuntu/desktop.conf"
+        else
+            lxdeconf="/lxsession/LXDE/desktop.conf"
+        fi
 
-    if [[ -f $HOME/.config/gtk-3.0/settings.ini ]]; then
-      gtk3Theme=$(grep '^gtk-theme-name=' "$HOME"/.config/gtk-3.0/settings.ini | awk -F'=' '{print $2}')
-    fi
-    ;;
-  'Cinnamon'*) # Desktop Environment found as "Cinnamon"
-    if type -p gsettings >/dev/null 2>&1; then
-      gtk3Theme=$(gsettings get org.cinnamon.desktop.interface gtk-theme)
-      gtk3Theme=${gtk3Theme//"'"/}
-      gtk2Theme=${gtk3Theme}
+        if grep -q 'sNet\/ThemeName' "${config_home}${lxdeconf}" 2>/dev/null; then
+            gtk2Theme=$(awk -F'=' '/sNet\/ThemeName/ {print $2}' "${config_home}${lxdeconf}")
+        fi
 
-      gtkIcons=$(gsettings get org.cinnamon.desktop.interface icon-theme)
-      gtkIcons=${gtkIcons//"'"/}
-      gtkFont=$(gsettings get org.cinnamon.desktop.interface font-name)
-      gtkFont=${gtkFont//"'"/}
-    fi
-    ;;
-  'GNOME'* | 'Unity'* | 'Budgie') # Desktop Environment found as "GNOME"
-    if type -p gsettings >/dev/null 2>&1; then
-      gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
-      gtk3Theme=${gtk3Theme//"'"/}
-      gtk2Theme=${gtk3Theme}
-      gtkIcons=$(gsettings get org.gnome.desktop.interface icon-theme)
-      gtkIcons=${gtkIcons//"'"/}
-      gtkFont=$(gsettings get org.gnome.desktop.interface font-name)
-      gtkFont=${gtkFont//"'"/}
-    elif type -p gconftool-2 >/dev/null 2>&1; then
-      gtk2Theme=$(gconftool-2 -g /desktop/gnome/interface/gtk_theme)
-      gtkIcons=$(gconftool-2 -g /desktop/gnome/interface/icon_theme)
-      gtkFont=$(gconftool-2 -g /desktop/gnome/interface/font_name)
-    fi
-    ;;
-  'MATE'*) # MATE desktop environment
-    if type -p gsettings >/dev/null 2>&1; then
-      gtk3Theme=$(gsettings get org.mate.interface gtk-theme)
-      gtk3Theme=${gtk3Theme//"'"/}
-      gtk2Theme=${gtk3Theme}
-      gtkIcons=$(gsettings get org.mate.interface icon-theme)
-      gtkIcons=${gtkIcons//"'"/}
-      gtkFont=$(gsettings get org.mate.interface font-name)
-      gtkFont=${gtkFont//"'"/}
-    fi
-    ;;
-  'Xfce'*) # Desktop Environment found as "Xfce"
-    if [[ "$distro" == "BunsenLabs" ]]; then
-      gtk2Theme=$(awk -F'"' '/^gtk-theme/ {print $2}' "$HOME"/.gtkrc-2.0)
-      gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME"/.config/gtk-3.0/settings.ini)
-      gtkIcons=$(awk -F'"' '/^gtk-icon-theme/ {print $2}' "$HOME"/.gtkrc-2.0)
-      gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' "$HOME"/.gtkrc-2.0)
-    else
-      if type -p xfconf-query >/dev/null 2>&1; then
-        gtk2Theme=$(xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)
-        [[ -z "$gtk2Theme" ]] && gtk2Theme="Not_Found"
-      fi
+        if grep -q 'IconThemeName' "${config_home}${lxdeconf}" 2>/dev/null; then
+            gtkIcons=$(awk -F'=' '/sNet\/IconThemeName/ {print $2}' "${config_home}${lxdeconf}")
+        fi
 
-      if type -p xfconf-query >/dev/null 2>&1; then
-        gtkIcons=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null)
-        [[ -z "$gtkIcons" ]] && gtkIcons="Not_Found"
-      fi
+        if grep -q 'FontName' "${config_home}${lxdeconf}" 2>/dev/null; then
+            gtkFont=$(awk -F'=' '/sGtk\/FontName/ {print $2}' "${config_home}${lxdeconf}")
+        fi
+        ;;
 
-      if type -p xfconf-query >/dev/null 2>&1; then
-        gtkFont=$(xfconf-query -c xsettings -p /Gtk/FontName 2>/dev/null)
-        [[ -z "$gtkFont" ]] && gtkFont="Not Identified"
-      fi
-    fi
-    ;;
-  'LXDE'*)
-    config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
-    if [[ -f "$config_home/lxde/config" ]]; then
-      lxdeconf="/lxde/config"
-    elif [[ "$distro" == "Trisquel" ]] || [[ "$distro" == "FreeBSD" ]]; then
-      lxdeconf=""
-    elif [[ -f "$config_home/lxsession/Lubuntu/desktop.conf" ]]; then
-      lxdeconf="/lxsession/Lubuntu/desktop.conf"
-    else
-      lxdeconf="/lxsession/LXDE/desktop.conf"
-    fi
+    *) # Lightweight or No DE Found
+        if [[ -f "$HOME/.gtkrc-2.0" ]]; then
+            if grep -q 'gtk-theme' "$HOME/.gtkrc-2.0"; then
+                gtk2Theme=$(awk -F'"' '/^gtk-theme/ {print $2}' "$HOME/.gtkrc-2.0")
+            fi
 
-    if grep -q 'sNet\/ThemeName' "${config_home}${lxdeconf}" 2>/dev/null; then
-      gtk2Theme=$(awk -F'=' '/sNet\/ThemeName/ {print $2}' "${config_home}${lxdeconf}")
-    fi
+            if grep -q 'icon-theme' "$HOME/.gtkrc-2.0"; then
+                gtkIcons=$(awk -F'"' '/^gtk-icon-theme/ {print $2}' "$HOME/.gtkrc-2.0")
+            fi
 
-    if grep -q 'IconThemeName' "${config_home}${lxdeconf}" 2>/dev/null; then
-      gtkIcons=$(awk -F'=' '/sNet\/IconThemeName/ {print $2}' "${config_home}${lxdeconf}")
-    fi
+            if grep -q 'font' "$HOME/.gtkrc-2.0"; then
+                gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' "$HOME/.gtkrc-2.0")
+            fi
+        fi
+        # $HOME/.gtkrc.mine theme detect only
+        if [[ -f "$HOME/.gtkrc.mine" ]]; then
+            minegtkrc="$HOME/.gtkrc.mine"
+        elif [[ -f "$HOME/.gtkrc-2.0.mine" ]]; then
+            minegtkrc="$HOME/.gtkrc-2.0.mine"
+        fi
+        if [[ -f "$minegtkrc" ]]; then
+            if grep -q '^include' "$minegtkrc"; then
+                gtk2Theme=$(grep '^include.*gtkrc' "$minegtkrc" | awk -F "/" '{ print $5 }')
+            fi
+            if grep -q '^gtk-icon-theme-name' "$minegtkrc"; then
+                gtkIcons=$(grep '^gtk-icon-theme-name' "$minegtkrc" | awk -F '"' '{print $2}')
+            fi
+        fi
+        # /etc/gtk-2.0/gtkrc compatibility
+        if [[ -f /etc/gtk-2.0/gtkrc && ! -f "$HOME/.gtkrc-2.0" && ! -f "$HOME/.gtkrc.mine" && ! -f "$HOME/.gtkrc-2.0.mine" ]]; then
+            if grep -q 'gtk-theme-name' /etc/gtk-2.0/gtkrc; then
+                gtk2Theme=$(awk -F'"' '/^gtk-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
+            fi
+            # shellcheck disable=SC2268
+            if grep -q 'gtk-fallback-theme-name' /etc/gtk-2.0/gtkrc && ! [[ "x$gtk2Theme" = "x" ]]; then
+                gtk2Theme=$(awk -F'"' '/^gtk-fallback-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
+            fi
 
-    if grep -q 'FontName' "${config_home}${lxdeconf}" 2>/dev/null; then
-      gtkFont=$(awk -F'=' '/sGtk\/FontName/ {print $2}' "${config_home}${lxdeconf}")
-    fi
-    ;;
+            if grep -q 'icon-theme' /etc/gtk-2.0/gtkrc; then
+                gtkIcons=$(awk -F'"' '/^icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
+            fi
+            # shellcheck disable=SC2268
+            if grep -q 'gtk-fallback-icon-theme' /etc/gtk-2.0/gtkrc && ! [[ "x$gtkIcons" = "x" ]]; then
+                gtkIcons=$(awk -F'"' '/^gtk-fallback-icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
+            fi
 
-  *) # Lightweight or No DE Found
-    if [[ -f "$HOME/.gtkrc-2.0" ]]; then
-      if grep -q 'gtk-theme' "$HOME/.gtkrc-2.0"; then
-        gtk2Theme=$(awk -F'"' '/^gtk-theme/ {print $2}' "$HOME/.gtkrc-2.0")
-      fi
+            if grep -q 'font' /etc/gtk-2.0/gtkrc; then
+                gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' /etc/gtk-2.0/gtkrc)
+            fi
+        fi
+        # EXPERIMENTAL gtk3 Theme detection
+        if [[ "$gtk3Theme" = "Not_Found" && -f "$HOME/.config/gtk-3.0/settings.ini" ]]; then
+            if grep -q 'gtk-theme-name' "$HOME/.config/gtk-3.0/settings.ini"; then
+                gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME/.config/gtk-3.0/settings.ini")
+            fi
+        fi
 
-      if grep -q 'icon-theme' "$HOME/.gtkrc-2.0"; then
-        gtkIcons=$(awk -F'"' '/^gtk-icon-theme/ {print $2}' "$HOME/.gtkrc-2.0")
-      fi
+        # Proper gtk3 Theme detection
+        if type -p gsettings >/dev/null 2>&1; then
+            if [[ -z "$gtk3Theme" || "$gtk3Theme" = "Not_Found" ]]; then
+                gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null)
+                gtk3Theme=${gtk3Theme//"'"/}
+            fi
+        fi
 
-      if grep -q 'font' "$HOME/.gtkrc-2.0"; then
-        gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' "$HOME/.gtkrc-2.0")
-      fi
-    fi
-    # $HOME/.gtkrc.mine theme detect only
-    if [[ -f "$HOME/.gtkrc.mine" ]]; then
-      minegtkrc="$HOME/.gtkrc.mine"
-    elif [[ -f "$HOME/.gtkrc-2.0.mine" ]]; then
-      minegtkrc="$HOME/.gtkrc-2.0.mine"
-    fi
-    if [[ -f "$minegtkrc" ]]; then
-      if grep -q '^include' "$minegtkrc"; then
-        gtk2Theme=$(grep '^include.*gtkrc' "$minegtkrc" | awk -F "/" '{ print $5 }')
-      fi
-      if grep -q '^gtk-icon-theme-name' "$minegtkrc"; then
-        gtkIcons=$(grep '^gtk-icon-theme-name' "$minegtkrc" | awk -F '"' '{print $2}')
-      fi
-    fi
-    # /etc/gtk-2.0/gtkrc compatibility
-    if [[ -f /etc/gtk-2.0/gtkrc && ! -f "$HOME/.gtkrc-2.0" && ! -f "$HOME/.gtkrc.mine" && ! -f "$HOME/.gtkrc-2.0.mine" ]]; then
-      if grep -q 'gtk-theme-name' /etc/gtk-2.0/gtkrc; then
-        gtk2Theme=$(awk -F'"' '/^gtk-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
-      fi
-      # shellcheck disable=SC2268
-      if grep -q 'gtk-fallback-theme-name' /etc/gtk-2.0/gtkrc && ! [[ "x$gtk2Theme" = "x" ]]; then
-        gtk2Theme=$(awk -F'"' '/^gtk-fallback-theme-name/ {print $2}' /etc/gtk-2.0/gtkrc)
-      fi
+        # E17 detection
+        if [[ "$E_ICON_THEME" ]]; then
+            gtkIcons=${E_ICON_THEME}
+            gtk2Theme="Not available."
+            gtkFont="Not available."
+        fi
+        ;;
+    esac
 
-      if grep -q 'icon-theme' /etc/gtk-2.0/gtkrc; then
-        gtkIcons=$(awk -F'"' '/^icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
-      fi
-      # shellcheck disable=SC2268
-      if grep -q 'gtk-fallback-icon-theme' /etc/gtk-2.0/gtkrc && ! [[ "x$gtkIcons" = "x" ]]; then
-        gtkIcons=$(awk -F'"' '/^gtk-fallback-icon-theme/ {print $2}' /etc/gtk-2.0/gtkrc)
-      fi
+    verbose "Finding GTK2 theme...found as '$gtk2Theme'"
+    verbose "Finding GTK3 theme...found as '$gtk3Theme'"
+    verbose "Finding GTK Icons...found as '$gtkIcons'"
+    verbose "Finding GTK Font...found as '$gtkFont'"
 
-      if grep -q 'font' /etc/gtk-2.0/gtkrc; then
-        gtkFont=$(awk -F'"' '/^gtk-font-name/ {print $2}' /etc/gtk-2.0/gtkrc)
-      fi
+    if [[ -n "$gtk2Theme" ]] || [[ -n "$gtk3Theme" ]] || [[ -n "$gtkIcons" ]] || [[ -n "$gtkFont" ]]; then
+        if [[ "$gtk2Theme" == "$gtk3Theme" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme} (GTK2/3)"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons} (GTK2/3)"
+            if [[ -n "$gtkFont" ]]; then
+                printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont} (GTK2/3)"
+            fi
+        else
+            if [[ -n "$gtk2Theme" ]]; then
+                gtk2Theme="$gtk2Theme (GTK2)"
+            fi
+            if [[ -n "$gtk3Theme" ]]; then
+                gtk3Theme="$gtk3Theme (GTK3)"
+            fi
+            gtkThemes=$(echo "$gtk2Theme $gtk3Theme")
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtkThemes}"
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons}"
+            if [[ -n "$gtkFont" ]]; then
+                printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont}"
+            fi
+        fi
     fi
-    # EXPERIMENTAL gtk3 Theme detection
-    if [[ "$gtk3Theme" = "Not_Found" && -f "$HOME/.config/gtk-3.0/settings.ini" ]]; then
-      if grep -q 'gtk-theme-name' "$HOME/.config/gtk-3.0/settings.ini"; then
-        gtk3Theme=$(awk -F'=' '/^gtk-theme-name/ {print $2}' "$HOME/.config/gtk-3.0/settings.ini")
-      fi
-    fi
-
-    # Proper gtk3 Theme detection
-    if type -p gsettings >/dev/null 2>&1; then
-      if [[ -z "$gtk3Theme" || "$gtk3Theme" = "Not_Found" ]]; then
-        gtk3Theme=$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null)
-        gtk3Theme=${gtk3Theme//"'"/}
-      fi
-    fi
-
-    # E17 detection
-    if [[ "$E_ICON_THEME" ]]; then
-      gtkIcons=${E_ICON_THEME}
-      gtk2Theme="Not available."
-      gtkFont="Not available."
-    fi
-    ;;
-  esac
-
-  verbose "Finding GTK2 theme...found as '$gtk2Theme'"
-  verbose "Finding GTK3 theme...found as '$gtk3Theme'"
-  verbose "Finding GTK Icons...found as '$gtkIcons'"
-  verbose "Finding GTK Font...found as '$gtkFont'"
-
-  if [[ -n "$gtk2Theme" ]] || [[ -n "$gtk3Theme" ]] || [[ -n "$gtkIcons" ]] || [[ -n "$gtkFont" ]]; then
-    if [[ "$gtk2Theme" == "$gtk3Theme" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme} (GTK2/3)"
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons} (GTK2/3)"
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont} (GTK2/3)"
-    else
-      if [[ -z "$gtk2Theme" ]]; then
-        gtk2Theme="$gtk2Theme (GTK2)"
-      fi
-      if [[ -z "$gtk3Theme" ]]; then
-        gtk3Theme="$gtk3Theme (GTK3)"
-      fi
-      gtkThemes=$(echo "$gtk2Theme $gtk3Theme")
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Theme $sep " "${gtk2Theme}"
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Icons $sep " "${gtkIcons}"
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "GTK Font $sep " "${gtkFont}"
-    fi
-  fi
 }
 
 #=== FUNCTION =================================================================
@@ -1702,227 +1494,229 @@ get_gtk() {
 #==============================================================================
 
 get_qt() {
-  # Handle Qt5ct platform theme
-  get_qt5ct_output() {
-    qt5ct=$1
-    if [[ -f "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf" ]]; then
-      qt5ct="$(grep "^${qt5ct}" "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf")"
-      qt5ct="${qt5ct/*=/}"
-      echo "$qt5ct"
-    else
-      echo ""
-    fi
-
-  }
-
-  # Handle Qt6ct platform theme
-  get_qt6ct_output() {
-    qt6ct=$1
-    if [[ -f "${XDG_CONFIG_HOME}/qt6ct/qt6ct.conf" ]]; then
-      qt6ct="$(grep "^${qt6ct}" "${XDG_CONFIG_HOME}/qt6ct/qt6ct.conf")"
-      qt6ct="${qt6ct/*=/}"
-      echo "$qt6ct"
-    else
-      echo ""
-    fi
-
-  }
-
-  get_qt5Theme() {
-    qt5Theme=$(get_qt5ct_output "style=")
-    if [[ -n "$qt5Theme" ]]; then
-      # Handle Qt theme engines that load external themes
-      case "$qt5Theme" in
-      'Kvantum')
-        if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
-          qt5Theme="$kvantum_theme"
-          qt5Theme="${qt5Theme/*=/}"
+    # Handle Qt5ct platform theme
+    get_qt5ct_output() {
+        qt5ct=$1
+        if [[ -f "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf" ]]; then
+            qt5ct="$(grep "^${qt5ct}" "${XDG_CONFIG_HOME}/qt5ct/qt5ct.conf")"
+            qt5ct="${qt5ct/*=/}"
+            echo "$qt5ct"
+        else
+            echo ""
         fi
-        ;;
-      *'gtk2')
-        qt5Theme="$gtk2_theme"
-        ;;
-      esac
 
-      custom=$(get_qt5ct_output "custom_palette=")
-      if [[ "${custom}" == "true" ]]; then
-        qt5Theme=$(get_qt5ct_output "color_scheme_path=")
-        qt5Theme=$(basename "${qt5Theme}")
-        IFS='.' read -r name ext <<<"$qt5Theme"
-        qt5Theme="${name}"
-      fi
+    }
 
-      qt5Theme="$(echo "$qt5Theme")"
-    fi
-  }
-
-  get_qt5Icons() {
-    qt5Icons=$(get_qt5ct_output "icon_theme=")
-    if [[ -n "$qt6Theme" ]]; then
-      qt5Icons="$(echo "$qt5Icons")"
-    fi
-  }
-
-  get_qt5Font() {
-    qt5Font=$(get_qt5ct_output "general=")
-    if [[ -n "$qt5Font" ]]; then
-      IFS=' '
-      # Trim quotes and parentheses
-      qt5Font="${qt5Font#'"'}"
-      qt5Font="${qt5Font%'"'}"
-      qt5Font="${qt5Font#@Variant(}"
-      qt5Font="${qt5Font%)}"
-
-      # Read font name
-      qt5ct_font_name="${qt5Font#*@}"
-      qt5ct_font_name="${qt5ct_font_name%%@*}"
-      # Interpret backslashes
-      qt5ct_font_name=$(printf "%b" "$qt5ct_font_name" | tr -d '\0')
-      qt5ct_font_name="${qt5ct_font_name#','}"
-      qt5ct_font_name="${qt5ct_font_name//[[:cntrl:]]/}" # trim control characters
-
-      # Get font size
-      # Tread carefully, Qt sometimes uses @ in binary data
-      local pre_size="${qt5Font#*@}"
-      local pre_size="${pre_size#*@}"
-      # Need to declare array and manually handle the second byte
-      # (workaround for `od` without --endian)
-      IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
-      # Split the upper 4 bits (exponent) the lower 12.
-      local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
-      local upper4=$((raw_size[0]>>4 ))
-      qt5ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
-      qt5Font="$qt5ct_font_name $qt5ct_font_size"
-      qt5Font="$(echo "$qt5Font")"
-    fi
-  }
-
-  get_qt6Theme() {
-    qt6Theme=$(get_qt6ct_output "style=")
-    if [[ -n "$qt6Theme" ]]; then
-      # Handle Qt theme engines that load external themes
-      case "$qt6Theme" in
-      'Kvantum')
-        if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
-          qt6Theme="$kvantum_theme"
-          qt6Theme="${qt6Theme/*=/}"
+    # Handle Qt6ct platform theme
+    get_qt6ct_output() {
+        qt6ct=$1
+        if [[ -f "${XDG_CONFIG_HOME}/qt6ct/qt6ct.conf" ]]; then
+            qt6ct="$(grep "^${qt6ct}" "${XDG_CONFIG_HOME}/qt6ct/qt6ct.conf")"
+            qt6ct="${qt6ct/*=/}"
+            echo "$qt6ct"
+        else
+            echo ""
         fi
-        ;;
-      *'gtk2')
-        qt6Theme="$gtk2_theme"
-        ;;
-      esac
 
-      custom=$(get_qt6ct_output "custom_palette=")
-      if [[ "${custom}" == "true" ]]; then
-        qt6Theme=$(get_qt6ct_output "color_scheme_path=")
-        qt6Theme=$(basename "${qt6Theme}")
-        IFS='.' read -r name ext <<<"$qt6Theme"
-        qt6Theme="${name}"
-      fi
+    }
 
-      qt6Theme="$(echo "$qt6Theme")"
+    get_qt5Theme() {
+        qt5Theme=$(get_qt5ct_output "style=")
+        if [[ -n "$qt5Theme" ]]; then
+            # Handle Qt theme engines that load external themes
+            case "$qt5Theme" in
+            'Kvantum')
+                if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
+                    qt5Theme="$kvantum_theme"
+                    qt5Theme="${qt5Theme/*=/}"
+                fi
+                ;;
+            *'gtk2')
+                qt5Theme="$gtk2_theme"
+                ;;
+            esac
+
+            custom=$(get_qt5ct_output "custom_palette=")
+            if [[ "${custom}" == "true" ]]; then
+                qt5Theme=$(get_qt5ct_output "color_scheme_path=")
+                qt5Theme=$(basename "${qt5Theme}")
+                IFS='.' read -r name ext <<<"$qt5Theme"
+                qt5Theme="${name}"
+            fi
+
+            qt5Theme="$(echo "$qt5Theme")"
+        fi
+    }
+
+    get_qt5Icons() {
+        qt5Icons=$(get_qt5ct_output "icon_theme=")
+        if [[ -n "$qt6Theme" ]]; then
+            qt5Icons="$(echo "$qt5Icons")"
+        fi
+    }
+
+    get_qt5Font() {
+        qt5Font=$(get_qt5ct_output "general=")
+        if [[ -n "$qt5Font" ]]; then
+            IFS=' '
+            # Trim quotes and parentheses
+            qt5Font="${qt5Font#'"'}"
+            qt5Font="${qt5Font%'"'}"
+            qt5Font="${qt5Font#@Variant(}"
+            qt5Font="${qt5Font%)}"
+
+            # Read font name
+            qt5ct_font_name="${qt5Font#*@}"
+            qt5ct_font_name="${qt5ct_font_name%%@*}"
+            # Interpret backslashes
+            qt5ct_font_name=$(printf "%b" "$qt5ct_font_name" | tr -d '\0')
+            qt5ct_font_name="${qt5ct_font_name#','}"
+            qt5ct_font_name="${qt5ct_font_name//[[:cntrl:]]/}" # trim control characters
+
+            # Get font size
+            # Tread carefully, Qt sometimes uses @ in binary data
+            local pre_size="${qt5Font#*@}"
+            local pre_size="${pre_size#*@}"
+            # Need to declare array and manually handle the second byte
+            # (workaround for `od` without --endian)
+            local IFS=' '
+            local raw_size=($(printf "%b" "${pre_size}" | od -An -tu1 -N2))
+            # Split the upper 4 bits (exponent) the lower 12.
+            local lowers=$((((raw_size[0] % 16) << 8) + (raw_size[1])))
+            local upper4=$((raw_size[0] >> 4))
+            qt5ct_font_size=$(((2 ** (upper4 + 1)) + (lowers >> (11 - upper4))))
+            qt5Font="$qt5ct_font_name $qt5ct_font_size"
+            qt5Font="$(echo "$qt5Font")"
+        fi
+    }
+
+    get_qt6Theme() {
+        qt6Theme=$(get_qt6ct_output "style=")
+        if [[ -n "$qt6Theme" ]]; then
+            # Handle Qt theme engines that load external themes
+            case "$qt6Theme" in
+            'Kvantum')
+                if kvantum_theme="$(grep '^theme' "${XDG_CONFIG_HOME}/Kvantum/kvantum.kvconfig")"; then
+                    qt6Theme="$kvantum_theme"
+                    qt6Theme="${qt6Theme/*=/}"
+                fi
+                ;;
+            *'gtk2')
+                qt6Theme="$gtk2_theme"
+                ;;
+            esac
+
+            custom=$(get_qt6ct_output "custom_palette=")
+            if [[ "${custom}" == "true" ]]; then
+                qt6Theme=$(get_qt6ct_output "color_scheme_path=")
+                qt6Theme=$(basename "${qt6Theme}")
+                IFS='.' read -r name ext <<<"$qt6Theme"
+                qt6Theme="${name}"
+            fi
+
+            qt6Theme="$(echo "$qt6Theme")"
+        fi
+    }
+
+    get_qt6Icons() {
+        qt6Icons=$(get_qt6ct_output "icon_theme=")
+        if [[ -n "$qt6Icons" ]]; then
+            qt6Icons="$(echo "$qt6Icons")"
+        fi
+    }
+
+    get_qt6Font() {
+        qt6Font=$(get_qt6ct_output "general=")
+        if [[ -n "$qt6Font" ]]; then
+            IFS=' '
+            # Trim quotes and parentheses
+            qt6Font="${qt6Font#'"'}"
+            qt6Font="${qt6Font%'"'}"
+            qt6Font="${qt6Font#@Variant(}"
+            qt6Font="${qt6Font%)}"
+
+            # Read font name
+            qt6ct_font_name="${qt6Font#*@}"
+            qt6ct_font_name="${qt6ct_font_name%%@*}"
+            # Interpret backslashes
+            qt6ct_font_name=$(printf "%b" "$qt6ct_font_name" | tr -d '\0')
+            qt6ct_font_name="${qt6ct_font_name#','}"
+            qt6ct_font_name="${qt6ct_font_name//[[:cntrl:]]/}" # trim control characters
+
+            # Get font size
+            # Tread carefully, Qt sometimes uses @ in binary data
+            local pre_size="${qt6Font#*@}"
+            local pre_size="${pre_size#*@}"
+            # Need to declare array and manually handle the second byte
+            # (workaround for `od` without --endian)
+            IFS=' '
+            local raw_size=($(printf "%b" "${pre_size}" | od -An -tu1 -N2))
+            # Split the upper 4 bits (exponent) the lower 12.
+            local lowers=$((((raw_size[0] % 16) << 8) + (raw_size[1])))
+            local upper4=$((raw_size[0] >> 4))
+            qt6ct_font_size=$(((2 ** (upper4 + 1)) + (lowers >> (11 - upper4))))
+
+            qt6Font="$qt6ct_font_name $qt6ct_font_size"
+            qt6Font="$(echo "$qt6Font")"
+        fi
+    }
+
+    get_qt5Theme
+    get_qt6Theme
+    verbose "Finding QT5 theme...found as '$qt5Theme'"
+    verbose "Finding QT6 theme...found as '$qt6Theme'"
+    if [[ -n "$qt5Theme" ]] || [[ -n "$qt6Theme" ]]; then
+        if [[ "$qt5Theme" == "$qt6Theme" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qt5Theme} (QT5/QT6)"
+        else
+            if [[ -z "$qt5Theme" ]]; then
+                qt5Theme="$qt5Theme (QT5)"
+            fi
+            if [[ -z "$qt6Theme" ]]; then
+                qt6Theme="$qt6Theme (QT6)"
+            fi
+            qtThemes=$(echo "$qt5Theme $qt6Theme")
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qtThemes}"
+        fi
     fi
-  }
 
-  get_qt6Icons() {
-    qt6Icons=$(get_qt6ct_output "icon_theme=")
-    if [[ -n "$qt6Icons" ]]; then
-      qt6Icons="$(echo "$qt6Icons")"
+    get_qt5Icons
+    get_qt6Icons
+    verbose "Finding QT5 Icons...found as '$qt5Icons'"
+    verbose "Finding QT6 Icons...found as '$qt6Icons'"
+    if [[ -n "$qt5Icons" ]] || [[ -n "$qt6Icons" ]]; then
+        if [[ "$qt5Icons" == "$qt6Icons" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qt5Icons} (QT5/QT6)"
+        else
+            if [[ -z "$qt5Icons" ]]; then
+                qt5Icons="$qt5Icons (QT5)"
+            fi
+            if [[ -z "$qt6Icons" ]]; then
+                qt6Icons="$qt6Icons (QT6)"
+            fi
+            qtIcons=$(echo "$qt5Icons $qt6Icons")
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qtIcons}"
+        fi
     fi
-  }
 
-  get_qt6Font() {
-    qt6Font=$(get_qt6ct_output "general=")
-    if [[ -n "$qt6Font" ]]; then
-      IFS=' '
-      # Trim quotes and parentheses
-      qt6Font="${qt6Font#'"'}"
-      qt6Font="${qt6Font%'"'}"
-      qt6Font="${qt6Font#@Variant(}"
-      qt6Font="${qt6Font%)}"
-
-      # Read font name
-      qt6ct_font_name="${qt6Font#*@}"
-      qt6ct_font_name="${qt6ct_font_name%%@*}"
-      # Interpret backslashes
-      qt6ct_font_name=$(printf "%b" "$qt6ct_font_name" | tr -d '\0')
-      qt6ct_font_name="${qt6ct_font_name#','}"
-      qt6ct_font_name="${qt6ct_font_name//[[:cntrl:]]/}" # trim control characters
-
-      # Get font size
-      # Tread carefully, Qt sometimes uses @ in binary data
-      local pre_size="${qt6Font#*@}"
-      local pre_size="${pre_size#*@}"
-      # Need to declare array and manually handle the second byte
-      # (workaround for `od` without --endian)
-      IFS=' ' local raw_size=( $(printf "%b" "${pre_size}" | od -An -tu1 -N2) )
-      # Split the upper 4 bits (exponent) the lower 12.
-      local lowers=$(( ((raw_size[0]%16)<<8) + (raw_size[1]) ))
-      local upper4=$((raw_size[0]>>4 ))
-      qt6ct_font_size=$(( (2**(upper4+1)) + (lowers>>(11-upper4)) ))
-
-      qt6Font="$qt6ct_font_name $qt6ct_font_size"
-      qt6Font="$(echo "$qt6Font")"
+    get_qt5Font
+    get_qt6Font
+    verbose "Finding QT5 Font...found as '$qt5Font'"
+    verbose "Finding QT6 Font...found as '$qt6Font'"
+    if [[ -n "$qt5Font" ]] || [[ -n "$qt6Font" ]]; then
+        if [[ "$qt5Font" == "$qt6Font" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qt5Font} (QT5/QT6)"
+        else
+            if [[ -z "$qt5Font" ]]; then
+                qt5Font="$qt5Font (QT5)"
+            fi
+            if [[ -z "$qt6Font" ]]; then
+                qt6Font="$qt6Font (QT6)"
+            fi
+            qtFonts=$(echo "$qt5Font $qt6Font")
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qtFonts}"
+        fi
     fi
-  }
-
-  get_qt5Theme
-  get_qt6Theme
-  verbose "Finding QT5 theme...found as '$qt5Theme'"
-  verbose "Finding QT6 theme...found as '$qt6Theme'"
-  if [[ -n "$qt5Theme" ]] || [[ -n "$qt6Theme" ]]; then
-    if [[ "$qt5Theme" == "$qt6Theme" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qt5Theme} (QT5/QT6)"
-    else
-      if [[ -z "$qt5Theme" ]]; then
-        qt5Theme="$qt5Theme (QT5)"
-      fi
-      if [[ -z "$qt6Theme" ]]; then
-        qt6Theme="$qt6Theme (QT6)"
-      fi
-      qtThemes=$(echo "$qt5Theme $qt6Theme")
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Theme $sep " "${qtThemes}"
-    fi
-  fi
-
-  get_qt5Icons
-  get_qt6Icons
-  verbose "Finding QT5 Icons...found as '$qt5Icons'"
-  verbose "Finding QT6 Icons...found as '$qt6Icons'"
-  if [[ -n "$qt5Icons" ]] || [[ -n "$qt6Icons" ]]; then
-    if [[ "$qt5Icons" == "$qt6Icons" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qt5Icons} (QT5/QT6)"
-    else
-      if [[ -z "$qt5Icons" ]]; then
-        qt5Icons="$qt5Icons (QT5)"
-      fi
-      if [[ -z "$qt6Icons" ]]; then
-        qt6Icons="$qt6Icons (QT6)"
-      fi
-      qtIcons=$(echo "$qt5Icons $qt6Icons")
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Icons $sep " "${qtIcons}"
-    fi
-  fi
-
-  get_qt5Font
-  get_qt6Font
-  verbose "Finding QT5 Font...found as '$qt5Font'"
-  verbose "Finding QT6 Font...found as '$qt6Font'"
-  if [[ -n "$qt5Font" ]] || [[ -n "$qt6Font" ]]; then
-    if [[ "$qt5Font" == "$qt6Font" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qt5Font} (QT5/QT6)"
-    else
-      if [[ -z "$qt5Font" ]]; then
-        qt5Font="$qt5Font (QT5)"
-      fi
-      if [[ -z "$qt6Font" ]]; then
-        qt6Font="$qt6Font (QT6)"
-      fi
-      qtFonts=$(echo "$qt5Font $qt6Font")
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "QT Font $sep " "${qtFonts}"
-    fi
-  fi
 
 }
 
@@ -1932,7 +1726,7 @@ get_qt() {
 #==============================================================================
 
 get_diskinfo() {
-  printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Partition Information ' '══════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠══════════════════════' ' Partition Information ' '══════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -1941,17 +1735,17 @@ get_diskinfo() {
 #==============================================================================
 
 get_disks() {
-  diskcmd=$(mount | grep '^/' | grep -v 'docker')
-  disks=$(while IFS= read -r line; do df -Th "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
+    diskcmd=$(mount | grep '^/' | grep -v 'docker')
+    disks=$(while IFS= read -r line; do df -Th "$(echo "$line" | awk '{print $3}')" | grep '/'; done <<<"$diskcmd")
 
-  while IFS= read -r line; do
-    disk_used=$(echo "$line" | awk '{print $4}')
-    disk_size=$(echo "$line" | awk '{print $3}')
-    disk_type=$(echo "$line" | awk '{print $2}')
-    disk=$(echo "$line" | awk '{print $7}')
-    verbose "Finding current disk usage...found as '$disk'"
-    printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "${disk_type^^} on $disk $sep " "${disk_used}/${disk_size}"
-  done <<<"$disks"
+    while IFS= read -r line; do
+        disk_used=$(echo "$line" | awk '{print $4}')
+        disk_size=$(echo "$line" | awk '{print $3}')
+        disk_type=$(echo "$line" | awk '{print $2}')
+        disk=$(echo "$line" | awk '{print $7}')
+        verbose "Finding current disk usage...found as '$disk'"
+        printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "${disk_type^^} on $disk $sep " "${disk_used}/${disk_size}"
+    done <<<"$disks"
 }
 
 #=== FUNCTION =================================================================
@@ -1960,7 +1754,7 @@ get_disks() {
 #==============================================================================
 
 get_pinfo() {
-  printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═════════════════════' ' Peripherals Information ' '═════════════════════╣'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╠═════════════════════' ' Peripherals Information ' '═════════════════════╣'
 }
 
 #=== FUNCTION =================================================================
@@ -1969,31 +1763,31 @@ get_pinfo() {
 #==============================================================================
 
 get_audio() {
-  declare -A AArr
-  DataOut=
-  audio="Unknown"
-  if command -v pactl &>/dev/null; then
-    while IFS= read -r Line; do
-      if [[ $Line == *"Server Name"* ]]; then
-        IFS=':' read Type Server <<<"$Line"
-        audio="${Server%,*}"
-      fi
-    done <<<$(pactl info)
-  fi
-
-  IFS=' ' read -a Arr <<<$audio
-  for Val in "${Arr[@]}"; do
-    LCase=${Val,,}
-    [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
-  done
-  audio="${DataOut:1}"
-  audio=${audio#"${audio%%[![:space:]]*}"}
-
-  if [[ -n "$audio" ]]; then
-    if [[ ! "$audio" == "Unknown" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Audio $sep " "${audio}"
+    declare -A AArr
+    DataOut=
+    audio="Unknown"
+    if command -v pactl &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Server Name"* ]]; then
+                IFS=':' read Type Server <<<"$Line"
+                audio="${Server%,*}"
+            fi
+        done <<<$(pactl info)
     fi
-  fi
+
+    IFS=' ' read -a Arr <<<$audio
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    audio="${DataOut:1}"
+    audio=${audio#"${audio%%[![:space:]]*}"}
+
+    if [[ -n "$audio" ]]; then
+        if [[ ! "$audio" == "Unknown" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Audio $sep " "${audio}"
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -2002,30 +1796,30 @@ get_audio() {
 #==============================================================================
 
 get_monitor() {
-  declare -A AArr
-  DataOut=
-  monitor="Unknown"
-  if command -v hwinfo &>/dev/null; then
-    while IFS= read -r Line; do
-      if [[ ! $Line == "monitor"* ]]; then
-        monitor="${Line%,*}"
-      fi
-    done <<<$(hwinfo --short --monitor)
-  fi
-
-  IFS=' ' read -a Arr <<<$monitor
-  for Val in "${Arr[@]}"; do
-    LCase=${Val,,}
-    [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
-  done
-  monitor="${DataOut:1}"
-  monitor=${monitor#"${monitor%%[![:space:]]*}"}
-
-  if [[ -n "$monitor" ]]; then
-    if [[ ! "$monitor" == "Unknown" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Monitor $sep " "${monitor}"
+    declare -A AArr
+    DataOut=
+    monitor="Unknown"
+    if command -v hwinfo &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ ! $Line == "monitor"* ]]; then
+                monitor="${Line%,*}"
+            fi
+        done <<<$(hwinfo --short --monitor)
     fi
-  fi
+
+    IFS=' ' read -a Arr <<<$monitor
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    monitor="${DataOut:1}"
+    monitor=${monitor#"${monitor%%[![:space:]]*}"}
+
+    if [[ -n "$monitor" ]]; then
+        if [[ ! "$monitor" == "Unknown" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Monitor $sep " "${monitor}"
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -2034,31 +1828,31 @@ get_monitor() {
 #==============================================================================
 
 get_mouse() {
-  declare -A AArr
-  DataOut=
-  mouse="Unknown"
-  if command -v hwinfo &>/dev/null; then
-    while IFS= read -r Line; do
-      if [[ $Line == *"Mouse"* ]]; then
-        mouse="${Line%,*}"
-      fi
-    done <<<$(hwinfo --short)
-  fi
-
-  IFS=' ' read -a Arr <<<$mouse
-  for Val in "${Arr[@]}"; do
-    LCase=${Val,,}
-    [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
-  done
-  mouse="${DataOut:1}"
-  mouse=${mouse#* }
-  mouse=${mouse#"${mouse%%[![:space:]]*}"}
-
-  if [[ -n "$mouse" ]]; then
-    if [[ ! "$mouse" == "Unknown" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Mouse $sep " "${mouse}"
+    declare -A AArr
+    DataOut=
+    mouse="Unknown"
+    if command -v hwinfo &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Mouse"* ]]; then
+                mouse="${Line%,*}"
+            fi
+        done <<<$(hwinfo --short)
     fi
-  fi
+
+    IFS=' ' read -a Arr <<<$mouse
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    mouse="${DataOut:1}"
+    mouse=${mouse#* }
+    mouse=${mouse#"${mouse%%[![:space:]]*}"}
+
+    if [[ -n "$mouse" ]]; then
+        if [[ ! "$mouse" == "Unknown" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Mouse $sep " "${mouse}"
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -2067,30 +1861,30 @@ get_mouse() {
 #==============================================================================
 
 get_keyboard() {
-  declare -A AArr
-  DataOut=
-  keyboard="Unknown"
-  if command -v hwinfo &>/dev/null; then
-    while IFS= read -r Line; do
-      if [[ $Line == *"Keyboard"* ]]; then
-        keyboard="${Line%,*}"
-      fi
-    done <<<$(hwinfo --short)
-  fi
-
-  IFS=' ' read -a Arr <<<$keyboard
-  for Val in "${Arr[@]}"; do
-    LCase=${Val,,}
-    [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
-  done
-  keyboard="${DataOut:1}"
-  keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
-
-  if [[ -n "$keyboard" ]]; then
-    if [[ ! "$keyboard" == "Unknown" ]]; then
-      printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Keyboard $sep " "${keyboard}"
+    declare -A AArr
+    DataOut=
+    keyboard="Unknown"
+    if command -v hwinfo &>/dev/null; then
+        while IFS= read -r Line; do
+            if [[ $Line == *"Keyboard"* ]]; then
+                keyboard="${Line%,*}"
+            fi
+        done <<<$(hwinfo --short)
     fi
-  fi
+
+    IFS=' ' read -a Arr <<<$keyboard
+    for Val in "${Arr[@]}"; do
+        LCase=${Val,,}
+        [[ -z "${AArr[$LCase]}" ]] && AArr[$LCase]=$Val && DataOut=$DataOut' '$Val
+    done
+    keyboard="${DataOut:1}"
+    keyboard=${keyboard#"${keyboard%%[![:space:]]*}"}
+
+    if [[ -n "$keyboard" ]]; then
+        if [[ ! "$keyboard" == "Unknown" ]]; then
+            printLine "$alignment" "${boldText}${headPageColor}%b${resetColor}${sysPageColor}%b${resetColor}" "Keyboard $sep " "${keyboard}"
+        fi
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -2099,7 +1893,7 @@ get_keyboard() {
 #==============================================================================
 
 get_end() {
-  printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╚═════════════════════════════' ' The End ' '═════════════════════════════╝'
+    printLine "$alignment" "${red}%b${grn}%b${red}%b${resetColor}" '╚═════════════════════════════' ' The End ' '═════════════════════════════╝'
 }
 
 #=== FUNCTION =================================================================
@@ -2108,16 +1902,16 @@ get_end() {
 #==============================================================================
 
 get_nice_message() {
-  pram=$(date +'%p')
-  if [[ "${pram^^}" == "AM" ]]; then
-    morning=('gib coffe' 'good mernink >_<' 'oooo sunrise' 'i wonder if it is night or day' 'im just a script dont mind me' 'haha ai will take over world' 'sudo rm -rf /*' 'honk' 'honkhonk' 'very stoopid msg' 'u drink tea? >_<')
-    echo ""
-    printLine "$alignment" "${boldText}${bannerTextColor}%b${resetColor}" "${morning[RANDOM%${#morning[@]}]}"
-  else
-    evening=('get some sleep' 'how do i exit vim help' '>_<' 'haha zsh go brrr' 'honkkkkkkkkkkkkkk' 'goos' 'haha evening >_<' 'emacs is an os' 'sudo rm -rf /*' 'wher coffe' 'oooo sunset' 'i want some tea' 'please put some cake in the cd drive' 'm4st3r h4xx0r' 'Rep0 is 3lit3' 'honkhonk' 'good evening >_<' 'dont mind me im just a script hehe >_<' 'please gib cake >_<')
-    echo ""
-    printLine "$alignment" "${boldText}${bannerTextColor}%b${resetColor}" "${evening[RANDOM%${#evening[@]}]}"
-  fi
+    pram=$(date +'%p')
+    if [[ "${pram^^}" == "AM" ]]; then
+        morning=('gib coffe' 'good mernink >_<' 'oooo sunrise' 'i wonder if it is night or day' 'im just a script dont mind me' 'haha ai will take over world' 'sudo rm -rf /*' 'honk' 'honkhonk' 'very stoopid msg' 'u drink tea? >_<')
+        echo ""
+        printLine "$alignment" "${boldText}${bannerTextColor}%b${resetColor}" "${morning[RANDOM % ${#morning[@]}]}"
+    else
+        evening=('get some sleep' 'how do i exit vim help' '>_<' 'haha zsh go brrr' 'honkkkkkkkkkkkkkk' 'goos' 'haha evening >_<' 'emacs is an os' 'sudo rm -rf /*' 'wher coffe' 'oooo sunset' 'i want some tea' 'please put some cake in the cd drive' 'm4st3r h4xx0r' 'Rep0 is 3lit3' 'honkhonk' 'good evening >_<' 'dont mind me im just a script hehe >_<' 'please gib cake >_<')
+        echo ""
+        printLine "$alignment" "${boldText}${bannerTextColor}%b${resetColor}" "${evening[RANDOM % ${#evening[@]}]}"
+    fi
 }
 
 #=== FUNCTION =================================================================
@@ -2126,7 +1920,7 @@ get_nice_message() {
 #==============================================================================
 
 get_blank() {
-  printLine "$alignment" "%b" "\n"
+    printLine "$alignment" "%b" "\n"
 }
 
 #=== FUNCTION =================================================================
@@ -2135,50 +1929,50 @@ get_blank() {
 #==============================================================================
 
 get_colors() {
-  printLine "$alignment" "${blk} %b ${red} %b ${grn} %b ${yel} %b ${blu} %b ${mag} %b ${cyn} %b ${wht} %b ${del}" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛"
-  printLine "$alignment" "${b_blk} %b ${b_red} %b ${b_grn} %b ${b_yel} %b ${b_blu} %b ${b_mag} %b ${b_cyn} %b ${b_wht} %b ${del}" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛"
+    printLine "$alignment" "${blk} %b ${red} %b ${grn} %b ${yel} %b ${blu} %b ${mag} %b ${cyn} %b ${wht} %b ${del}" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛"
+    printLine "$alignment" "${b_blk} %b ${b_red} %b ${b_grn} %b ${b_yel} %b ${b_blu} %b ${b_mag} %b ${b_cyn} %b ${b_wht} %b ${del}" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛" "󰃛"
 }
 
 while [[ "$1" ]]; do
-  case $1 in
-  --setcolors | -sc)
-    count=0
-    for num in "$*"; do
-      ((count++))
-    done
-    [[ $count -eq "9" ]] || error 'set_color must have 9 colors'
-    set_colors $1 $2 $3 $4 $5 $6 $7 $8 $9
-    shift 9
-    ;;
-  --file | -f)
+    case $1 in
+    --setcolors | -sc)
+        count=0
+        for num in "$*"; do
+            ((count++))
+        done
+        [[ $count -eq "9" ]] || error 'set_color must have 9 colors'
+        set_colors $1 $2 $3 $4 $5 $6 $7 $8 $9
+        shift 9
+        ;;
+    --file | -f)
+        shift
+        file=$1
+        [[ -f "$file" ]] || error 'ascii file does not exist'
+        ;;
+    --source | -s)
+        shift
+        source=$1
+        [[ -f "$source" ]] || error 'config file does not exist'
+        ;;
+    --center | -c)
+        center=true
+        ;;
+    --version | -v)
+        version
+        exit
+        ;;
+    --help | -h)
+        help
+        exit
+        ;;
+    -*)
+        error 'Incorrect option(s) specified.'
+        ;;
+    *)
+        error 'Incorrect option(s) specified.'
+        ;;
+    esac
     shift
-    file=$1
-    [[ -f "$file" ]] || error 'ascii file does not exist'
-    ;;
-  --source | -s)
-    shift
-    source=$1
-    [[ -f "$source" ]] || error 'config file does not exist'
-    ;;
-  --center | -c)
-    center=true
-    ;;
-  --version | -v)
-    version
-	  exit
-    ;;
-  --help | -h)
-    help
-	  exit
-    ;;
-  -*)
-    error 'Incorrect option(s) specified.'
-    ;;
-  *)
-    error 'Incorrect option(s) specified.'
-    ;;
-  esac
-  shift
 done
 
 #=== FUNCTION =================================================================
@@ -2187,13 +1981,13 @@ done
 #==============================================================================
 
 init() {
-  # Load default config.
-  eval "$config"
-  if [[ "$center" == "true" ]] || [[ "$centered" == "true" ]]; then
-    alignment='Center'
-  else
-    alignment='Left'
-  fi
-  get_user_config
+    # Load default config.
+    eval "$config"
+    if [[ "$center" == "true" ]] || [[ "$centered" == "true" ]]; then
+        alignment='Center'
+    else
+        alignment='Left'
+    fi
+    get_user_config
 }
 init
